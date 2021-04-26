@@ -102,3 +102,18 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Findyo APIs
+/findyo-api/v1/node_modules
+/findyo-api/v1/public/hot
+/findyo-api/v1/public/storage
+/findyo-api/v1/storage/*.key
+/findyo-api/v1/vendor
+/findyo-api/v1/.env
+/findyo-api/v1/.env.backup
+/findyo-api/v1/.phpunit.result.cache
+/findyo-api/v1/docker-compose.override.yml
+/findyo-api/v1/Homestead.json
+/findyo-api/v1/Homestead.yaml
+/findyo-api/v1/npm-debug.log
+/findyo-api/v1/yarn-error.log
