@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JobTitle;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Validator;
 
 class JobTitleController extends Controller
@@ -16,7 +16,7 @@ class JobTitleController extends Controller
      */
     public function index()
     {
-        $jobtitiles = JobTitle::paginate(1)->appends(['sort' => 'name']);
+        $jobtitiles = JobTitle::paginate(15)->appends(['sort' => 'name']);
         return response()->json($jobtitiles, 200);
     }
 
@@ -54,22 +54,24 @@ class JobTitleController extends Controller
     public function update(Request $request)
     {
 
-        return response()->json(Crypt::encryptString(1), 200);
-
-        if ($request['id'] != Crypt::decryptString($request['c_id'])) {
-            return response()->json('Bad Request', 400);
+        if (!Hash::check($request['id'], $request['CId'])) {
+            return response()->json("Bad Request", 400);
         }
 
-        $validation = Validator::make($request, [
+        $validation = Validator::make($request->all(), [
             'id' => 'exists:App\Models\JobTitle,id',
             'name' => 'bail|required|max:50|unique:App\Models\JobTitle,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
         ]);
+
+        if ($validation->fails()) {
+            return response()->json($validation->errors(), 400);
+        }
 
         $jobTit = JobTitle::find($request['id']);
         $jobTit->name = $request['name'];
         $jobTit->save();
 
-        return response()->json('Updated Job Title' . $jobTit, 200);
+        return response()->json($jobTit, 200);
     }
 
     /**
@@ -78,8 +80,23 @@ class JobTitleController extends Controller
      * @param  \App\Models\JobTitle  $jobTitle
      * @return \Illuminate\Http\Response
      */
-    public function destroy(JobTitle $jobTitle)
+    public function destroy(Request $request)
     {
-        return response()->json('Destroy Job Titles', 200);
+        if (!Hash::check($request['id'], $request['CId'])) {
+            return response()->json("Bad Request", 400);
+        }
+
+        $validation = Validator::make($request->all(), [
+            'id' => 'exists:App\Models\JobTitle,id'
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json($validation->errors(), 400);
+        }
+
+        $jobTit = JobTitle::find($request['id']);
+        $jobTit->delete();
+
+        return response()->json('Job Title Deleted', 200);
     }
 }

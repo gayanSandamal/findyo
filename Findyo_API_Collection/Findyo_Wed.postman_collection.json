@@ -1,0 +1,75 @@
+{
+	"info": {
+		"_postman_id": "dbeca60d-8f5b-4dd7-b2cf-9ea8e73f13bd",
+		"name": "Findyo_Wed",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://127.0.0.1:8000/api/emailregister",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"a.b@f.com\",\r\n    \"password\": \"abc123@@@\",\r\n    \"c_password\": \"abc123@@@\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/emailregister",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"emailregister"
+					]
+				},
+				"description": "Register with email"
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/emaillogin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"a.b@f.com\",\r\n    \"password\": \"abc123@@@\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/emaillogin",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"emaillogin"
+					]
+				},
+				"description": "Login using email"
+			},
+			"response": []
+		}
+	]
+}

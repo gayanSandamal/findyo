@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 
 class JobTitle extends Model
 {
@@ -18,10 +18,10 @@ class JobTitle extends Model
 
     protected $hidden = array('created_at', 'updated_at');
 
-    public $appends = ['CId'];
+    public $appends = ['cId'];
 
     public function getCIdAttribute()
     {
-        return Crypt::encryptString($this->id);
+        return Hash::make($this->id);
     }
 }
