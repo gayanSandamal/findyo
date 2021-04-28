@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\JobTitleController;
+use App\Http\Controllers\LocationLevelController;
 use App\Http\Controllers\CommonErrorsConroller;
 
 /*
@@ -44,5 +45,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
         Route::post('/', [JobTitleController::class, 'store']);
         Route::put('/{id}', [JobTitleController::class, 'update']);
         Route::delete('/{id}', [JobTitleController::class, 'destroy']);
+    });
+});
+
+Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
+
+    //Location Level CRUD
+    Route::prefix('Locationlevel')->group(function () {
+        Route::get('/', [LocationLevelController::class, 'index']);
+        Route::post('/', [LocationLevelController::class, 'store']);
+        Route::put('/{id}', [LocationLevelController::class, 'update']);
+        Route::delete('/{id}', [LocationLevelController::class, 'destroy']);
     });
 });
