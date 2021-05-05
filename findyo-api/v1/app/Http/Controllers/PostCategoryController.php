@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JobTitle;
+use App\Models\PostCategory;
 use Illuminate\Http\Request;
 use Validator;
 
-class JobTitleController extends Controller
+class PostCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,8 +15,8 @@ class JobTitleController extends Controller
      */
     public function index()
     {
-        $jobtitiles = JobTitle::paginate(15)->appends(['sort' => 'name']);
-        return response()->json($jobtitiles, 200);
+        $postCategory = PostCategory::paginate(15)->appends(['sort' => 'name']);
+        return response()->json($postCategory, 200);
     }
 
     /**
@@ -27,68 +27,67 @@ class JobTitleController extends Controller
      */
     public function store(Request $request)
     {
-        //Regx : /^[a-zA-Z0-9_\\s]*$/u allow a-z A-Z 0-9 _ space
         $validation = Validator::make($request->all(), [
-            'name' => 'bail|required|max:50|unique:App\Models\JobTitle,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
+            'name' => 'bail|required|max:50|unique:App\Models\PostCategory,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
         ]);
 
         if ($validation->fails()) {
             return response()->json($validation->errors(), 400);
         }
 
-        $userData = new JobTitle;
-        $userData->name = $request['name'];
-        $userData->save();
+        $postCat = new PostCategory;
+        $postCat->name = $request['name'];
+        $postCat->save();
 
-        return response()->json($userData, 200);
+        return response()->json($postCat, 200);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\JobTitle  $jobTitle
+     * @param  \App\Models\PostCategory  $postCategory
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
 
         $validation = Validator::make($request->all(), [
-            'id' => 'exists:App\Models\JobTitle,id',
-            'name' => 'bail|required|max:50|unique:App\Models\JobTitle,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
+            'id' => 'exists:App\Models\PostCategory,id',
+            'name' => 'bail|required|max:50|unique:App\Models\PostCategory,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
         ]);
 
         if ($validation->fails()) {
             return response()->json($validation->errors(), 400);
         }
 
-        $jobTit = JobTitle::find($request['id']);
-        $jobTit->name = $request['name'];
-        $jobTit->save();
+        $postCat = PostCategory::find($request['id']);
+        $postCat->name = $request['name'];
+        $postCat->save();
 
-        return response()->json($jobTit, 200);
+        return response()->json($postCat, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\JobTitle  $jobTitle
+     * @param  \App\Models\PostCategory  $postCategory
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
     {
 
         $validation = Validator::make($request->all(), [
-            'id' => 'exists:App\Models\JobTitle,id'
+            'id' => 'exists:App\Models\PostCategory,id'
         ]);
 
         if ($validation->fails()) {
             return response()->json($validation->errors(), 400);
         }
 
-        $jobTit = JobTitle::find($request['id']);
-        $jobTit->delete();
+        $postCat = PostCategory::find($request['id']);
+        $postCat->delete();
 
-        return response()->json('Job Title Deleted', 200);
+        return response()->json('Post Category Deleted', 200);
     }
 }

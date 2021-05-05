@@ -16,7 +16,7 @@ class CreatePostCategoryTable extends Migration
         Schema::create('post_category', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('parent')->constrained('post_category')->nullable();
+            $table->foreignId('parent')->nullable()->constrained('post_category');
             $table->timestamps();
         });
     }

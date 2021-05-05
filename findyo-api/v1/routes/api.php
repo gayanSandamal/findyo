@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\LocationLevelController;
+use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\CommonErrorsConroller;
 
 /*
@@ -31,20 +32,14 @@ Route::middleware('auth:api')->get('/test', [UserController::class, 'emailtest']
 //Example protect route with authorization
 Route::middleware(['auth:api', 'scope:user-role-admin'])->get('/admin', [UserController::class, 'emailadmin']);
 
-// Route::prefix('admin')->group(function () {
-//     Route::get('/users', function () {
-//         // Matches The "/admin/users" URL
-//     });
-// });
-
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
 
     //Job Title CRUD
     Route::prefix('Jobtitle')->group(function () {
         Route::get('/', [JobTitleController::class, 'index']);
         Route::post('/', [JobTitleController::class, 'store']);
-        Route::put('/{id}', [JobTitleController::class, 'update']);
-        Route::delete('/{id}', [JobTitleController::class, 'destroy']);
+        Route::put('/', [JobTitleController::class, 'update']);
+        Route::delete('/', [JobTitleController::class, 'destroy']);
     });
 });
 
@@ -54,7 +49,18 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
     Route::prefix('Locationlevel')->group(function () {
         Route::get('/', [LocationLevelController::class, 'index']);
         Route::post('/', [LocationLevelController::class, 'store']);
-        Route::put('/{id}', [LocationLevelController::class, 'update']);
-        Route::delete('/{id}', [LocationLevelController::class, 'destroy']);
+        Route::put('/', [LocationLevelController::class, 'update']);
+        Route::delete('/', [LocationLevelController::class, 'destroy']);
+    });
+});
+
+Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
+
+    //Location Level CRUD
+    Route::prefix('PostCategory')->group(function () {
+        Route::get('/', [PostCategoryController::class, 'index']);
+        Route::post('/', [PostCategoryController::class, 'store']);
+        Route::put('/', [PostCategoryController::class, 'update'])->middleware('verifyid');
+        Route::delete('/', [PostCategoryController::class, 'destroy'])->middleware('verifyid');
     });
 });
