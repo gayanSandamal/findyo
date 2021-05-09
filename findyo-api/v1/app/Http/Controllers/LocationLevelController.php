@@ -53,10 +53,6 @@ class LocationLevelController extends Controller
      */
     public function update(Request $request)
     {
-        if (!Hash::check($request['id'], $request['cId'])) {
-            return response()->json("Bad Request", 400);
-        }
-
         $validation = Validator::make($request->all(), [
             'id' => 'exists:App\Models\LocationLevel,id',
             'name' => 'bail|required|max:50|unique:App\Models\LocationLevel,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
@@ -81,10 +77,6 @@ class LocationLevelController extends Controller
      */
     public function destroy(Request $request)
     {
-        if (!Hash::check($request['id'], $request['cId'])) {
-            return response()->json("Bad Request", 400);
-        }
-
         $validation = Validator::make($request->all(), [
             'id' => 'exists:App\Models\LocationLevel,id'
         ]);

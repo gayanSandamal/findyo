@@ -7,6 +7,8 @@ use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\LocationLevelController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\CommonErrorsConroller;
+use App\Http\Controllers\LocationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -49,8 +51,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
     Route::prefix('Locationlevel')->group(function () {
         Route::get('/', [LocationLevelController::class, 'index']);
         Route::post('/', [LocationLevelController::class, 'store']);
-        Route::put('/', [LocationLevelController::class, 'update']);
-        Route::delete('/', [LocationLevelController::class, 'destroy']);
+        Route::put('/', [LocationLevelController::class, 'update'])->middleware('verifyid');;
+        Route::delete('/', [LocationLevelController::class, 'destroy'])->middleware('verifyid');;
     });
 });
 
@@ -62,5 +64,18 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
         Route::post('/', [PostCategoryController::class, 'store']);
         Route::put('/', [PostCategoryController::class, 'update'])->middleware('verifyid');
         Route::delete('/', [PostCategoryController::class, 'destroy'])->middleware('verifyid');
+    });
+});
+
+
+Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
+
+    //Location  CRUD
+    Route::prefix('location')->group(function () {
+        Route::get('/', [LocationController::class, 'index']);
+        Route::get('GetLocation/{id}', [LocationController::class, 'GetLocationByLocationId']);
+        Route::post('/', [LocationController::class, 'store']);
+        Route::put('/', [LocationController::class, 'update'])->middleware('verifyid');
+        Route::delete('/', [LocationController::class, 'destroy'])->middleware('verifyid');
     });
 });

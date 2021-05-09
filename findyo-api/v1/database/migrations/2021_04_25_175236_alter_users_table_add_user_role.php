@@ -27,6 +27,7 @@ class AlterUsersTableAddUserRole extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign('users_user_role_id_foreign');
             $table->dropColumn(['password', 'user_role_id']);
         });
     }

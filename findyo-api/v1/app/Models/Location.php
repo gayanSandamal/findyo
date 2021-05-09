@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Hashids\Hashids;
 
-class LocationLevel extends Model
+class Location extends Model
 {
     use HasFactory;
+
     protected $primaryKey = 'id';
 
-    protected $table = 'location_levels';
+    protected $table = 'locations';
 
     public $timestamps = true;
 
@@ -21,12 +22,12 @@ class LocationLevel extends Model
 
     public function getCIdAttribute()
     {
-        $hashids = new Hashids("LocationLevel", 15);
+        $hashids = new Hashids("Location", 15);
         return $hashids->encode($this->id);
     }
 
-    public function Locations()
+    public function LocationLevel()
     {
-        return $this->hasMany(Location::class,'parent');
+        return $this->belongsTo(LocationLevel::class,'location_level_id');
     }
 }
