@@ -66,13 +66,4 @@ class UserController extends Controller
             return response()->json(['error' => 'Unauthenticated'], 203);
         }
     }
-
-    public function emailtest(Request $request)
-    {
-        return response()->json('Route hitted', 200);
-    }
-    public function emailadmin(Request $request)
-    {
-        return response()->json('You are an admin', 200);
-    }
 }
