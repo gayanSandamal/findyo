@@ -20,7 +20,7 @@ class LocationLevelController extends Controller
         return response()->json($locationLevel, 200);
     }
 
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -55,7 +55,7 @@ class LocationLevelController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'id' => 'exists:App\Models\LocationLevel,id',
-            'name' => 'bail|required|max:50|unique:App\Models\LocationLevel,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
+            'name' => 'bail|required|max:50|regex:/^[a-zA-Z0-9_\\s]*$/u'
         ]);
 
         if ($validation->fails()) {

@@ -55,7 +55,7 @@ class LocationController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'id' => 'exists:App\Models\Location,id',
-            'name' => 'bail|required|max:50|unique:App\Models\Location,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
+            'name' => 'bail|required|max:50|regex:/^[a-zA-Z0-9_\\s]*$/u'
         ]);
 
         if ($validation->fails()) {
@@ -104,10 +104,10 @@ class LocationController extends Controller
         if (Location::where('id', $id)->exists()) {
             $location = Location::where('id', $id)->with('LocationLevel')->get();
             return response($location, 200);
-          } else {
+        } else {
             return response()->json([
-              "message" => "Location not found"
+                "message" => "Location not found"
             ], 404);
-          }
+        }
     }
 }

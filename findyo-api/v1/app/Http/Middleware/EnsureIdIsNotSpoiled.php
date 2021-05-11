@@ -21,6 +21,9 @@ class EnsureIdIsNotSpoiled
         //Get route controller name
         $controllerName = explode("Controller", class_basename(Route::current()->controller))[0];
         $hashids = new Hashids($controllerName, 15);
+
+        //return response()->json([$request['cid'], $hashids->encode((int)$request['id'])], 400);
+
         if ($request['cid'] !== $hashids->encode((int)$request['id'])) {
             return response()->json("Bad Request", 400);
         }

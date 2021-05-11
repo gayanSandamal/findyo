@@ -54,7 +54,7 @@ class PostCategoryController extends Controller
 
         $validation = Validator::make($request->all(), [
             'id' => 'exists:App\Models\PostCategory,id',
-            'name' => 'bail|required|max:50|unique:App\Models\PostCategory,name|regex:/^[a-zA-Z0-9_\\s]*$/u'
+            'name' => 'bail|required|max:50|regex:/^[a-zA-Z0-9_\\s]*$/u'
         ]);
 
         if ($validation->fails()) {

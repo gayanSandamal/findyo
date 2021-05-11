@@ -7,6 +7,7 @@ use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\LocationLevelController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\SkillsController;
 
 
 /*
@@ -35,6 +36,8 @@ Route::get('/postcategory', [PostCategoryController::class, 'index']);
 
 //////////////////////////////////////Auth Routes Start Here///////////////////////////////////////////
 Route::middleware(['auth:api'])->get('/jobtitle', [JobTitleController::class, 'index']);
+Route::middleware(['auth:api'])->get('/skills', [SkillsController::class, 'index']);
+Route::middleware(['auth:api'])->post('/skills', [SkillsController::class, 'store']);
 
 //////////////////////////////////////Admin Routes Start Here///////////////////////////////////////////
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
@@ -45,9 +48,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
         Route::put('/', [JobTitleController::class, 'update']);
         Route::delete('/', [JobTitleController::class, 'destroy']);
     });
-});
-
-Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
 
     //Location Level CRUD
     Route::prefix('Locationlevel')->group(function () {
@@ -56,9 +56,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
         Route::put('/', [LocationLevelController::class, 'update'])->middleware('verifyid');;
         Route::delete('/', [LocationLevelController::class, 'destroy'])->middleware('verifyid');;
     });
-});
-
-Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
 
     //Post Category CRUD
     Route::prefix('PostCategory')->group(function () {
@@ -66,10 +63,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
         Route::put('/', [PostCategoryController::class, 'update'])->middleware('verifyid');
         Route::delete('/', [PostCategoryController::class, 'destroy'])->middleware('verifyid');
     });
-});
-
-
-Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
 
     //Location  CRUD
     Route::prefix('location')->group(function () {
@@ -77,5 +70,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
         Route::post('/', [LocationController::class, 'store']);
         Route::put('/', [LocationController::class, 'update'])->middleware('verifyid');
         Route::delete('/', [LocationController::class, 'destroy'])->middleware('verifyid');
+    });
+
+    //Skills
+    Route::prefix('skills')->group(function () {
+        Route::put('/', [SkillsController::class, 'update'])->middleware('verifyid');
+        Route::delete('/', [SkillsController::class, 'destroy'])->middleware('verifyid');
     });
 });
