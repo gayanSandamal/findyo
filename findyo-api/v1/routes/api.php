@@ -8,7 +8,7 @@ use App\Http\Controllers\LocationLevelController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SkillsController;
-
+use App\Http\Controllers\InterestsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +33,7 @@ Route::post('/emaillogin', [UserController::class, 'emaillogin']);
 
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/postcategory', [PostCategoryController::class, 'index']);
+Route::get('/interests', [InterestsController::class, 'index']);
 
 //////////////////////////////////////Auth Routes Start Here///////////////////////////////////////////
 Route::middleware(['auth:api'])->get('/jobtitle', [JobTitleController::class, 'index']);
@@ -76,5 +77,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
     Route::prefix('skills')->group(function () {
         Route::put('/', [SkillsController::class, 'update'])->middleware('verifyid');
         Route::delete('/', [SkillsController::class, 'destroy'])->middleware('verifyid');
+    });
+  //Interests
+    Route::prefix('interests')->group(function () {
+        Route::post('/', [InterestsController::class, 'store']);
+        Route::put('/', [InterestsController::class, 'update'])->middleware('verifyid');
+        Route::delete('/', [InterestsController::class, 'destroy'])->middleware('verifyid');
     });
 });
