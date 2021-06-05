@@ -116,5 +116,12 @@ class UserController extends Controller
             ], 404);
         }
     }
+
+    public function index()
+    {
+        $post = User::paginate(15)->appends(['sort' => 'id']);
+        return response()->json($post, 200);
+    }
+
     
 }

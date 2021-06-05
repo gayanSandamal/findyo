@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PostImagers;
-use Config;
 use Validator;
 
 class ImagesController extends Controller
@@ -15,8 +14,8 @@ class ImagesController extends Controller
             return response()->json(['uploaded_file_not_found'], 400);
         }
 
-        $allowedfileExtension=config('FindyoConfig.allowedImageExtensions');
-        $imageStorePath=config('FindyoConfig.postImageSavePath');
+        $allowedfileExtension=explode(',', env('ALLOWEDIMAGEEXTENSIONS'));
+        $imageStorePath=env('POSTEIMAGESSAVEPATH');
   
         foreach($request->imageFiles as $mediaFiles) {
             $extension = $mediaFiles->getClientOriginalExtension();

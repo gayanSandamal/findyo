@@ -31,28 +31,31 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //////////////////////////////////////Annonymouse Routes Start Here///////////////////////////////////////////
 Route::post('/emailregister', [UserController::class, 'emailregister']);
 Route::post('/emaillogin', [UserController::class, 'emaillogin']);
-Route::put('/updateuser', [UserController::class, 'updateuser']);
-Route::get('/GetUser', [UserController::class, 'GetUserByUserId']);
+
 
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/postcategory', [PostCategoryController::class, 'index']);
 Route::get('/interests', [InterestsController::class, 'index']);
 
-Route::post('/posts', [PostController::class, 'store']);
 Route::get('/posts', [PostController::class, 'index']);
-Route::put('/posts', [PostController::class, 'update']);
-Route::delete('/posts', [PostController::class, 'destroy']);
-Route::get('/GetPost/{id}', [PostController::class, 'GetPostByPostId']);
-
-Route::delete('images/{id}', [ImagesController::class, 'destroy']);
-Route::post('/images', [ImagesController::class, 'store']);
-
+Route::get('/user', [UserController::class, 'index']);
 
 //////////////////////////////////////Auth Routes Start Here///////////////////////////////////////////
 Route::middleware(['auth:api'])->get('/jobtitle', [JobTitleController::class, 'index']);
 Route::middleware(['auth:api'])->get('/skills', [SkillsController::class, 'index']);
 Route::middleware(['auth:api'])->post('/skills', [SkillsController::class, 'store']);
 
+///////Posts routing
+Route::middleware(['auth:api'])->post('/posts', [PostController::class, 'store']);
+Route::middleware(['auth:api'])->put('/posts', [PostController::class, 'update'])->middleware('verifyid');
+Route::middleware(['auth:api'])->delete('/posts', [PostController::class, 'destroy'])->middleware('verifyid');
+Route::middleware(['auth:api'])->get('/GetPost/{id}', [PostController::class, 'GetPostByPostId']);
+
+Route::middleware(['auth:api'])->delete('images/{id}', [ImagesController::class, 'destroy']);
+Route::middleware(['auth:api'])->post('/images', [ImagesController::class, 'store']);
+
+Route::middleware(['auth:api'])->put('/updateuser', [UserController::class, 'updateuser'])->middleware('verifyid');
+Route::middleware(['auth:api'])->get('/GetUser/{id}', [UserController::class, 'GetUserByUserId']);
 //////////////////////////////////////Admin Routes Start Here///////////////////////////////////////////
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
 
