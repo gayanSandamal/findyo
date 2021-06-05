@@ -9,7 +9,8 @@ use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SkillsController;
 use App\Http\Controllers\InterestsController;
-
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\ImagesController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,10 +31,22 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //////////////////////////////////////Annonymouse Routes Start Here///////////////////////////////////////////
 Route::post('/emailregister', [UserController::class, 'emailregister']);
 Route::post('/emaillogin', [UserController::class, 'emaillogin']);
+Route::put('/updateuser', [UserController::class, 'updateuser']);
+Route::get('/GetUser', [UserController::class, 'GetUserByUserId']);
 
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/postcategory', [PostCategoryController::class, 'index']);
 Route::get('/interests', [InterestsController::class, 'index']);
+
+Route::post('/posts', [PostController::class, 'store']);
+Route::get('/posts', [PostController::class, 'index']);
+Route::put('/posts', [PostController::class, 'update']);
+Route::delete('/posts', [PostController::class, 'destroy']);
+Route::get('/GetPost/{id}', [PostController::class, 'GetPostByPostId']);
+
+Route::delete('images/{id}', [ImagesController::class, 'destroy']);
+Route::post('/images', [ImagesController::class, 'store']);
+
 
 //////////////////////////////////////Auth Routes Start Here///////////////////////////////////////////
 Route::middleware(['auth:api'])->get('/jobtitle', [JobTitleController::class, 'index']);
