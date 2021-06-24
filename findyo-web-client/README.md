@@ -1,1 +1,0 @@
-# findyo web client
