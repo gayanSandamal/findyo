@@ -1,62 +1,97 @@
 <template>
   <div class="page login">
-    <div id="firebaseui-auth-container"></div>
-      <!-- <div class="login-box box-nue">
-        <div class="text-wrapper">
-          <label>Email</label>
-          <input class="text-input" type="email" placeholder="Enter your email here"/>
-        </div>
-        <div class="text-wrapper">
-          <label>Password</label>
-          <input class="text-input" type="password" placeholder="Enter your password here"/>
-        </div>
-        <div class="text-wrapper">
-          <Button/>
-        </div>
-      </div> -->
+    <div class="login-box box-nue">
+      <div class="text-wrapper">
+        <label>Email</label>
+        <input v-model="loginBinds.email" class="text-input" type="email" placeholder="Enter your email here"/>
+      </div>
+      <div class="text-wrapper">
+        <label>Password</label>
+        <input v-model="loginBinds.password" class="text-input" type="password" placeholder="Enter your password here" />
+      </div>
+      <div class="text-wrapper" v-if="loginBinds.type === 'register'">
+        <label>Confirm Password</label>
+        <input v-model="loginBinds.c_password" class="text-input" type="password" placeholder="Enter your password again here" />
+      </div>
+      <div class="text-wrapper">
+        <!-- <Button
+          :label="button.label"
+          :disabled="button.disabled"
+          :loading="button.loading"
+          @onClick="handleSubmit"
+        /> -->
+        <button @click="handleSubmit">{{button.label}}</button>
+      </div>
+      <div class="text-wrapper p-l-1">
+        <p v-if="loginBinds.type === 'login'" @click="onOptionClick('register')" class="sub-title categories-list-label options">Don't have an account? Register here</p>
+        <p v-else @click="onOptionClick('login')" class="sub-title categories-list-label options">Already have an account? Login here</p>
+      </div>
+      <!-- <pre>user: {{ user }}</pre>
+      <br>
+      <pre> count: {{ count }}</pre> -->
+    </div>
   </div>
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
-import * as firebaseui from "firebaseui";
-
+import { mapState } from 'vuex'
 export default {
   name: "login",
   components: {
-    // Button: () => import ('@/components/inputs/Button')
+    // Button: () => import("@/components/inputs/Button")
+  },
+  data() {
+    return {
+      button: {
+        label: "Login",
+        disabled: false,
+        loading: false
+      },
+      loginBinds: {
+        type: 'login',
+        email: '',
+        password: '',
+        c_password: ''
+      }
+    };
+  },
+  computed: mapState({
+    user: state => state.user,
+    count: state => state.count
+  }),
+  methods: {
+    onOptionClick (option) {
+      if (option === 'login') {
+        this.loginBinds.type = 'login'
+        this.loginBinds.c_password = ''
+        this.button.label = 'Login'
+      } else {
+        this.loginBinds.type = 'register'
+        this.button.label = 'Register'
+      }
+    },
+    handleSubmit () {
+      const user = {
+        name: 'thenuka',
+        token: 'fesdfgvEFVGefaseF21341',
+        roles: [1],
+        userId: 1
+      }
+      this.$store.commit('increment')
+      console.log(this.user)
+      if (!this.user) {
+        this.login(user)
+      }
+    },
+    login (user) {
+      this.$store.commit('login', user)
+    },
+    logout () {
+      this.$store.commit('logout')
+    }
   },
   mounted() {
-    var uiConfig = {
-      signInSuccessUrl: "/",
-      signInOptions: [
-        {
-          provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-          scopes: ["https://www.googleapis.com/auth/contacts.readonly"],
-          customParameters: {
-            prompt: "select_account"
-          }
-        },
-        {
-          provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-          scopes: ["public_profile", "email", "user_likes", "user_friends"],
-          customParameters: {
-            // Forces password re-entry.
-            auth_type: "reauthenticate"
-          },
-
-        },
-        firebase.auth.TwitterAuthProvider.PROVIDER_ID,
-        firebase.auth.PhoneAuthProvider.PROVIDER_ID,
-        {
-          provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-          requireDisplayName: false
-        }
-      ]
-    };
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
-    ui.start("#firebaseui-auth-container", uiConfig);
+    //   signInSuccessUrl: "/"
   }
 };
 </script>
@@ -74,5 +109,9 @@ export default {
 .login-box {
   width: 100%;
   max-width: 300px;
+}
+.options:hover {
+  text-decoration: underline !important;
+  letter-spacing: 1px;
 }
 </style>
