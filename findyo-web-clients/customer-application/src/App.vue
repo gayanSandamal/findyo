@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{'available': loaded}">
+  <div id="app" :class="{ available: loaded }">
     <Header
       :eventBus="eventBus"
       :isUser="user ? true : false"
@@ -37,14 +37,14 @@
 </template>
 <script>
 /* eslint-disable */
-import firebase from "firebase/app";
-import "firebase/auth";
-import { eventBus } from "./event-bus.js";
-import { fbIinit } from "./firebaseInit";
-import { findyoName } from "./func/usables";
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import { eventBus } from './event-bus.js';
+import { fbIinit } from './firebaseInit';
+import { findyoName } from './func/usables';
 
 export default {
-  name: "app",
+  name: 'app',
   data() {
     return {
       db: undefined,
@@ -57,40 +57,49 @@ export default {
       postTypes: [
         {
           typeId: 1,
-          label: "Post as a consumer",
-          placeholder: "Ask for a service you need right now",
-          filterLabel: "Consumer"
+          label: 'Post as a consumer',
+          placeholder: 'Ask for a service you need right now',
+          filterLabel: 'Consumer',
         },
         {
           typeId: 2,
-          label: "Post as a freelancer",
-          placeholder: "Let the world know about your service",
-          filterLabel: "Freelancer"
-        }
+          label: 'Post as a freelancer',
+          placeholder: 'Let the world know about your service',
+          filterLabel: 'Freelancer',
+        },
       ],
       infoObject: {
         state: false,
         type: 0,
         title: null,
-        message: null
+        message: null,
       },
       profileData: {},
       userData: {},
       isProfileDataLoaded: false,
       locations: {},
       chatData: {},
-      chatUserList: []
+      chatUserList: [],
     };
   },
   props: {
-    firebaseInit: undefined
+    firebaseInit: undefined,
   },
   components: {
-    Header: () => import("@/components/common/Header"),
-    "sidebar-nav": () => import("@/components/common/SidebarNav"),
-    "info-window": () => import("@/components/modals/InfoWindow"),
-    Message: () => import("@/components/common/Message"),
-    Progress: () => import("@/components/common/Progress")
+    Header: () =>
+      import(/* webpackChunkName: "Header"*/ '@/components/common/Header'),
+    'sidebar-nav': () =>
+      import(
+        /* webpackChunkName: "sidebar-nav"*/ '@/components/common/SidebarNav'
+      ),
+    'info-window': () =>
+      import(
+        /* webpackChunkName: "info-window"*/ '@/components/modals/InfoWindow'
+      ),
+    Message: () =>
+      import(/* webpackChunkName: "Message"*/ '@/components/common/Message'),
+    Progress: () =>
+      import(/* webpackChunkName: "Progress"*/ '@/components/common/Progress'),
   },
   methods: {
     setInfoObj(params) {
@@ -101,38 +110,38 @@ export default {
     },
     authChanged() {
       return new Promise((resolve, reject) => {
-        this.auth.onAuthStateChanged(user => {
+        this.auth.onAuthStateChanged((user) => {
           if (user) {
-            this.user = user
-            this.getUserProfile(user)
-            resolve()
+            this.user = user;
+            this.getUserProfile(user);
+            resolve();
           } else {
             this.user = undefined;
-            reject("Error getting logged in user")
+            reject('Error getting logged in user');
           }
-        })
-      })
+        });
+      });
     },
     getUserProfile(user, fromCompletion) {
       this.isProfileDataLoaded = false;
       this.db
-        .collection("Users")
+        .collection('Users')
         .doc(user.uid)
-        .onSnapshot(querySnapshot => {
+        .onSnapshot((querySnapshot) => {
           this.profileData = querySnapshot.data();
           this.userData = querySnapshot.data();
-          this.$set(this.profileData, "id", querySnapshot.id);
-          this.$set(this.userData, "id", querySnapshot.id);
+          this.$set(this.profileData, 'id', querySnapshot.id);
+          this.$set(this.userData, 'id', querySnapshot.id);
           this.isProfileDataLoaded = true;
           if (fromCompletion) {
-            this.eventBus.$emit("message", {
+            this.eventBus.$emit('message', {
               msg:
-                "Profile Updated Successfully. You will be redirected to your profile",
-              type: 0
+                'Profile Updated Successfully. You will be redirected to your profile',
+              type: 0,
             });
             setTimeout(() => {
               this.$router.push({
-                path: "/" + findyoName(this.userData.displayName) + "/timeline"
+                path: '/' + findyoName(this.userData.displayName) + '/timeline',
               });
             }, 3000);
           }
@@ -141,13 +150,13 @@ export default {
     },
     loadProfile(displayName) {
       this.db
-        .collection("Users")
-        .where("displayName", "==", displayName)
-        .orderBy("creationTime", "desc")
-        .onSnapshot(querySnapshot => {
+        .collection('Users')
+        .where('displayName', '==', displayName)
+        .orderBy('creationTime', 'desc')
+        .onSnapshot((querySnapshot) => {
           if (querySnapshot.docs.length > 0) {
             this.profileData = querySnapshot.docs[0].data();
-            this.$set(this.profileData, "uid", querySnapshot.docs[0].id);
+            this.$set(this.profileData, 'uid', querySnapshot.docs[0].id);
           }
         });
     },
@@ -156,40 +165,40 @@ export default {
     },
     getLocations() {
       this.db
-        .collection("Locations")
+        .collection('Locations')
         .get()
-        .then(snapShot => {
+        .then((snapShot) => {
           let locations = [];
-          snapShot.forEach(doc => {
+          snapShot.forEach((doc) => {
             let data = doc.data();
             data.id = doc.id;
             locations.push(data);
           });
           this.nestLocations(locations);
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
     },
     nestLocations(locations) {
-      locations.map(o => {
+      locations.map((o) => {
         if (o.is_province) {
-          this.$set(o, "parent_id", o.country_id);
+          this.$set(o, 'parent_id', o.country_id);
         } else if (o.is_district) {
-          this.$set(o, "parent_id", o.province_id);
+          this.$set(o, 'parent_id', o.province_id);
         } else if (o.is_city) {
-          this.$set(o, "parent_id", o.district_id);
+          this.$set(o, 'parent_id', o.district_id);
         }
       });
-      locations.map(o => {
-        this.$set(o, "locations", []);
-        locations.map(p => {
+      locations.map((o) => {
+        this.$set(o, 'locations', []);
+        locations.map((p) => {
           if (o.id === p.parent_id) {
             o.locations.push(p);
           }
         });
       });
-      this.locations = locations.find(o => o.is_country);
+      this.locations = locations.find((o) => o.is_country);
     },
     setChatData(data) {
       this.chatData = data;
@@ -200,13 +209,13 @@ export default {
       if (userID) {
         //const self = this;
         this.db
-          .collection("Chats")
-          .where("UserID", "array-contains", userID)
-          .orderBy("lastUpdatedTime", "desc")
+          .collection('Chats')
+          .where('UserID', 'array-contains', userID)
+          .orderBy('lastUpdatedTime', 'desc')
           .onSnapshot(
-            querySnapshot => {
+            (querySnapshot) => {
               if (querySnapshot.docs.length > 0) {
-                querySnapshot.forEach(doc => {
+                querySnapshot.forEach((doc) => {
                   let data = doc.data();
                   this.chatUserList.push({
                     displayName:
@@ -221,21 +230,21 @@ export default {
                     userID:
                       data.Users[0].userID != this.user.uid
                         ? data.Users[0].userID
-                        : data.Users[1].userID
+                        : data.Users[1].userID,
                   });
                 });
               } else {
-                console.log("No Chats");
+                console.log('No Chats');
               }
             },
-            error => {
-              console.log("Error getting chat user list", error);
+            (error) => {
+              console.log('Error getting chat user list', error);
             }
           );
       } else {
-        console.log("Invalid user name");
+        console.log('Invalid user name');
       }
-    }
+    },
   },
   created() {
     this.eventBus = eventBus;
@@ -243,40 +252,39 @@ export default {
     this.auth = firebase.auth();
 
     this.authChanged()
-    .then(()=>{
-      this.getChatUserList();
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-    
+      .then(() => {
+        this.getChatUserList();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   },
   mounted() {
     this.fb = fbIinit.obj;
-    this.eventBus.$on("check-auth", this.authChanged);
-    this.eventBus.$on("set-info", this.setInfoObj);
-    this.eventBus.$on("load-profile", this.loadProfile);
-    this.eventBus.$on("clean-profile", this.cleanProfile);
-    this.eventBus.$on("load-profile-uid", this.getUserProfile);
-    this.eventBus.$on("set-chat-data", this.setChatData);
+    this.eventBus.$on('check-auth', this.authChanged);
+    this.eventBus.$on('set-info', this.setInfoObj);
+    this.eventBus.$on('load-profile', this.loadProfile);
+    this.eventBus.$on('clean-profile', this.cleanProfile);
+    this.eventBus.$on('load-profile-uid', this.getUserProfile);
+    this.eventBus.$on('set-chat-data', this.setChatData);
     this.loaded = true;
     this.getLocations();
   },
   beforeDestroy() {
-    this.eventBus.$off("check-auth", this.authChanged);
-    this.eventBus.$off("set-info", this.setInfoObj);
-    this.eventBus.$off("load-profile", this.loadProfile);
-    this.eventBus.$off("clean-profile", this.cleanProfile);
-    this.eventBus.$off("load-profile-uid", this.getUserProfile);
-    this.eventBus.$off("set-chat-data", this.setChatData);
-  }
+    this.eventBus.$off('check-auth', this.authChanged);
+    this.eventBus.$off('set-info', this.setInfoObj);
+    this.eventBus.$off('load-profile', this.loadProfile);
+    this.eventBus.$off('clean-profile', this.cleanProfile);
+    this.eventBus.$off('load-profile-uid', this.getUserProfile);
+    this.eventBus.$off('set-chat-data', this.setChatData);
+  },
 };
 </script>
 
 <style lang="scss">
-@import "./assets/styles/reset.css";
-@import "./assets/styles/variables.scss";
-@import "./assets/styles/main.scss";
-@import "./assets/styles/responsive.scss";
-@import "./assets/styles/vue-content-placeholders.css";
+@import './assets/styles/reset.css';
+@import './assets/styles/variables.scss';
+@import './assets/styles/main.scss';
+@import './assets/styles/responsive.scss';
+@import './assets/styles/vue-content-placeholders.css';
 </style>
