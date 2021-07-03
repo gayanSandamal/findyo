@@ -20,7 +20,7 @@
         />
       </div>
       <div class="text-wrapper">
-        <!-- <Button
+        <Button
           :label="button.label"
           :disabled="button.disabled"
           :loading="button.loading"
@@ -47,7 +47,7 @@ export default {
   mixins: [login],
   name: "login",
   components: {
-    // Button: () => import('@/components/inputs/Button'),
+    Button: () => import('@/components/inputs/Button'),
   },
   props: {
     eventBus: undefined
