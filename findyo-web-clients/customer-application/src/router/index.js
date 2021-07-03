@@ -28,6 +28,11 @@ const routes = [{
     component: () => import( /* webpackChunkName: "Login"*/ '../views/Login.vue')
   },
   {
+    path: '/register',
+    name: 'register',
+    component: () => import( /* webpackChunkName: "SignUp" */ '../views/Register.vue'),
+  },
+  {
     path: '/logout',
     name: 'logout',
     component: () => import( /* webpackChunkName: "Logout"*/ '../views/Logout.vue'),
@@ -129,7 +134,6 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   /* eslint-disable */
   const userLoggedIn = store.state.user.user
-  console.log('in router', userLoggedIn)
   const isRequiredAuth = to.matched.some(record => record.meta.isRequiredAuth)
   const isRequiredProfileCompletion = to.matched.some(record => record.meta.isRequiredProfileCompletion)
   if (userLoggedIn) {
@@ -149,9 +153,13 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    if (isRequiredAuth) {
+    if (isRequiredAuth && to.name === 'login') {
       next({
-        path: '/login'
+        name: 'login'
+      })
+    } else if (isRequiredAuth && to.name === 'register') {
+      next({
+        name: 'register'
       })
     } else {
       next()

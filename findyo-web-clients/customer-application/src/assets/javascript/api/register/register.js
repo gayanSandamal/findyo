@@ -6,10 +6,9 @@ export default {
     return {};
   },
   methods: {
-    async emailLogin(data, successCallback, errorCallback) {
+    async register(data, successCallback, errorCallback) {
       try {
-        await this.callFindYoApi(
-          {
+        await this.callFindYoApi({
             url: data.url,
             data: data.data,
             method: data.method,

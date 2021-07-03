@@ -20,6 +20,15 @@
         />
       </div>
       <div class="text-wrapper">
+        <label>Confirm Password</label>
+        <input
+          v-model="loginBinds.c_password"
+          class="text-input"
+          type="password"
+          placeholder="Enter your password again here"
+        />
+      </div>
+      <div class="text-wrapper">
         <!-- <Button
           :label="button.label"
           :disabled="button.disabled"
@@ -30,9 +39,9 @@
       </div>
       <div class="text-wrapper p-l-1">
         <p
-          @click="goToRegister"
+          @click="goToLogin"
           class="sub-title categories-list-label options"
-        >Don't have an account? Register here</p>
+        >Already have an account? Login here</p>
       </div>
       <!-- <pre>{{ user }}</pre> -->
     </div>
@@ -42,10 +51,10 @@
 <script>
 import { mapState } from "vuex";
 import common from "../assets/javascript/common/common";
-import login from "@/assets/javascript/api/login/login";
+import register from "@/assets/javascript/api/register/register";
 export default {
-  mixins: [login],
-  name: "login",
+  mixins: [register],
+  name: "register",
   components: {
     // Button: () => import('@/components/inputs/Button'),
   },
@@ -55,13 +64,14 @@ export default {
   data() {
     return {
       button: {
-        label: "Login",
+        label: "Register",
         disabled: false,
         loading: false
       },
       loginBinds: {
         email: "",
-        password: ""
+        password: "",
+        c_password: ""
       },
       InfoError: {
         state: true,
@@ -90,41 +100,36 @@ export default {
         roles: null,
         userId: 0
       };
-
-      await this.emailLogin(
+      await this.register(
         {
-          url: "emaillogin",
+          url: "emailregister",
           data: {
             email: loginBinds.email,
-            password: loginBinds.password
+            password: loginBinds.password,
+            c_password: loginBinds.c_password
           },
           method: "POST"
         },
         async response => {
           const responseData = await response;
           if (responseData.state === 500) {
-            console.error("something went wrong...");
+            this.eventBus.$emit("set-info", this.InfoError);
+          } else if (responseData.status === 202) {
+            this.showValidation(responseData);
           } else if (responseData.status === 200) {
+            console.log("registration success");
             userObj.token = responseData.data.token;
             userObj.roles = Array.isArray(responseData.data.userrole)
               ? [...responseData.data.userrole]
               : responseData.data.userrole;
             userObj.userId = responseData.data.cid;
-            this.loginToStore(userObj);
+            this.$router.push({ name: "login" });
           }
         },
         error => {
-          this.showValidation(error.response);
           this.eventBus.$emit("set-info", this.InfoError);
         }
       );
-    },
-    loginToStore(user) {
-      this.$store.commit("login", user);
-      this.$router.push({ name: "home" });
-    },
-    logout() {
-      this.$store.commit("logout");
     },
     showValidation(responseData) {
       let message = "";
@@ -140,18 +145,29 @@ export default {
           }`;
         });
       }
+      if (
+        responseData.data.c_password &&
+        responseData.data.c_password.length > 0
+      ) {
+        responseData.data.c_password.forEach((err, index, array) => {
+          message += `${array.length > 0 ? "<br/>" : ""}${err}${
+            array.length - 1 !== index ? "<br/>" : ""
+          }`;
+        });
+      }
       this.InfoError.title = "Try again";
       this.InfoError.message = message;
       this.eventBus.$emit("set-info", this.InfoError);
     },
     resetFields(all = false) {
       loginBinds.password = "";
+      loginBinds.c_password = "";
       if (all) {
         loginBinds.email = "";
       }
     },
-    goToRegister() {
-      this.$router.push({ name: "register" });
+    goToLogin() {
+      this.$router.push({ name: "login" });
     }
   },
   mounted() {
