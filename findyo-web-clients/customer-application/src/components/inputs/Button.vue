@@ -30,15 +30,12 @@ export default {
     }
   },
   methods: {
-    onClick () {
-      this.$emit('onClick')
-    },
     click () {
       if (!this.disabled && !this.loading) {
         if (this.action) {
           return this.action()
         } else {
-          this.$emit('onClick')
+          this.$emit('click')
         }
       }
     }
