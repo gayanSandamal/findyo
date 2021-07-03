@@ -25,8 +25,7 @@
           :disabled="button.disabled"
           :loading="button.loading"
           @click="handleSubmit(loginBinds)"
-        />-->
-        <button @click="handleSubmit(loginBinds)">{{ button.label }}</button>
+        />
       </div>
       <div class="text-wrapper p-l-1">
         <p
@@ -47,7 +46,7 @@ export default {
   mixins: [login],
   name: "login",
   components: {
-    Button: () => import('@/components/inputs/Button'),
+    Button: () => import("@/components/inputs/Button")
   },
   props: {
     eventBus: undefined
