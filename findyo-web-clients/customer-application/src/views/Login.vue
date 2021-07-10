@@ -102,13 +102,14 @@ export default {
         async response => {
           const responseData = await response;
           if (responseData.state === 500) {
-            console.error("something went wrong...");
+            this.eventBus.$emit("set-info", this.InfoError);
           } else if (responseData.status === 200) {
             userObj.token = responseData.data.token;
             userObj.roles = Array.isArray(responseData.data.userrole)
               ? [...responseData.data.userrole]
               : responseData.data.userrole;
             userObj.userId = responseData.data.cid;
+            userObj.id = responseData.data.id;
             this.loginToStore(userObj);
           }
         },
