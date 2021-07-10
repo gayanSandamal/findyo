@@ -62,6 +62,7 @@ class UserController extends Controller
             $resArr['name'] =  $user->username;
             $resArr['userrole'] = $user->user_role_id == 1 ? 'Admin' : 'User';
             $resArr['cid'] = $user->cid;
+            $resArr['id'] = $user->id;
 
             return response()->json($resArr, 200);
         } else {
