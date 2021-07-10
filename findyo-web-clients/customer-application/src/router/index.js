@@ -4,6 +4,8 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import store from '@/store'
+import common from '../assets/javascript/common/common'
 // import {firebaseConfig} from './../firebaseConfig'
 
 // firebase.initializeApp(firebaseConfig)
@@ -11,112 +13,113 @@ import 'firebase/auth'
 
 Vue.use(VueRouter)
 
-const routes = [
-  {
+const routes = [{
     path: '/',
     name: 'home',
     component: Home,
     meta: {
-      requiredProfileCompletion: true
+      isRequiredProfileCompletion: true,
+      isRequiredAuth: true
     }
   },
   {
     path: '/login',
     name: 'login',
-    component: () => import('../views/Login.vue')
+    component: () => import( /* webpackChunkName: "Login"*/ '../views/Login.vue')
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: () => import( /* webpackChunkName: "SignUp" */ '../views/Register.vue'),
   },
   {
     path: '/logout',
     name: 'logout',
-    component: () => import('../views/Logout.vue'),
+    component: () => import( /* webpackChunkName: "Logout"*/ '../views/Logout.vue'),
     meta: {
-      requiresAuth: true
+      isRequiredAuth: true
     }
   },
   {
     path: '/reset-password',
     name: 'reset-password',
-    component: () => import('../views/ResetPassword.vue')
+    component: () => import( /* webpackChunkName: "ResetPassword"*/ '../views/ResetPassword.vue')
   },
   {
     path: '/chat/',
     name: 'chat',
-    component: () => import('../views/Chat.vue'),
+    component: () => import( /* webpackChunkName: "Chat"*/ '../views/Chat.vue'),
     meta: {
-      requiresAuth: true
+      isRequiredAuth: true
     },
-    children: [
-      {
-        path: ":id",
-        name: 'chat-box',
-        component: () => import('./../components/common/ChatBox.vue')
-      }
-    ]
+    children: [{
+      path: ":id",
+      name: 'chat-box',
+      component: () => import( /* webpackChunkName: "ChatBox"*/ './../components/common/ChatBox.vue')
+    }]
   },
   {
     path: '/notifications',
     name: 'notifications',
-    component: () => import('../views/Notifications.vue'),
+    component: () => import( /* webpackChunkName: "Notifications"*/ '../views/Notifications.vue'),
     meta: {
-      requiresAuth: true
+      isRequiredAuth: true
     }
   },
   {
     path: '/privacy-and-policy',
     name: 'privacy-and-policy',
-    component: () => import('../views/PrivacyandPolicy.vue')
+    component: () => import( /* webpackChunkName: "PrivacyandPolicy"*/ '../views/PrivacyandPolicy.vue')
   },
   {
     path: '/settings/',
     name: 'settings',
-    component: () => import('../views/Settings.vue'),
+    component: () => import( /* webpackChunkName: "Settings"*/ '../views/Settings.vue'),
     meta: {
-      requiresAuth: true,
-      requiredProfileCompletion: true
+      isRequiredAuth: true,
+      isRequiredProfileCompletion: true
     },
-    children: [
-      {
+    children: [{
         name: 'profile-settings',
         path: "profile",
-        component: () => import('./../components/settings/ProfileSettings.vue')
+        component: () => import( /* webpackChunkName: "ProfileSettings"*/ './../components/settings/ProfileSettings.vue')
       },
       {
         name: 'security-settings',
         path: "security",
-        component: () => import('./../components/settings/SecuritySettings.vue')
+        component: () => import( /* webpackChunkName: "SecuritySettings"*/ './../components/settings/SecuritySettings.vue')
       }
     ]
   },
   {
     path: '/post/:id',
     name: 'post',
-    component: () => import('../views/PostPage.vue')
+    component: () => import( /* webpackChunkName: "PostPage"*/ '../views/PostPage.vue')
   },
   {
     path: '/completion',
     name: 'completion',
-    component: () => import('../views/Complete.vue'),
+    component: () => import( /* webpackChunkName: "Complete"*/ '../views/Complete.vue'),
     meta: {
-      requiresAuth: true
+      isRequiredAuth: true
     }
   },
   {
     path: '/:id/',
     name: 'admin',
-    component: () => import('../views/Profile.vue'),
+    component: () => import( /* webpackChunkName: "Profile"*/ '../views/Profile.vue'),
     meta: {
-      requiredProfileCompletion: true
+      isRequiredProfileCompletion: true
     },
-    children: [
-      {
+    children: [{
         name: 'admin-timeline',
         path: "timeline",
-        component: () => import('./../components/feed/Timeline.vue')
+        component: () => import( /* webpackChunkName: "Timeline"*/ './../components/feed/Timeline.vue')
       },
       {
         name: "admin-portfolio",
         path: "portfolio",
-        component: () => import('./../components/feed/Portfolio.vue')
+        component: () => import( /* webpackChunkName: "Portfolio"*/ './../components/feed/Portfolio.vue')
       }
     ]
   }
@@ -130,12 +133,12 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   /* eslint-disable */
-  const userLoggedIn = firebase.auth().currentUser
-  const requiredAuth = to.matched.some(record => record.meta.requiresAuth)
-  const requiredProfileCompletion = to.matched.some(record => record.meta.requiredProfileCompletion)
+  const userLoggedIn = store.state.user.user
+  const isRequiredAuth = to.matched.some(record => record.meta.isRequiredAuth)
+  const isRequiredProfileCompletion = to.matched.some(record => record.meta.isRequiredProfileCompletion)
   if (userLoggedIn) {
-    if (requiredProfileCompletion) {
-      if (isUserNameAllowed(userLoggedIn.displayName)) {
+    if (isRequiredProfileCompletion) {
+      if (checkProfileCompletion(userLoggedIn)) {
         next()
       } else {
         next({
@@ -143,16 +146,20 @@ router.beforeEach((to, from, next) => {
         })
       }
     } else {
-      if (requiredAuth) {
+      if (isRequiredAuth) {
         next()
       } else {
         next()
       }
     }
   } else {
-    if (requiredAuth) {
+    if (isRequiredAuth && to.name === 'login') {
       next({
-        path: '/'
+        name: 'login'
+      })
+    } else if (isRequiredAuth && to.name === 'register') {
+      next({
+        name: 'register'
       })
     } else {
       next()
@@ -161,24 +168,38 @@ router.beforeEach((to, from, next) => {
 })
 
 const isUserNameAllowed = (username) => {
+  if (!username) {
+    return false
+  }
   let includeSpaces = false
-  let includeUppercases = false
+  let includeUpperCases = false
   if (username !== undefined && username !== null && username.trim() !== '') {
     includeSpaces = !username.includes(" ")
-    includeUppercases = !isCapitalLetterAvailable(username)
+    includeUpperCases = !isCapitalLetterAvailable(username)
   }
-  return includeSpaces && includeUppercases
+  return includeSpaces && includeUpperCases
 }
 
-const isCapitalLetterAvailable = (username) =>{
+const isCapitalLetterAvailable = (username) => {
   var i = 0
   var char = ''
   var isCapitalFound = false
-  while( (i < username.length) && !isCapitalFound){
+  while ((i < username.length) && !isCapitalFound) {
     char = username.charAt(i)
-    char !=  char.toLowerCase() ? isCapitalFound=true : i++
+    char != char.toLowerCase() ? isCapitalFound = true : i++
   }
   return isCapitalFound
+}
+
+const checkProfileCompletion = (user) => {
+  let isCompleted = true
+  if (!user.displayName) {
+    isCompleted = false
+  }
+  if (user.displayName && !isUserNameAllowed(user.displayName)) {
+    isCompleted = false
+  }
+  return isCompleted
 }
 
 export default router

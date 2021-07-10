@@ -1,5 +1,5 @@
 <template>
-  <button class="button" :disabled="disabled" @click="onClick">
+  <button class="button" @click.stop="click" :disabled="disabled">
     {{!loading ? label : ''}}
     <svg v-if="loading" class="spinner" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
       <rect class="spinner__rect" x="0" y="0" width="100" height="100" fill="none"></rect>
@@ -30,8 +30,14 @@ export default {
     }
   },
   methods: {
-    onClick () {
-      this.$emit('onClick')
+    click () {
+      if (!this.disabled && !this.loading) {
+        if (this.action) {
+          return this.action()
+        } else {
+          this.$emit('click')
+        }
+      }
     }
   }
 }

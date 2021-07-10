@@ -10,8 +10,19 @@
       </div>
       <div class="info-footer">
         <div class="info-footer-button-wrapper">
-          <Button v-if="info.ok" class="info-footer-button" :label="'Login'" :action="okAction"/>
-          <Button class="info-footer-button hollow" :label="'Cancel'" :action="close"/>
+          <Button
+            v-if="info.ok"
+            class="info-footer-button"
+            :label="'Login'"
+            :action="okAction"
+            @click="okAction"
+          />
+          <Button
+            class="info-footer-button hollow"
+            :label="'Cancel'"
+            :action="close"
+            @click="close"
+          />
         </div>
       </div>
     </div>
@@ -20,9 +31,9 @@
 
 <script>
 export default {
-  name: 'info-window',
+  name: "info-window",
   components: {
-    Button: () => import("@/components/inputs/Button"),
+    Button: () => import("@/components/inputs/Button")
   },
   props: {
     info: {
@@ -30,29 +41,29 @@ export default {
     }
   },
   computed: {
-    icon () {
-      let iconClass
+    icon() {
+      let iconClass;
       if (this.info.type === 1) {
-        iconClass = 'success'
+        iconClass = "success";
       } else if (this.info.type === 2) {
-        iconClass = 'error'
+        iconClass = "error";
       } else if (this.info.type === 3) {
-        iconClass = 'warn'
+        iconClass = "warn";
       }
-      return iconClass
+      return iconClass;
     }
   },
   methods: {
-    okAction () {
+    okAction() {
       /* eslint-disable */
-      console.log(this.info)
+      console.log(this.info);
     },
-    close () {
-      this.$set(this.info, 'state', false)
+    close() {
+      this.$set(this.info, "state", false);
     },
     nullEvent() {}
   }
-}
+};
 </script>
 
 <style scoped>
