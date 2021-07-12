@@ -20,7 +20,7 @@ const routes = [
     component: Home,
     meta: {
       isRequiredProfileCompletion: true,
-      isRequiredAuth: true,
+      isRequiredAuth: false,
     },
   },
   {
