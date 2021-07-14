@@ -87,7 +87,9 @@ export default {
         displayName: "",
         token: "",
         roles: null,
-        userId: 0
+        userId: 0,
+        email: null,
+        emailVerified: false
       };
 
       await this.emailLogin(
@@ -110,6 +112,7 @@ export default {
               : responseData.data.userrole;
             userObj.userId = responseData.data.cid;
             userObj.id = responseData.data.id;
+            userObj.email = loginBinds.email;
             this.loginToStore(userObj);
           }
         },

@@ -49,7 +49,13 @@
                 :disabled="!isRegisteredOnPhone"
                 :class="{'error': field.error}"
               />
-              <datepicker v-if="field.type === 'single-date'" v-model="field.value" name="dateofbirth" :format="'dd MMM yyyy'" :maximum-view="'year'"></datepicker>
+              <datepicker
+                v-if="field.type === 'single-date'"
+                v-model="field.value"
+                name="dateofbirth"
+                :format="'dd MMM yyyy'"
+                :maximum-view="'year'"
+              ></datepicker>
               <div
                 v-if="field.type === 'numeric-array'"
                 class="display-inline full-width input-wrapper m-b-3"
@@ -131,7 +137,13 @@
               :action="cancelAction"
               :disabled="saveDisabled"
             />
-            <Button class="pull-right" :label="isLastPage ? 'Save' : 'Next'" :action="okAction" :disabled="saveDisabled" :loading="isUsernameValidating"/>
+            <Button
+              class="pull-right"
+              :label="isLastPage ? 'Save' : 'Next'"
+              :action="okAction"
+              :disabled="saveDisabled"
+              :loading="isUsernameValidating"
+            />
           </div>
         </div>
         <div v-else class="inner-settings-content-wrapper m-t-2">
@@ -146,9 +158,9 @@
 
 <script>
 /* eslint-disable */
-import axios from 'axios'
+import axios from "axios";
 import { findyoName } from "./../func/usables";
-import Datepicker from 'vuejs-datepicker';
+import Datepicker from "vuejs-datepicker";
 
 export default {
   name: "completion",
@@ -189,12 +201,12 @@ export default {
   props: {
     eventBus: undefined,
     db: undefined,
-    auth: undefined,
-    user: undefined
+    auth: undefined
+    // user: undefined
   },
   computed: {
     dobFormat(date) {
-      return moment(date).format('MMMM Do YYYY, h:mm:ss a');
+      return moment(date).format("MMMM Do YYYY, h:mm:ss a");
     },
     isFirstPage() {
       return this.currentPageIndex === 0 ? true : false;
@@ -211,13 +223,19 @@ export default {
     },
     isRegisteredOnPhone() {
       return this.user.providerData[0].providerId === "phone" ? true : false;
+    },
+    user() {
+      return this.$store.state.user.user;
     }
   },
   methods: {
     checkUsername(username) {
-      return axios.post(process.env.VUE_APP_ROOT_API + '/checkUserNameAlreadyExists', {
-        UserName: username
-      })
+      return axios.post(
+        process.env.VUE_APP_ROOT_API + "/checkUserNameAlreadyExists",
+        {
+          UserName: username
+        }
+      );
     },
     okAction() {
       this.validateRequiredFields();
@@ -226,45 +244,48 @@ export default {
         this.eventBus.$emit("message", {
           msg: "Please fill the required fields first",
           type: 1
-        })
+        });
       } else {
-
         if (this.currentPageIndex === 0) {
-          let username = this.currentPage.fields.find(o => o.label === 'Username')
-          const regex = /[A-Z0-9-!$%^&*()+|~=`{}\[\]:";'<.>?,\/]/g
-          const found = username.value.match(regex)
+          let username = this.currentPage.fields.find(
+            o => o.label === "Username"
+          );
+          const regex = /[A-Z0-9-!$%^&*()+|~=`{}\[\]:";'<.>?,\/]/g;
+          const found = username.value.match(regex);
           if (found) {
             this.eventBus.$emit("message", {
               msg: `Username can only contain lowercase charactres and an underscore. Ex: john_doe`,
               type: 1
-            })
+            });
           } else {
-            this.isUsernameValidating = true
-            if (username.value.includes(' ') || username.value.includes(' ')) {
+            this.isUsernameValidating = true;
+            if (username.value.includes(" ") || username.value.includes(" ")) {
               this.eventBus.$emit("message", {
                 msg: `Username already exists. Try another username`,
                 type: 1
-              })
+              });
             }
-            let checkUsernamePromise = this.checkUsername(username.value)
-            checkUsernamePromise.then(response => {
-              if (!response.data) {
-                this.isUsernameValidating = false
-                this.currentPageIndex = this.currentPageIndex + 1;
-                this.currentPage = this.completion[this.currentPageIndex];
-              } else {
-                this.isUsernameValidating = false
-                this.eventBus.$emit("message", {
-                  msg: `Username already exists. Try another username`,
-                  type: 1
-                })
-              }
-            }).catch(error => {
-              this.eventBus.$emit("message", {
-                msg: `Error when checking username availability`,
-                type: 1
+            let checkUsernamePromise = this.checkUsername(username.value);
+            checkUsernamePromise
+              .then(response => {
+                if (!response.data) {
+                  this.isUsernameValidating = false;
+                  this.currentPageIndex = this.currentPageIndex + 1;
+                  this.currentPage = this.completion[this.currentPageIndex];
+                } else {
+                  this.isUsernameValidating = false;
+                  this.eventBus.$emit("message", {
+                    msg: `Username already exists. Try another username`,
+                    type: 1
+                  });
+                }
               })
-            })
+              .catch(error => {
+                this.eventBus.$emit("message", {
+                  msg: `Error when checking username availability`,
+                  type: 1
+                });
+              });
           }
         } else if (this.currentPageIndex < this.completion.length - 1) {
           this.currentPageIndex = this.currentPageIndex + 1;
@@ -292,41 +313,41 @@ export default {
       }
     },
     saveProfileCompletion() {
-      this.saveDisabled = true
-      const saveObj = this.makeProfileSaveObj()
-      const objectArray = Object.entries(saveObj)
+      this.saveDisabled = true;
+      const saveObj = this.makeProfileSaveObj();
+      const objectArray = Object.entries(saveObj);
       objectArray.forEach(([key, value]) => {
         if (value === undefined) {
-          delete saveObj[key]
+          delete saveObj[key];
         }
-      })
+      });
       this.db
-      .collection("Users")
-      .doc(this.user.uid)
-      .set(saveObj,{merge: true})
-      .then(()=>{
-        const displayName = saveObj['displayName']
+        .collection("Users")
+        .doc(this.user.uid)
+        .set(saveObj, { merge: true })
+        .then(() => {
+          const displayName = saveObj["displayName"];
 
-        this.updateUserObject(displayName).then(()=>{
-            this.eventBus.$emit('load-profile-uid', this.user, true)
-        })  
-      })
-      .catch(error=>{
-        this.saveDisabled = false
-        this.eventBus.$emit('message', {msg: error, type: 1})
-      })
+          this.updateUserObject(displayName).then(() => {
+            this.eventBus.$emit("load-profile-uid", this.user, true);
+          });
+        })
+        .catch(error => {
+          this.saveDisabled = false;
+          this.eventBus.$emit("message", { msg: error, type: 1 });
+        });
     },
-    updateUserObject(DisplayName){
+    updateUserObject(DisplayName) {
       return this.user.updateProfile({
         displayName: DisplayName
-      })
+      });
     },
     makeProfileSaveObj() {
-      this.completionProcessed = []
-      this.mapObject(this.completion)
+      this.completionProcessed = [];
+      this.mapObject(this.completion);
       let obj = {};
       this.completionProcessed.map(o => {
-        this.$set(obj, Object.keys(o), Object.values(o)[0])
+        this.$set(obj, Object.keys(o), Object.values(o)[0]);
       });
       // if (obj["first_name"] && obj["last_name"]) {
       //   this.$set(
@@ -340,17 +361,17 @@ export default {
       //   this.$set(obj, "displayName", `${findyoName(obj["username"])}`)
       // }
       if (obj["username"]) {
-        this.$set(obj, "displayName", `${findyoName(obj["username"])}`)
+        this.$set(obj, "displayName", `${findyoName(obj["username"])}`);
       }
       if (obj["contact_numbers"]) {
         this.$set(obj, "phoneNumber", obj["contact_numbers"]);
-        delete obj["contact_numbers"]
+        delete obj["contact_numbers"];
       }
       if (!this.isRegisteredOnPhone) {
-        delete obj["email"]
+        delete obj["email"];
       }
 
-      return obj
+      return obj;
     },
     objectKeyRename(string) {
       return string
@@ -362,7 +383,7 @@ export default {
       arr.map(o => {
         if (o.fields) {
           o.fields.map(p => {
-            let label
+            let label;
             if (
               p.type === "single-text" ||
               p.type === "single-email" ||
@@ -372,17 +393,17 @@ export default {
               label = this.objectKeyRename(p.label);
               this.completionProcessed.push({
                 [label]: p.value
-              })
+              });
             } else if (p.type === "numeric-array") {
               if (p.value && p.value.length > 0) {
-                let numbers = []
+                let numbers = [];
                 p.value.map(q => {
-                  numbers.push(q.value)
+                  numbers.push(q.value);
                 });
-                let num_list = {}
-                label = this.objectKeyRename(p.label)
-                this.$set(num_list, label, numbers)
-                this.completionProcessed.push(num_list)
+                let num_list = {};
+                label = this.objectKeyRename(p.label);
+                this.$set(num_list, label, numbers);
+                this.completionProcessed.push(num_list);
               }
             } else if (p.type === "input-array") {
               if (p.value.length > 0) {
@@ -390,30 +411,30 @@ export default {
                   label = this.objectKeyRename(r.label);
                   this.completionProcessed.push({
                     [label]: r.value
-                  })
-                })
+                  });
+                });
               }
             } else if (p.type === "text-array") {
               if (p.value && p.value.length > 0) {
-                let texts = []
+                let texts = [];
                 if (p.value[0].text) {
                   p.value.map(q => {
-                    texts.push(q.text)
+                    texts.push(q.text);
                   });
                 } else {
                   p.value.map(q => {
-                    texts.push(q)
+                    texts.push(q);
                   });
                 }
-                let text_list = {}
-                label = this.objectKeyRename(p.label)
-                this.$set(text_list, label, texts)
-                this.completionProcessed.push(text_list)
+                let text_list = {};
+                label = this.objectKeyRename(p.label);
+                this.$set(text_list, label, texts);
+                this.completionProcessed.push(text_list);
               }
             }
-          })
+          });
         }
-      })
+      });
     },
     getUILayout() {
       this.db
@@ -438,53 +459,55 @@ export default {
         .doc(this.user.uid)
         .get()
         .then(doc => {
-          this.mapUserDataToLayout(doc.data())
+          this.mapUserDataToLayout(doc.data());
         })
         .catch(error => {
           console.error("Error retriving profile details", error);
         });
     },
     mapUserDataToLayout(object) {
-      const objectArray = Object.entries(object)
-      let object_array = []
+      const objectArray = Object.entries(object);
+      let object_array = [];
       objectArray.forEach(([key, value]) => {
         object_array.push({
           label: key,
           value: value
-        })
-      })
+        });
+      });
       this.completion.map(o => {
         o.fields.map(p => {
           object_array.map(q => {
-            if (this.objectKeyRename(q.label) === this.objectKeyRename(p.label)) {
-              this.$set(p, 'value', q.value)
+            if (
+              this.objectKeyRename(q.label) === this.objectKeyRename(p.label)
+            ) {
+              this.$set(p, "value", q.value);
             }
-          })
-          if (this.objectKeyRename(p.label) === 'contact_numbers') {
-            let phoneNumber = object['phoneNumber']
+          });
+          if (this.objectKeyRename(p.label) === "contact_numbers") {
+            let phoneNumber = object["phoneNumber"];
             if (phoneNumber && phoneNumber.length > 0) {
-              let contactNumbers = []
-              if (typeof phoneNumber === 'string') {
-                const tempNumber = JSON.parse(JSON.stringify(phoneNumber))
-                phoneNumber = []
-                phoneNumber.push(tempNumber)
+              let contactNumbers = [];
+              if (typeof phoneNumber === "string") {
+                const tempNumber = JSON.parse(JSON.stringify(phoneNumber));
+                phoneNumber = [];
+                phoneNumber.push(tempNumber);
               }
               phoneNumber.map(s => {
                 contactNumbers.push({
                   type: p.value[0].type,
                   value: s
-                })
-              })
-              this.$set(p, 'value', contactNumbers)
+                });
+              });
+              this.$set(p, "value", contactNumbers);
             }
           }
-          if (p.type === 'input-array' && p.value && p.value.length > 0) {
+          if (p.type === "input-array" && p.value && p.value.length > 0) {
             p.value.map(t => {
-              this.$set(t, 'value', object[this.objectKeyRename(t.label)])
-            })
+              this.$set(t, "value", object[this.objectKeyRename(t.label)]);
+            });
           }
-        })
-      })
+        });
+      });
     },
     addElement(arr, obj) {
       let newObj = {};
