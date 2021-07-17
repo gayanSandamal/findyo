@@ -50,9 +50,9 @@
 <script>
 import { mapState } from "vuex";
 import common from "../assets/javascript/common/common";
-import register from "@/assets/javascript/api/register/register";
+import user from "@/assets/javascript/api/user";
 export default {
-  mixins: [register],
+  mixins: [user],
   name: "register",
   components: {
     Button: () => import("@/components/inputs/Button")

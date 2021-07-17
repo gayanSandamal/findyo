@@ -5,6 +5,11 @@ export default {
       findYoApiUrl: null,
     };
   },
+  computed: {
+    user() {
+      return this.$store.state.user;
+    },
+  },
   methods: {
     async callFindYoApi(object, successCallback, errorCallback) {
       try {
@@ -12,9 +17,11 @@ export default {
           baseURL: this.findYoApiUrl,
           method: object.method || 'GET',
           url: object.url,
-          Headers: {},
+          headers: {
+            Authorization: this.user ? `Bearer ${this.user.token}` : '',
+          },
         };
-        if (object.method === 'POST') {
+        if (object.data) {
           apiObject.data = await object.data;
         }
         const response = await axios(apiObject);

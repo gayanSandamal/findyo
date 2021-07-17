@@ -41,9 +41,9 @@
 <script>
 import { mapState } from "vuex";
 import common from "../assets/javascript/common/common";
-import login from "@/assets/javascript/api/login/login";
+import user from "@/assets/javascript/api/user";
 export default {
-  mixins: [login],
+  mixins: [user],
   name: "login",
   components: {
     Button: () => import("@/components/inputs/Button")
@@ -89,7 +89,10 @@ export default {
         roles: null,
         userId: 0,
         email: null,
-        emailVerified: false
+        emailVerified: false,
+        phoneNumber: "",
+        photoURL: "",
+        registerMethod: "email"
       };
 
       await this.emailLogin(

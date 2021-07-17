@@ -161,9 +161,12 @@
 import axios from "axios";
 import { findyoName } from "./../func/usables";
 import Datepicker from "vuejs-datepicker";
+import complete from "@/assets/javascript/mixins/complete.mixin.js";
+import user from "@/assets/javascript/api/user";
 
 export default {
   name: "completion",
+  mixins: [complete, user],
   components: {
     Button: () => import("@/components/inputs/Button"),
     VueTagsInput: () => import("@johmun/vue-tags-input"),
@@ -173,7 +176,6 @@ export default {
     return {
       tag: "",
       uiLayout: undefined,
-      completion: [],
       completionProcessed: [],
       currentPage: undefined,
       currentPageIndex: 0,
@@ -222,20 +224,34 @@ export default {
       );
     },
     isRegisteredOnPhone() {
-      return this.user.providerData[0].providerId === "phone" ? true : false;
+      return this.user.registerMethod === "email"
+        ? false
+        : this.user.providerData[0].providerId === "phone"
+        ? true
+        : false;
     },
     user() {
       return this.$store.state.user.user;
+    },
+    userData() {
+      return this.$store.state.user.userData;
     }
   },
   methods: {
-    checkUsername(username) {
-      return axios.post(
-        process.env.VUE_APP_ROOT_API + "/checkUserNameAlreadyExists",
-        {
-          UserName: username
-        }
-      );
+    checkUsername(username, successCallback) {
+      // return axios.post(
+      //   process.env.VUE_APP_ROOT_API + "/checkUserNameAlreadyExists",
+      //   {
+      //     UserName: username
+      //   }
+      // );
+      // no api call for this yet.
+      return new Promise((resolve, reject) => {
+        const response = {
+          data: null
+        };
+        resolve(response);
+      });
     },
     okAction() {
       this.validateRequiredFields();
@@ -245,54 +261,56 @@ export default {
           msg: "Please fill the required fields first",
           type: 1
         });
-      } else {
-        if (this.currentPageIndex === 0) {
-          let username = this.currentPage.fields.find(
-            o => o.label === "Username"
-          );
-          const regex = /[A-Z0-9-!$%^&*()+|~=`{}\[\]:";'<.>?,\/]/g;
-          const found = username.value.match(regex);
-          if (found) {
-            this.eventBus.$emit("message", {
-              msg: `Username can only contain lowercase charactres and an underscore. Ex: john_doe`,
-              type: 1
-            });
-          } else {
-            this.isUsernameValidating = true;
-            if (username.value.includes(" ") || username.value.includes(" ")) {
-              this.eventBus.$emit("message", {
-                msg: `Username already exists. Try another username`,
-                type: 1
-              });
-            }
-            let checkUsernamePromise = this.checkUsername(username.value);
-            checkUsernamePromise
-              .then(response => {
-                if (!response.data) {
-                  this.isUsernameValidating = false;
-                  this.currentPageIndex = this.currentPageIndex + 1;
-                  this.currentPage = this.completion[this.currentPageIndex];
-                } else {
-                  this.isUsernameValidating = false;
-                  this.eventBus.$emit("message", {
-                    msg: `Username already exists. Try another username`,
-                    type: 1
-                  });
-                }
-              })
-              .catch(error => {
+        return;
+      }
+      if (this.currentPageIndex === 0) {
+        this.isUsernameValidating = true;
+        let username = this.currentPage.fields.find(
+          o => o.label === "Username"
+        );
+        const regex = /[A-Z0-9-!$%^&*()+|~=`{}\[\]:";'<.>?,\/]/g;
+        const found = username.value.match(regex);
+        if (
+          found ||
+          username.value.includes(" ") ||
+          username.value.includes(" ")
+        ) {
+          this.eventBus.$emit("message", {
+            msg: `Username can only contain lowercase charactres and an underscore. Ex: john_doe`,
+            type: 1
+          });
+          this.isUsernameValidating = false;
+        } else {
+          let checkUsernamePromise = this.checkUsername(username.value);
+          checkUsernamePromise
+            .then(response => {
+              if (!response.data) {
+                this.isUsernameValidating = false;
+                this.currentPageIndex = this.currentPageIndex + 1;
+                this.currentPage = this.completion[this.currentPageIndex];
+              } else {
+                this.isUsernameValidating = false;
                 this.eventBus.$emit("message", {
-                  msg: `Error when checking username availability`,
+                  msg: `Username already exists. Try another username`,
                   type: 1
                 });
+              }
+            })
+            .catch(error => {
+              this.eventBus.$emit("message", {
+                msg: `Error when checking username availability`,
+                type: 1
               });
-          }
-        } else if (this.currentPageIndex < this.completion.length - 1) {
-          this.currentPageIndex = this.currentPageIndex + 1;
-          this.currentPage = this.completion[this.currentPageIndex];
-        } else {
-          this.saveProfileCompletion();
+              this.isUsernameValidating = false;
+            });
         }
+      } else if (this.currentPageIndex < this.completion.length - 1) {
+        this.currentPageIndex = this.currentPageIndex + 1;
+        this.currentPage = this.completion[this.currentPageIndex];
+        this.isUsernameValidating = false;
+      } else {
+        this.saveProfileCompletion();
+        this.isUsernameValidating = false;
       }
     },
     validateRequiredFields() {
@@ -312,35 +330,71 @@ export default {
         this.currentPage = this.completion[this.currentPageIndex];
       }
     },
-    saveProfileCompletion() {
+    replaceUnderscoresToNormal(obj) {
+      const result = {};
+      Object.keys(obj).forEach(function(key) {
+        result[key.replace(/_/g, "").toLowerCase()] = obj[key];
+      });
+      return result;
+    },
+    replaceNormalToUnderscores(obj) {
+      const result = {};
+      Object.keys(obj).forEach(function(key) {
+        result[this.objectKeyRename(key)] = obj[key];
+      });
+      return result;
+    },
+    async saveProfileCompletion() {
       this.saveDisabled = true;
-      const saveObj = this.makeProfileSaveObj();
+      let saveObj = this.makeProfileSaveObj();
+      saveObj.phoneNumber =
+        Array.isArray(saveObj.phoneNumber) && saveObj.phoneNumber.length
+          ? saveObj.phoneNumber[0]
+          : saveObj.phoneNumber
+          ? saveObj.phoneNumber
+          : "";
+      this.$set(saveObj, "id", this.user.id);
+      this.$set(saveObj, "cid", this.user.userId);
       const objectArray = Object.entries(saveObj);
       objectArray.forEach(([key, value]) => {
         if (value === undefined) {
           delete saveObj[key];
         }
       });
-      this.db
-        .collection("Users")
-        .doc(this.user.uid)
-        .set(saveObj, { merge: true })
-        .then(() => {
-          const displayName = saveObj["displayName"];
-
-          this.updateUserObject(displayName).then(() => {
-            this.eventBus.$emit("load-profile-uid", this.user, true);
-          });
-        })
-        .catch(error => {
-          this.saveDisabled = false;
-          this.eventBus.$emit("message", { msg: error, type: 1 });
-        });
-    },
-    updateUserObject(DisplayName) {
-      return this.user.updateProfile({
-        displayName: DisplayName
-      });
+      saveObj = this.replaceUnderscoresToNormal(saveObj);
+      try {
+        await this.updateUser(
+          {
+            data: saveObj,
+            url: "updateuser",
+            method: "PUT"
+          },
+          async response => {
+            await response.data;
+            if (response.status === 200) {
+              console.log(response);
+              // userStoreObj = {
+              // };
+              // this.$store.commit('updateUser', updateStoreObj)
+              // this.$store.commit('updateProfileData', updateStoreObj)
+              // this.$store.commit('updateUserData', updateStoreObj)
+              // this.saveDisabled = false;
+              // this.eventBus.$emit("load-profile-uid", this.user, true);
+            }
+          },
+          error => {
+            console.log(error);
+            this.saveDisabled = false;
+            this.eventBus.$emit("message", {
+              msg: "something went wrong!",
+              type: 1
+            });
+          }
+        );
+      } catch (error) {
+        this.saveDisabled = false;
+        this.eventBus.$emit("message", { msg: error, type: 1 });
+      }
     },
     makeProfileSaveObj() {
       this.completionProcessed = [];
@@ -437,46 +491,42 @@ export default {
       });
     },
     getUILayout() {
-      this.db
-        .collection("UI_Layers")
-        .doc("User_Information_Form")
-        .get()
-        .then(doc => {
-          this.completion = doc.data().Pages;
-          this.currentPage = this.completion[this.currentPageIndex];
-          this.getUserDetails();
-        })
-        .catch(error => {
-          console.error(
-            "Error retriving UI_Layers, User_Information_Form",
-            error
-          );
-        });
+      this.currentPage = this.completion[this.currentPageIndex];
+      this.getUserDetails();
     },
     getUserDetails() {
-      this.db
-        .collection("Users")
-        .doc(this.user.uid)
-        .get()
-        .then(doc => {
-          this.mapUserDataToLayout(doc.data());
-        })
-        .catch(error => {
-          console.error("Error retriving profile details", error);
-        });
+      if (this.user) {
+        this.mapUserDataToLayout(this.user);
+      } else {
+        console.error("Error retriving profile details");
+      }
     },
-    mapUserDataToLayout(object) {
-      const objectArray = Object.entries(object);
+    async loadValuesFromDB() {
+      const loadedObject = {
+        ...this.user,
+        ...this.userData,
+        ...this.profileData
+      };
+      return loadedObject;
+    },
+    async mapUserDataToLayout(object) {
+      let objectArray = await this.loadValuesFromDB();
+      objectArray = await Object.entries(objectArray);
       let object_array = [];
+      if (this.userData) {
+        objectArray.push(["phoneNumber", this.userData.phoneNumber]);
+      }
+      object_array = Object.entries(object_array);
       objectArray.forEach(([key, value]) => {
-        object_array.push({
-          label: key,
-          value: value
-        });
+        if (key !== "token" && key !== "roles")
+          object_array.push({
+            label: key,
+            value: value
+          });
       });
       this.completion.map(o => {
         o.fields.map(p => {
-          object_array.map(q => {
+          object_array.map((q, index) => {
             if (
               this.objectKeyRename(q.label) === this.objectKeyRename(p.label)
             ) {
