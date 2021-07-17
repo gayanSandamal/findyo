@@ -1,6 +1,7 @@
 const state = {
   user: null,
   userData: null,
+  profileData: null,
 };
 
 const mutations = {
@@ -12,6 +13,15 @@ const mutations = {
   },
   setUserData(state, payload) {
     state.userData = payload;
+  },
+  setProfileData(state, payload) {
+    state.profileData = payload;
+  },
+  updateUserData(state, payload) {
+    //
+  },
+  updateProfileData(state, payload) {
+    //
   },
 };
 

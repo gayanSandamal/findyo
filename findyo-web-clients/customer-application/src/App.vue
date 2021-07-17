@@ -42,8 +42,11 @@ import "firebase/auth";
 import { eventBus } from "./event-bus.js";
 import { fbIinit } from "./firebaseInit";
 import { findyoName } from "./func/usables";
+import user from "@/assets/javascript/api/user";
+import app from "@/assets/javascript/mixins/app.mixin.js";
 
 export default {
+  mixins: [user, app],
   name: "app",
   data() {
     return {
@@ -73,8 +76,6 @@ export default {
         title: null,
         message: null
       },
-      profileData: {},
-      userData: {},
       isProfileDataLoaded: false,
       locations: {},
       chatData: {},
@@ -112,22 +113,73 @@ export default {
       this.infoObject.title = params.title;
       this.infoObject.message = params.message;
     },
-    // authChanged() {
-    //   return new Promise((resolve, reject) => {
-    //     this.auth.onAuthStateChanged((user) => {
-    //       if (user) {
-    //         this.user = user;
-    //         this.getUserProfile(user);
-    //         resolve();
-    //       } else {
-    //         this.user = undefined;
-    //         reject('Error getting logged in user');
-    //       }
-    //     });
-    //   });
-    // },
-    getUserProfile(user, fromCompletion) {
+    authChanged() {
+      return new Promise((resolve, reject) => {
+        if (this.user) {
+          this.getUserProfile(this.user);
+          resolve();
+        } else {
+          reject("Error getting logged in user");
+        }
+      });
+    },
+    async getUserProfile(user, fromCompletion) {
       this.isProfileDataLoaded = false;
+      await this.getUser(
+        {
+          url: `GetUser/${user.id}`,
+          method: "GET"
+        },
+        async response => {
+          const { data } = response;
+          // setProfile Data
+          this.profileData.email = this.user.email;
+          this.profileData.last_name = data[0].lastname;
+          this.profileData.displayName = data[0].displayname;
+          this.profileData.first_name = data[0].firstname;
+          this.profileData.username = data[0].username;
+          this.profileData.district = data[0].district;
+          this.profileData.creationTime = data[0].created_at;
+          this.profileData.phoneNumber = data[0].phone;
+          this.profileData.postal_code = data[0].postal_code;
+          this.profileData.address = data[0].address;
+          this.profileData.emailVerified = data[0].email_verified_at
+            ? data[0].email_verified_at
+            : false;
+          this.profileData.job_title = data[0].job_title;
+          this.profileData.country = data[0].country;
+          this.profileData.province = data[0].province;
+          this.profileData.city = data[0].city;
+          this.profileData.id = this.user.id;
+
+          //set userData
+          this.userData.creationTime = data[0].created_at;
+          this.userData.job_title = data[0].job_title;
+          this.userData.address = data[0].address;
+          this.userData.postal_code = data[0].postal_code;
+          this.userData.displayName = data[0].displayname;
+          this.userData.username = data[0].username;
+          this.userData.phoneNumber = data[0].phone;
+          this.userData.district = data[0].district;
+          this.userData.email = this.user.email;
+          this.userData.country = data[0].country;
+          this.userData.last_name = data[0].lastname;
+          this.userData.province = data[0].province;
+          this.userData.emailVerified = data[0].email_verified_at
+            ? data[0].email_verified_at
+            : false;
+          this.userData.first_name = data[0].firstname;
+          this.userData.city = data[0].city;
+          this.userData.id = this.user.id;
+          // save to store for later use inside components
+          this.$store.commit("setUserData", this.userData);
+          this.$store.commit("setProfileData", this.profileData);
+        },
+        error => {
+          console.log(error);
+        }
+      );
+
       this.db
         .collection("Users")
         .doc(user.uid)
@@ -265,7 +317,7 @@ export default {
   },
   mounted() {
     this.fb = fbIinit.obj;
-    // this.eventBus.$on('check-auth', this.authChanged);
+    this.eventBus.$on("check-auth", this.authChanged);
     this.eventBus.$on("set-info", this.setInfoObj);
     this.eventBus.$on("load-profile", this.loadProfile);
     this.eventBus.$on("clean-profile", this.cleanProfile);
@@ -275,7 +327,7 @@ export default {
     this.getLocations();
   },
   beforeDestroy() {
-    // this.eventBus.$off('check-auth', this.authChanged);
+    this.eventBus.$off("check-auth", this.authChanged);
     this.eventBus.$off("set-info", this.setInfoObj);
     this.eventBus.$off("load-profile", this.loadProfile);
     this.eventBus.$off("clean-profile", this.cleanProfile);
