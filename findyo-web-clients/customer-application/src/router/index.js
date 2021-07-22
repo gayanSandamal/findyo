@@ -229,10 +229,10 @@ const isCapitalLetterAvailable = (username) => {
 
 const checkProfileCompletion = (user) => {
   let isCompleted = true;
-  if (!user.displayName) {
+  if (!user.username) {
     isCompleted = false;
   }
-  if (user.displayName && !isUserNameAllowed(user.displayName)) {
+  if (user.username && !isUserNameAllowed(user.username)) {
     isCompleted = false;
   }
   return isCompleted;

@@ -61,18 +61,6 @@ export default {
       loginBinds: {
         email: "",
         password: ""
-      },
-      InfoError: {
-        state: true,
-        type: 2,
-        title: "Sorry",
-        message: `Something went wrong`
-      },
-      InfoSuccess: {
-        state: true,
-        type: 2,
-        title: "Success",
-        message: `Success`
       }
     };
   },
@@ -106,8 +94,18 @@ export default {
         },
         async response => {
           const responseData = await response;
-          if (responseData.state === 500) {
-            this.eventBus.$emit("set-info", this.InfoError);
+          if (!responseData || !responseData.data) {
+            this.eventBus.$emit("message", {
+              msg: "Something went wrong!",
+              type: 1
+            });
+            return;
+          }
+          if (responseData.status === 203) {
+            this.eventBus.$emit("message", {
+              msg: "username or password is incorrect please try again",
+              type: 1
+            });
           } else if (responseData.status === 200) {
             userObj.token = responseData.data.token;
             userObj.roles = Array.isArray(responseData.data.userrole)
@@ -121,7 +119,6 @@ export default {
         },
         error => {
           this.showValidation(error.response);
-          this.eventBus.$emit("set-info", this.InfoError);
         }
       );
     },
@@ -133,22 +130,31 @@ export default {
       this.$store.commit("logout");
     },
     showValidation(responseData) {
-      let message = "";
+      if (!responseData) {
+        this.eventBus.$emit("message", {
+          msg: "Something went wrong!",
+          type: 1
+        });
+        return;
+      }
       if (responseData.data.email && responseData.data.email.length > 0) {
         responseData.data.email.forEach((err, index, array) => {
-          message += `${err}${array.length - 1 !== index ? "<br/>" : ""}`;
+          this.eventBus.$emit("message", {
+            msg: err,
+            type: 1
+          });
         });
-      }
-      if (responseData.data.password && responseData.data.password.length > 0) {
+      } else if (
+        responseData.data.password &&
+        responseData.data.password.length > 0
+      ) {
         responseData.data.password.forEach((err, index, array) => {
-          message += `${array.length > 0 ? "<br/>" : ""}${err}${
-            array.length - 1 !== index ? "<br/>" : ""
-          }`;
+          this.eventBus.$emit("message", {
+            msg: err,
+            type: 1
+          });
         });
       }
-      this.InfoError.title = "Try again";
-      this.InfoError.message = message;
-      this.eventBus.$emit("set-info", this.InfoError);
     },
     resetFields(all = false) {
       loginBinds.password = "";

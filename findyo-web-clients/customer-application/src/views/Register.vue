@@ -111,10 +111,15 @@ export default {
         },
         async response => {
           const responseData = await response;
-          if (responseData.state === 500) {
-            this.eventBus.$emit("set-info", this.InfoError);
-          } else if (responseData.status === 202) {
-            this.showValidation(responseData);
+          if (!responseData || !responseData.data) {
+            this.eventBus.$emit("message", {
+              msg: "Something went wrong!",
+              type: 1
+            });
+            return;
+          }
+          if (responseData.status === 202) {
+            console.log(responseData);
           } else if (responseData.status === 200) {
             console.log("registration success");
             userObj.token = responseData.data.token;
@@ -126,37 +131,36 @@ export default {
           }
         },
         error => {
-          this.eventBus.$emit("set-info", this.InfoError);
+          this.showValidation(responseData);
         }
       );
     },
     showValidation(responseData) {
-      let message = "";
+      if (!responseData) {
+        this.eventBus.$emit("message", {
+          msg: "Something went wrong!",
+          type: 1
+        });
+        return;
+      }
       if (responseData.data.email && responseData.data.email.length > 0) {
         responseData.data.email.forEach((err, index, array) => {
-          message += `${err}${array.length - 1 !== index ? "<br/>" : ""}`;
+          this.eventBus.$emit("message", {
+            msg: err,
+            type: 1
+          });
         });
-      }
-      if (responseData.data.password && responseData.data.password.length > 0) {
-        responseData.data.password.forEach((err, index, array) => {
-          message += `${array.length > 0 ? "<br/>" : ""}${err}${
-            array.length - 1 !== index ? "<br/>" : ""
-          }`;
-        });
-      }
-      if (
-        responseData.data.c_password &&
-        responseData.data.c_password.length > 0
+      } else if (
+        responseData.data.password &&
+        responseData.data.password.length > 0
       ) {
-        responseData.data.c_password.forEach((err, index, array) => {
-          message += `${array.length > 0 ? "<br/>" : ""}${err}${
-            array.length - 1 !== index ? "<br/>" : ""
-          }`;
+        responseData.data.password.forEach((err, index, array) => {
+          this.eventBus.$emit("message", {
+            msg: err,
+            type: 1
+          });
         });
       }
-      this.InfoError.title = "Try again";
-      this.InfoError.message = message;
-      this.eventBus.$emit("set-info", this.InfoError);
     },
     resetFields(all = false) {
       loginBinds.password = "";
