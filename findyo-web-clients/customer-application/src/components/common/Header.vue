@@ -116,6 +116,9 @@ export default {
     },
     logout() {
       this.$store.commit("logout");
+      setTimeout(() => {
+        this.$router.push({ name: "login" });
+      }, 1000);
     }
   }
 };

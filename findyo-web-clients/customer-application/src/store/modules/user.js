@@ -1,12 +1,14 @@
 const state = {
-  user: null,
-  userData: null,
-  profileData: null,
+  user: undefined,
+  userData: undefined,
+  profileData: undefined,
 };
 
 const mutations = {
   logout(state) {
-    state.user = null;
+    state.user = undefined;
+    state.userData = undefined;
+    state.profileData = undefined;
   },
   login(state, user) {
     state.user = user;
@@ -18,10 +20,15 @@ const mutations = {
     state.profileData = payload;
   },
   updateUserData(state, payload) {
-    //
+    if (Object.keys(payload).length > 0) {
+    }
   },
   updateProfileData(state, payload) {
-    //
+    if (Object.keys(payload).length > 0) {
+    }
+  },
+  updateUser(state, payload) {
+    state.user = payload;
   },
 };
 

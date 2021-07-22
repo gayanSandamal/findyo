@@ -372,18 +372,46 @@ export default {
           async response => {
             await response.data;
             if (response.status === 200) {
-              console.log(response);
-              // userStoreObj = {
-              // };
-              // this.$store.commit('updateUser', updateStoreObj)
-              // this.$store.commit('updateProfileData', updateStoreObj)
-              // this.$store.commit('updateUserData', updateStoreObj)
-              // this.saveDisabled = false;
-              // this.eventBus.$emit("load-profile-uid", this.user, true);
+              const { data } = await response;
+              const updatedUser = {
+                ...user,
+                displayName: data.displayname ?? data[0].displayname,
+                phoneNumber: data.phone,
+                emailVerified: data.email_verified_at
+                  ? data.email_verified_at
+                  : false,
+                userId: data.cid,
+                username: data.username
+              };
+              this.$store.commit("updateUser", updatedUser);
+
+              const updatedUserData = {};
+              //set userData
+              updatedUserData.creationTime = data.created_at;
+              updatedUserData.job_title = data.job_title;
+              updatedUserData.address = data.address;
+              updatedUserData.postal_code = data.postal_code;
+              updatedUserData.displayName =
+                data.displayname ?? data.displayname;
+              updatedUserData.username = data.username;
+              updatedUserData.phoneNumber = data.phone;
+              updatedUserData.district = data.district;
+              updatedUserData.email = this.user.email;
+              updatedUserData.country = data.country;
+              updatedUserData.last_name = data.lastname;
+              updatedUserData.province = data.province;
+              updatedUserData.emailVerified = data.email_verified_at
+                ? data.email_verified_at
+                : false;
+              updatedUserData.first_name = data.firstname;
+              updatedUserData.city = data.city;
+              updatedUserData.id = this.user.id;
+              this.$store.commit("setUserData", updatedUserData);
+              this.$router.push({ name: "home" });
             }
           },
           error => {
-            console.log(error);
+            console.error(error);
             this.saveDisabled = false;
             this.eventBus.$emit("message", {
               msg: "something went wrong!",

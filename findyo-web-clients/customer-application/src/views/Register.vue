@@ -8,6 +8,7 @@
           class="text-input"
           type="email"
           placeholder="Enter your email here"
+          v-on:keyup.enter="handleSubmit(loginBinds)"
         />
       </div>
       <div class="text-wrapper">
@@ -17,6 +18,7 @@
           class="text-input"
           type="password"
           placeholder="Enter your password here"
+          v-on:keyup.enter="handleSubmit(loginBinds)"
         />
       </div>
       <div class="text-wrapper">
@@ -26,6 +28,7 @@
           class="text-input"
           type="password"
           placeholder="Enter your password again here"
+          v-on:keyup.enter="handleSubmit(loginBinds)"
         />
       </div>
       <div class="text-wrapper">
@@ -119,9 +122,8 @@ export default {
             return;
           }
           if (responseData.status === 202) {
-            console.log(responseData);
+            this.showValidation(responseData);
           } else if (responseData.status === 200) {
-            console.log("registration success");
             userObj.token = responseData.data.token;
             userObj.roles = Array.isArray(responseData.data.userrole)
               ? [...responseData.data.userrole]
@@ -131,7 +133,8 @@ export default {
           }
         },
         error => {
-          this.showValidation(responseData);
+          // this.showValidation(responseData);
+          console.error(error);
         }
       );
     },
@@ -173,9 +176,7 @@ export default {
       this.$router.push({ name: "login" });
     }
   },
-  mounted() {
-    //   signInSuccessUrl: "/"
-  }
+  mounted() {}
 };
 </script>
 

@@ -115,7 +115,7 @@ export default {
     },
     authChanged() {
       return new Promise((resolve, reject) => {
-        if (this.user) {
+        if (this.user && user.token !== undefined && user.token !== undefined) {
           this.getUserProfile(this.user);
           resolve();
         } else {
@@ -171,12 +171,24 @@ export default {
           this.userData.first_name = data[0].firstname;
           this.userData.city = data[0].city;
           this.userData.id = this.user.id;
+
+          const updatedUser = {
+            ...user,
+            displayName: data[0].displayname,
+            phoneNumber: data[0].phone,
+            emailVerified: data[0].email_verified_at
+              ? data[0].email_verified_at
+              : false,
+            userId: data[0].cid,
+            username: data[0].username
+          };
           // save to store for later use inside components
+          this.$store.commit("updateUser", updatedUser);
           this.$store.commit("setUserData", this.userData);
           this.$store.commit("setProfileData", this.profileData);
         },
         error => {
-          console.log(error);
+          console.error(error);
         }
       );
 
@@ -201,7 +213,6 @@ export default {
               });
             }, 3000);
           }
-          //console.log(this.userData)
         });
     },
     loadProfile(displayName) {
@@ -233,7 +244,7 @@ export default {
           this.nestLocations(locations);
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
         });
     },
     nestLocations(locations) {
@@ -261,44 +272,45 @@ export default {
     },
     getChatUserList() {
       //debugger
-      const userID = this.user.uid;
+      const userID = this.user.id;
       if (userID) {
         //const self = this;
-        this.db
-          .collection("Chats")
-          .where("UserID", "array-contains", userID)
-          .orderBy("lastUpdatedTime", "desc")
-          .onSnapshot(
-            querySnapshot => {
-              if (querySnapshot.docs.length > 0) {
-                querySnapshot.forEach(doc => {
-                  let data = doc.data();
-                  this.chatUserList.push({
-                    displayName:
-                      data.Users[0].userID != this.user.uid
-                        ? data.Users[0].displayName
-                        : data.Users[1].displayName,
-                    displayPicture:
-                      data.Users[0].userID != this.user.uid
-                        ? data.Users[0].displayPicture
-                        : data.Users[1].displayPicture,
-                    chatID: data.chatID,
-                    userID:
-                      data.Users[0].userID != this.user.uid
-                        ? data.Users[0].userID
-                        : data.Users[1].userID
-                  });
-                });
-              } else {
-                console.log("No Chats");
-              }
-            },
-            error => {
-              console.log("Error getting chat user list", error);
-            }
-          );
+        // this.db
+        //   .collection("Chats")
+        //   .where("UserID", "array-contains", userID)
+        //   .orderBy("lastUpdatedTime", "desc")
+        //   .onSnapshot(
+        //     querySnapshot => {
+        //       if (querySnapshot.docs.length > 0) {
+        //         querySnapshot.forEach(doc => {
+        //           let data = doc.data();
+        //           this.chatUserList.push({
+        //             displayName:
+        //               data.Users[0].userID != this.user.uid
+        //                 ? data.Users[0].displayName
+        //                 : data.Users[1].displayName,
+        //             displayPicture:
+        //               data.Users[0].userID != this.user.uid
+        //                 ? data.Users[0].displayPicture
+        //                 : data.Users[1].displayPicture,
+        //             chatID: data.chatID,
+        //             userID:
+        //               data.Users[0].userID != this.user.uid
+        //                 ? data.Users[0].userID
+        //                 : data.Users[1].userID
+        //           });
+        //         });
+        //       } else {
+        //         console.log("No Chats");
+        //       }
+        //     },
+        //     error => {
+        //       console.log("Error getting chat user list", error);
+        //     }
+        //   );
+        //chat need to impelement
       } else {
-        console.log("Invalid user name");
+        console.error("Invalid user name");
       }
     }
   },

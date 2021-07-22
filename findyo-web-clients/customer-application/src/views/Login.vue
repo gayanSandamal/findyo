@@ -8,6 +8,7 @@
           class="text-input"
           type="email"
           placeholder="Enter your email here"
+          v-on:keyup.enter="handleSubmit(loginBinds)"
         />
       </div>
       <div class="text-wrapper">
@@ -17,6 +18,7 @@
           class="text-input"
           type="password"
           placeholder="Enter your password here"
+          v-on:keyup.enter="handleSubmit(loginBinds)"
         />
       </div>
       <div class="text-wrapper">
@@ -80,7 +82,8 @@ export default {
         emailVerified: false,
         phoneNumber: "",
         photoURL: "",
-        registerMethod: "email"
+        registerMethod: "email",
+        username: null
       };
 
       await this.emailLogin(
@@ -114,6 +117,7 @@ export default {
             userObj.userId = responseData.data.cid;
             userObj.id = responseData.data.id;
             userObj.email = loginBinds.email;
+            userObj.username = responseData.data.name;
             this.loginToStore(userObj);
           }
         },
@@ -166,9 +170,7 @@ export default {
       this.$router.push({ name: "register" });
     }
   },
-  mounted() {
-    //   signInSuccessUrl: "/"
-  }
+  mounted() {}
 };
 </script>
 
