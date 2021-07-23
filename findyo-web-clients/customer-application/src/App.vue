@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{'available': loaded}">
+  <div id="app" :class="{ available: loaded }">
     <Header
       :eventBus="eventBus"
       :isUser="user ? true : false"
@@ -42,15 +42,17 @@ import "firebase/auth";
 import { eventBus } from "./event-bus.js";
 import { fbIinit } from "./firebaseInit";
 import { findyoName } from "./func/usables";
+import user from "@/assets/javascript/api/user";
+import app from "@/assets/javascript/mixins/app.mixin.js";
 
 export default {
+  mixins: [user, app],
   name: "app",
   data() {
     return {
       db: undefined,
       auth: undefined,
       loaded: false,
-      user: undefined,
       fb: undefined,
       eventBus: undefined,
       languageId: 0,
@@ -74,8 +76,6 @@ export default {
         title: null,
         message: null
       },
-      profileData: {},
-      userData: {},
       isProfileDataLoaded: false,
       locations: {},
       chatData: {},
@@ -86,11 +86,25 @@ export default {
     firebaseInit: undefined
   },
   components: {
-    Header: () => import("@/components/common/Header"),
-    "sidebar-nav": () => import("@/components/common/SidebarNav"),
-    "info-window": () => import("@/components/modals/InfoWindow"),
-    Message: () => import("@/components/common/Message"),
-    Progress: () => import("@/components/common/Progress")
+    Header: () =>
+      import(/* webpackChunkName: "Header"*/ "@/components/common/Header"),
+    "sidebar-nav": () =>
+      import(
+        /* webpackChunkName: "sidebar-nav"*/ "@/components/common/SidebarNav"
+      ),
+    "info-window": () =>
+      import(
+        /* webpackChunkName: "info-window"*/ "@/components/modals/InfoWindow"
+      ),
+    Message: () =>
+      import(/* webpackChunkName: "Message"*/ "@/components/common/Message"),
+    Progress: () =>
+      import(/* webpackChunkName: "Progress"*/ "@/components/common/Progress")
+  },
+  computed: {
+    user() {
+      return this.$store.state.user.user;
+    }
   },
   methods: {
     setInfoObj(params) {
@@ -101,20 +115,83 @@ export default {
     },
     authChanged() {
       return new Promise((resolve, reject) => {
-        this.auth.onAuthStateChanged(user => {
-          if (user) {
-            this.user = user
-            this.getUserProfile(user)
-            resolve()
-          } else {
-            this.user = undefined;
-            reject("Error getting logged in user")
-          }
-        })
-      })
+        if (this.user && user.token !== undefined && user.token !== undefined) {
+          this.getUserProfile(this.user);
+          resolve();
+        } else {
+          reject("Error getting logged in user");
+        }
+      });
     },
-    getUserProfile(user, fromCompletion) {
+    async getUserProfile(user, fromCompletion) {
       this.isProfileDataLoaded = false;
+      await this.getUser(
+        {
+          url: `GetUser/${user.id}`,
+          method: "GET"
+        },
+        async response => {
+          const { data } = response;
+          // setProfile Data
+          this.profileData.email = this.user.email;
+          this.profileData.last_name = data[0].lastname;
+          this.profileData.displayName = data[0].displayname;
+          this.profileData.first_name = data[0].firstname;
+          this.profileData.username = data[0].username;
+          this.profileData.district = data[0].district;
+          this.profileData.creationTime = data[0].created_at;
+          this.profileData.phoneNumber = data[0].phone;
+          this.profileData.postal_code = data[0].postal_code;
+          this.profileData.address = data[0].address;
+          this.profileData.emailVerified = data[0].email_verified_at
+            ? data[0].email_verified_at
+            : false;
+          this.profileData.job_title = data[0].job_title;
+          this.profileData.country = data[0].country;
+          this.profileData.province = data[0].province;
+          this.profileData.city = data[0].city;
+          this.profileData.id = this.user.id;
+
+          //set userData
+          this.userData.creationTime = data[0].created_at;
+          this.userData.job_title = data[0].job_title;
+          this.userData.address = data[0].address;
+          this.userData.postal_code = data[0].postal_code;
+          this.userData.displayName = data[0].displayname;
+          this.userData.username = data[0].username;
+          this.userData.phoneNumber = data[0].phone;
+          this.userData.district = data[0].district;
+          this.userData.email = this.user.email;
+          this.userData.country = data[0].country;
+          this.userData.last_name = data[0].lastname;
+          this.userData.province = data[0].province;
+          this.userData.emailVerified = data[0].email_verified_at
+            ? data[0].email_verified_at
+            : false;
+          this.userData.first_name = data[0].firstname;
+          this.userData.city = data[0].city;
+          this.userData.id = this.user.id;
+
+          const updatedUser = {
+            ...user,
+            displayName: data[0].displayname,
+            phoneNumber: data[0].phone,
+            emailVerified: data[0].email_verified_at
+              ? data[0].email_verified_at
+              : false,
+            userId: data[0].cid,
+            username: data[0].username
+          };
+          // save to store for later use inside components
+          this.$store.commit("updateUser", updatedUser);
+          this.$store.commit("setUserData", this.userData);
+          this.$store.commit("setProfileData", this.profileData);
+        },
+        error => {
+          console.error(error);
+        }
+      );
+
       this.db
         .collection("Users")
         .doc(user.uid)
@@ -136,7 +213,6 @@ export default {
               });
             }, 3000);
           }
-          //console.log(this.userData)
         });
     },
     loadProfile(displayName) {
@@ -168,7 +244,7 @@ export default {
           this.nestLocations(locations);
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
         });
     },
     nestLocations(locations) {
@@ -196,44 +272,45 @@ export default {
     },
     getChatUserList() {
       //debugger
-      const userID = this.user.uid;
+      const userID = this.user.id;
       if (userID) {
         //const self = this;
-        this.db
-          .collection("Chats")
-          .where("UserID", "array-contains", userID)
-          .orderBy("lastUpdatedTime", "desc")
-          .onSnapshot(
-            querySnapshot => {
-              if (querySnapshot.docs.length > 0) {
-                querySnapshot.forEach(doc => {
-                  let data = doc.data();
-                  this.chatUserList.push({
-                    displayName:
-                      data.Users[0].userID != this.user.uid
-                        ? data.Users[0].displayName
-                        : data.Users[1].displayName,
-                    displayPicture:
-                      data.Users[0].userID != this.user.uid
-                        ? data.Users[0].displayPicture
-                        : data.Users[1].displayPicture,
-                    chatID: data.chatID,
-                    userID:
-                      data.Users[0].userID != this.user.uid
-                        ? data.Users[0].userID
-                        : data.Users[1].userID
-                  });
-                });
-              } else {
-                console.log("No Chats");
-              }
-            },
-            error => {
-              console.log("Error getting chat user list", error);
-            }
-          );
+        // this.db
+        //   .collection("Chats")
+        //   .where("UserID", "array-contains", userID)
+        //   .orderBy("lastUpdatedTime", "desc")
+        //   .onSnapshot(
+        //     querySnapshot => {
+        //       if (querySnapshot.docs.length > 0) {
+        //         querySnapshot.forEach(doc => {
+        //           let data = doc.data();
+        //           this.chatUserList.push({
+        //             displayName:
+        //               data.Users[0].userID != this.user.uid
+        //                 ? data.Users[0].displayName
+        //                 : data.Users[1].displayName,
+        //             displayPicture:
+        //               data.Users[0].userID != this.user.uid
+        //                 ? data.Users[0].displayPicture
+        //                 : data.Users[1].displayPicture,
+        //             chatID: data.chatID,
+        //             userID:
+        //               data.Users[0].userID != this.user.uid
+        //                 ? data.Users[0].userID
+        //                 : data.Users[1].userID
+        //           });
+        //         });
+        //       } else {
+        //         console.log("No Chats");
+        //       }
+        //     },
+        //     error => {
+        //       console.log("Error getting chat user list", error);
+        //     }
+        //   );
+        //chat need to impelement
       } else {
-        console.log("Invalid user name");
+        console.error("Invalid user name");
       }
     }
   },
@@ -243,13 +320,12 @@ export default {
     this.auth = firebase.auth();
 
     this.authChanged()
-    .then(()=>{
-      this.getChatUserList();
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-    
+      .then(() => {
+        this.getChatUserList();
+      })
+      .catch(error => {
+        console.error(error);
+      });
   },
   mounted() {
     this.fb = fbIinit.obj;

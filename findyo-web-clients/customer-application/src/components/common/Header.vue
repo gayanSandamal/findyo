@@ -8,12 +8,20 @@
         </div>
         <ul class="user-widget-container pull-right">
           <li v-if="isUser" class="user-widget-li-loggedin">
-            <UserWidget :displayName="firstLastName" :email="displayName" :photoUrl="profilePhotoUrl"/>
+            <UserWidget
+              :displayName="firstLastName"
+              :email="displayName"
+              :photoUrl="profilePhotoUrl"
+            />
             <span class="dropdown-trigger" @click.stop="dropdownTrigger"></span>
             <div class="dropdown-close-overlay" v-if="isDropdown" @click.stop="dropdownTrigger"></div>
             <ul class="dropdown" v-if="isDropdown">
-              <li @click.stop="delyedCall"><router-link to="/settings/">Settings</router-link></li>
-              <li><a @click.stop="logout">Logout</a></li>
+              <li @click.stop="delyedCall">
+                <router-link to="/settings/">Settings</router-link>
+              </li>
+              <li>
+                <a @click.stop="logout">Logout</a>
+              </li>
             </ul>
           </li>
           <li v-else>
@@ -31,10 +39,10 @@ import "firebase/auth";
 
 export default {
   name: "header-element",
-  data () {
+  data() {
     return {
       isDropdown: false
-    }
+    };
   },
   props: {
     eventBus: undefined,
@@ -48,14 +56,14 @@ export default {
     },
     user: {
       type: Object,
-      default() { 
-        return {}
+      default() {
+        return {};
       }
     },
     userData: {
       type: Object,
       default() {
-        return {}
+        return {};
       }
     },
     isProfileDataLoaded: {
@@ -69,48 +77,48 @@ export default {
   },
   computed: {
     profilePhotoUrl() {
-      let url = ''
+      let url = "";
       if (this.isProfileDataLoaded) {
-        url = this.userData.displayPicture
-          ? this.userData.displayPicture
-          : ''
+        url = this.userData.displayPicture ? this.userData.displayPicture : "";
       }
-      return url
+      return url;
     },
     displayName() {
-      let displayName = ''
+      let displayName = "";
       if (this.isProfileDataLoaded) {
-        displayName = this.userData.displayName ? this.userData.displayName : ''
+        displayName = this.userData.displayName
+          ? this.userData.displayName
+          : "";
       }
-      return displayName
+      return displayName;
     },
     firstLastName() {
-      let firstLastName = ''
+      let firstLastName = "";
       if (this.isProfileDataLoaded) {
         if (this.userData.first_name && this.userData.last_name) {
-          firstLastName = this.userData.first_name + ' ' + this.userData.last_name
+          firstLastName =
+            this.userData.first_name + " " + this.userData.last_name;
         } else if (this.userData.first_name) {
-          firstLastName = this.userData.first_name
+          firstLastName = this.userData.first_name;
         } else {
-          firstLastName = this.user.providerData[0].displayName
+          firstLastName = this.user.providerData[0].displayName;
         }
       }
-      return firstLastName
+      return firstLastName;
     }
   },
   methods: {
-    delyedCall () {
-      setTimeout(() => this.dropdownTrigger(), 500)
+    delyedCall() {
+      setTimeout(() => this.dropdownTrigger(), 500);
     },
-    dropdownTrigger () {
-      this.isDropdown = !this.isDropdown
+    dropdownTrigger() {
+      this.isDropdown = !this.isDropdown;
     },
-    logout () {
-      firebase.auth().signOut().then(()=>{
-        this.$router.push('/')
-      }).catch((error)=>{
-        alert('Error in logout' + error)
-      })
+    logout() {
+      this.$store.commit("logout");
+      setTimeout(() => {
+        this.$router.push({ name: "login" });
+      }, 1000);
     }
   }
 };

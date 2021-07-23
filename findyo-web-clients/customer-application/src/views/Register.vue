@@ -22,6 +22,16 @@
         />
       </div>
       <div class="text-wrapper">
+        <label>Confirm Password</label>
+        <input
+          v-model="loginBinds.c_password"
+          class="text-input"
+          type="password"
+          placeholder="Enter your password again here"
+          v-on:keyup.enter="handleSubmit(loginBinds)"
+        />
+      </div>
+      <div class="text-wrapper">
         <Button
           :label="button.label"
           :disabled="button.disabled"
@@ -31,9 +41,9 @@
       </div>
       <div class="text-wrapper p-l-1">
         <p
-          @click="goToRegister"
+          @click="goToLogin"
           class="sub-title categories-list-label options"
-        >Don't have an account? Register here</p>
+        >Already have an account? Login here</p>
       </div>
       <!-- <pre>{{ user }}</pre> -->
     </div>
@@ -46,7 +56,7 @@ import common from "../assets/javascript/common/common";
 import user from "@/assets/javascript/api/user";
 export default {
   mixins: [user],
-  name: "login",
+  name: "register",
   components: {
     Button: () => import("@/components/inputs/Button")
   },
@@ -56,13 +66,26 @@ export default {
   data() {
     return {
       button: {
-        label: "Login",
+        label: "Register",
         disabled: false,
         loading: false
       },
       loginBinds: {
         email: "",
-        password: ""
+        password: "",
+        c_password: ""
+      },
+      InfoError: {
+        state: true,
+        type: 2,
+        title: "Sorry",
+        message: `Something went wrong`
+      },
+      InfoSuccess: {
+        state: true,
+        type: 2,
+        title: "Success",
+        message: `Success`
       }
     };
   },
@@ -77,21 +100,15 @@ export default {
         displayName: "",
         token: "",
         roles: null,
-        userId: 0,
-        email: null,
-        emailVerified: false,
-        phoneNumber: "",
-        photoURL: "",
-        registerMethod: "email",
-        username: null
+        userId: 0
       };
-
-      await this.emailLogin(
+      await this.register(
         {
-          url: "emaillogin",
+          url: "emailregister",
           data: {
             email: loginBinds.email,
-            password: loginBinds.password
+            password: loginBinds.password,
+            c_password: loginBinds.c_password
           },
           method: "POST"
         },
@@ -104,34 +121,22 @@ export default {
             });
             return;
           }
-          if (responseData.status === 203) {
-            this.eventBus.$emit("message", {
-              msg: "username or password is incorrect please try again",
-              type: 1
-            });
+          if (responseData.status === 202) {
+            this.showValidation(responseData);
           } else if (responseData.status === 200) {
             userObj.token = responseData.data.token;
             userObj.roles = Array.isArray(responseData.data.userrole)
               ? [...responseData.data.userrole]
               : responseData.data.userrole;
             userObj.userId = responseData.data.cid;
-            userObj.id = responseData.data.id;
-            userObj.email = loginBinds.email;
-            userObj.username = responseData.data.name;
-            this.loginToStore(userObj);
+            this.$router.push({ name: "login" });
           }
         },
         error => {
-          this.showValidation(error.response);
+          // this.showValidation(responseData);
+          console.error(error);
         }
       );
-    },
-    loginToStore(user) {
-      this.$store.commit("login", user);
-      this.$router.push({ name: "home" });
-    },
-    logout() {
-      this.$store.commit("logout");
     },
     showValidation(responseData) {
       if (!responseData) {
@@ -162,12 +167,13 @@ export default {
     },
     resetFields(all = false) {
       loginBinds.password = "";
+      loginBinds.c_password = "";
       if (all) {
         loginBinds.email = "";
       }
     },
-    goToRegister() {
-      this.$router.push({ name: "register" });
+    goToLogin() {
+      this.$router.push({ name: "login" });
     }
   },
   mounted() {}
