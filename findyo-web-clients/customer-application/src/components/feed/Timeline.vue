@@ -41,8 +41,8 @@
 
 <script>
 export default {
-  name: "timeline",
-  data() {
+  name: 'timeline',
+  data () {
     return {
       posts: [],
       isZeroPosts: true,
@@ -56,7 +56,7 @@ export default {
       isLocationSelectModal: {
         state: false
       }
-    };
+    }
   },
   props: {
     eventBus: undefined,
@@ -66,8 +66,8 @@ export default {
     fb: undefined,
     postTypes: {
       type: Array,
-      default() {
-        return [];
+      default () {
+        return []
       }
     },
     nestedCats: {
@@ -84,14 +84,14 @@ export default {
     },
     profileData: {
       type: Object,
-      default() {
-        return {};
+      default () {
+        return {}
       }
     },
     userData: {
       type: Object,
-      default() {
-        return {};
+      default () {
+        return {}
       }
     },
     isMyProfile: {
@@ -103,42 +103,42 @@ export default {
     }
   },
   components: {
-    "add-post": () => import("@/components/feed/AddPost"),
-    Post: () => import("@/components/feed/Post"),
+    'add-post': () => import('@/components/feed/AddPost'),
+    Post: () => import('@/components/feed/Post'),
     categorySelectModal: () =>
-      import("@/components/common/Modals/CategorySelection")
+      import('@/components/common/Modals/CategorySelection')
   },
   methods: {
-    postTypeLabel(typeId) {
-      let type;
+    postTypeLabel (typeId) {
+      let type
       if (typeId === 1) {
-        type = "consumer";
+        type = 'consumer'
       } else if (typeId === 2) {
-        type = "seller";
+        type = 'seller'
       }
-      return type;
+      return type
     },
-    getPostsInitialy() {
+    getPostsInitialy () {
       this.db
-        .collection("User_Posts")
-        .where("userId", "==", this.profileData.uid)
-        .orderBy("postedTime", "desc")
+        .collection('User_Posts')
+        .where('userId', '==', this.profileData.uid)
+        .orderBy('postedTime', 'desc')
         .limit(this.pageSize)
         .onSnapshot(querySnapshot => {
-          this.posts = [];
-          this.isMorePostsLoading = false;
-          this.addToPosts(querySnapshot.docs);
-        });
+          this.posts = []
+          this.isMorePostsLoading = false
+          this.addToPosts(querySnapshot.docs)
+        })
     },
-    addToPosts(arr) {
+    addToPosts (arr) {
       if (arr.length > 0) {
         arr.map(o => {
-          let obj = o.data();
-          this.$set(obj, "id", o.id);
-          this.posts.push(obj);
-          this.lastSnapshot = o;
-          this.isZeroPosts = this.posts.length > 0 ? false : true;
-        });
+          const obj = o.data()
+          this.$set(obj, 'id', o.id)
+          this.posts.push(obj)
+          this.lastSnapshot = o
+          this.isZeroPosts = !(this.posts.length > 0)
+        })
       }
     }
   },
@@ -146,17 +146,17 @@ export default {
     profileData: {
       immediate: true,
       deep: true,
-      handler: function(val, oldVal) {
+      handler: function (val, oldVal) {
         if (val && oldVal && val.uid !== oldVal.uid) {
-          this.getPostsInitialy();
+          this.getPostsInitialy()
         }
       }
     }
   },
-  mounted() {
-    this.getPostsInitialy();
+  mounted () {
+    this.getPostsInitialy()
   }
-};
+}
 </script>
 
 <style scoped>

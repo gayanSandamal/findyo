@@ -296,9 +296,6 @@ export default {
     },
     profileData: {
       type: Object
-    },
-    isProfileDataLoaded: {
-      type: Boolean
     }
   },
   computed: {

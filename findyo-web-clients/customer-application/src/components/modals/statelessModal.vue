@@ -21,7 +21,7 @@
 export default {
   name: 'stateless-modal',
   components: {
-    Button: () => import("@/components/inputs/Button"),
+    Button: () => import('@/components/inputs/Button')
   },
   props: {
     ok: undefined,
@@ -51,7 +51,7 @@ export default {
         return this.close()
       }
     },
-    nullEvent() {}
+    nullEvent () {}
   }
 }
 </script>

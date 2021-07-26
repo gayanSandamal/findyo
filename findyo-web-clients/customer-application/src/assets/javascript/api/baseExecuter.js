@@ -1,17 +1,17 @@
-import axios from 'axios';
+import axios from 'axios'
 export default {
-  data() {
+  data () {
     return {
-      findYoApiUrl: null,
-    };
+      findYoApiUrl: null
+    }
   },
   computed: {
-    user() {
-      return this.$store.state.user.user;
-    },
+    user () {
+      return this.$store.state.user.user
+    }
   },
   methods: {
-    async callFindYoApi(object, successCallback, errorCallback) {
+    async callFindYoApi (object, successCallback, errorCallback) {
       try {
         const apiObject = await {
           baseURL: this.findYoApiUrl,
@@ -24,20 +24,20 @@ export default {
                 : object.data && object.data.token
                 ? object.data.token
                 : ''
-            }`,
-          },
-        };
-        if (object.data) {
-          apiObject.data = await object.data;
+            }`
+          }
         }
-        const response = await axios(apiObject);
-        successCallback(response);
+        if (object.data) {
+          apiObject.data = await object.data
+        }
+        const response = await axios(apiObject)
+        successCallback(response)
       } catch (error) {
-        errorCallback(error);
+        errorCallback(error)
       }
-    },
+    }
   },
-  created() {
-    this.findYoApiUrl = process.env.VUE_APP_FIND_YO_API_URL;
-  },
-};
+  created () {
+    this.findYoApiUrl = process.env.VUE_APP_FIND_YO_API_URL
+  }
+}

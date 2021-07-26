@@ -44,8 +44,6 @@
 
         <p class="post-content m-b-2">For more general information on cookies, please read <a href="https://www.cookieconsent.com/what-are-cookies/">"What Are Cookies"</a>.</p>
 
-
-
         <h2 class="sub-title">Advertising Partners Privacy Policies</h2>
 
         <p class="post-content">You may consult this list to find the Privacy Policy for each of the advertising partners of findyo.lk.</p>
@@ -91,8 +89,8 @@
 
 <script>
 export default {
-  name: 'privacy-and-policy',
-};
+  name: 'privacy-and-policy'
+}
 </script>
 <style lang="scss" scoped>
 .list {
@@ -106,4 +104,3 @@ export default {
   }
 }
 </style>
-

@@ -41,147 +41,145 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import common from "../assets/javascript/common/common";
-import user from "@/assets/javascript/api/user";
+import user from '@/assets/javascript/api/user'
 export default {
   mixins: [user],
-  name: "login",
+  name: 'login',
   components: {
-    Button: () => import("@/components/inputs/Button")
+    Button: () => import('@/components/inputs/Button')
   },
   props: {
     eventBus: undefined
   },
-  data() {
+  data () {
     return {
       button: {
-        label: "Login",
+        label: 'Login',
         disabled: false,
         loading: false
       },
       loginBinds: {
-        email: "",
-        password: ""
+        email: '',
+        password: ''
       }
-    };
+    }
   },
   computed: {
-    user() {
-      return this.$store.state.user;
+    user () {
+      return this.$store.state.user
     }
   },
   methods: {
-    async handleSubmit(loginBinds) {
+    async handleSubmit (loginBinds) {
       const userObj = await {
-        displayName: "",
-        token: "",
+        displayName: '',
+        token: '',
         roles: null,
         userId: 0,
         email: null,
         emailVerified: false,
-        phoneNumber: "",
-        photoURL: "",
-        registerMethod: "email",
+        phoneNumber: '',
+        photoURL: '',
+        registerMethod: 'email',
         username: null
-      };
+      }
 
       await this.emailLogin(
         {
-          url: "emaillogin",
+          url: 'emaillogin',
           data: {
             email: loginBinds.email,
             password: loginBinds.password
           },
-          method: "POST"
+          method: 'POST'
         },
         async response => {
-          const responseData = await response;
+          const responseData = await response
           if (!responseData || !responseData.data) {
-            this.eventBus.$emit("message", {
-              msg: "Something went wrong!",
+            this.eventBus.$emit('message', {
+              msg: 'Something went wrong!',
               type: 1
-            });
-            return;
+            })
+            return
           }
           if (responseData.status === 203) {
-            this.eventBus.$emit("message", {
-              msg: "username or password is incorrect please try again",
+            this.eventBus.$emit('message', {
+              msg: 'username or password is incorrect please try again',
               type: 1
-            });
+            })
           } else if (responseData.status === 200) {
-            userObj.token = responseData.data.token;
+            userObj.token = responseData.data.token
             userObj.roles = Array.isArray(responseData.data.userrole)
               ? [...responseData.data.userrole]
-              : responseData.data.userrole;
-            userObj.userId = responseData.data.cid;
-            userObj.id = responseData.data.id;
-            userObj.email = loginBinds.email;
-            userObj.username = responseData.data.name;
-            this.loginToStore(userObj);
+              : responseData.data.userrole
+            userObj.userId = responseData.data.cid
+            userObj.id = responseData.data.id
+            userObj.email = loginBinds.email
+            userObj.username = responseData.data.name
+            this.loginToStore(userObj)
           }
         },
         error => {
-          this.showValidation(error.response);
+          this.showValidation(error.response)
         }
-      );
+      )
     },
-    loginToStore(user) {
-      this.$store.commit("login", user);
-      this.fillVueXStore(user);
+    loginToStore (user) {
+      this.$store.commit('login', user)
+      this.fillVueXStore(user)
     },
-    async fillVueXStore(user) {
+    async fillVueXStore (user) {
       await this.getUser(
         {
           url: `GetUser/${user.id}`,
-          method: "GET",
+          method: 'GET',
           data: {
             token: user.token
           }
         },
         async response => {
-          const { data } = await response;
-          const profileData = {};
-          const userData = {};
+          const { data } = await response
+          const profileData = {}
+          const userData = {}
           // setProfile Data
-          profileData.email = user.email;
-          profileData.last_name = data[0].lastname;
-          profileData.displayName = data[0].displayname;
-          profileData.first_name = data[0].firstname;
-          profileData.username = data[0].username;
-          profileData.district = data[0].district;
-          profileData.creationTime = data[0].created_at;
-          profileData.phoneNumber = data[0].phone;
-          profileData.postal_code = data[0].postal_code;
-          profileData.address = data[0].address;
+          profileData.email = user.email
+          profileData.last_name = data[0].lastname
+          profileData.displayName = data[0].displayname
+          profileData.first_name = data[0].firstname
+          profileData.username = data[0].username
+          profileData.district = data[0].district
+          profileData.creationTime = data[0].created_at
+          profileData.phoneNumber = data[0].phone
+          profileData.postal_code = data[0].postal_code
+          profileData.address = data[0].address
           profileData.emailVerified = data[0].email_verified_at
             ? data[0].email_verified_at
-            : false;
-          profileData.job_title = data[0].job_title;
-          profileData.country = data[0].country;
-          profileData.province = data[0].province;
-          profileData.city = data[0].city;
-          profileData.id = user.id;
+            : false
+          profileData.job_title = data[0].job_title
+          profileData.country = data[0].country
+          profileData.province = data[0].province
+          profileData.city = data[0].city
+          profileData.id = user.id
 
-          //set userData
-          userData.creationTime = data[0].created_at;
-          userData.job_title = data[0].job_title;
-          userData.address = data[0].address;
-          userData.postal_code = data[0].postal_code;
-          userData.displayName = data[0].displayname;
-          userData.username = data[0].username;
-          userData.phoneNumber = data[0].phone;
-          userData.district = data[0].district;
-          userData.email = user.email;
-          userData.country = data[0].country;
-          userData.last_name = data[0].lastname;
-          userData.province = data[0].province;
+          // set userData
+          userData.creationTime = data[0].created_at
+          userData.job_title = data[0].job_title
+          userData.address = data[0].address
+          userData.postal_code = data[0].postal_code
+          userData.displayName = data[0].displayname
+          userData.username = data[0].username
+          userData.phoneNumber = data[0].phone
+          userData.district = data[0].district
+          userData.email = user.email
+          userData.country = data[0].country
+          userData.last_name = data[0].lastname
+          userData.province = data[0].province
           userData.emailVerified = data[0].email_verified_at
             ? data[0].email_verified_at
-            : false;
-          userData.first_name = data[0].firstname;
-          userData.city = data[0].city;
-          userData.id = user.id;
+            : false
+          userData.first_name = data[0].firstname
+          userData.city = data[0].city
+          userData.id = user.id
 
           const updatedUser = {
             ...user,
@@ -192,69 +190,69 @@ export default {
               : false,
             userId: data[0].cid,
             username: data[0].username
-          };
+          }
           // save to store for later use inside components
-          this.$store.commit("updateUser", updatedUser);
-          this.$store.commit("setUserData", userData);
-          this.$store.commit("setProfileData", profileData);
+          this.$store.commit('updateUser', updatedUser)
+          this.$store.commit('setUserData', userData)
+          this.$store.commit('setProfileData', profileData)
           setTimeout(() => {
-            this.$router.push({ name: "home" });
-          }, 1000);
+            this.$router.push({ name: 'home' })
+          }, 1000)
         },
         error => {
-          console.error(error);
+          console.error(error)
         }
-      );
+      )
     },
-    logout() {
-      this.$store.commit("logout");
+    logout () {
+      this.$store.commit('logout')
     },
-    showValidation(responseData) {
+    showValidation (responseData) {
       if (!responseData) {
-        this.eventBus.$emit("message", {
-          msg: "Something went wrong!",
+        this.eventBus.$emit('message', {
+          msg: 'Something went wrong!',
           type: 1
-        });
-        return;
+        })
+        return
       }
       if (responseData.data.email && responseData.data.email.length > 0) {
         responseData.data.email.forEach((err, index, array) => {
-          this.eventBus.$emit("message", {
+          this.eventBus.$emit('message', {
             msg: err,
             type: 1
-          });
-        });
+          })
+        })
       } else if (
         responseData.data.password &&
         responseData.data.password.length > 0
       ) {
         responseData.data.password.forEach((err, index, array) => {
-          this.eventBus.$emit("message", {
+          this.eventBus.$emit('message', {
             msg: err,
             type: 1
-          });
-        });
+          })
+        })
       }
     },
-    resetFields(all = false) {
-      loginBinds.password = "";
+    resetFields (all = false) {
+      this.loginBinds.password = ''
       if (all) {
-        loginBinds.email = "";
+        this.loginBinds.email = ''
       }
     },
-    goToRegister() {
-      this.$router.push({ name: "register" });
+    goToRegister () {
+      this.$router.push({ name: 'register' })
     },
-    checkAlreadyLogin() {
+    checkAlreadyLogin () {
       if (this.user.user) {
-        this.$router.push({ name: "home" });
+        this.$router.push({ name: 'home' })
       }
     }
   },
-  mounted() {
-    this.checkAlreadyLogin();
+  mounted () {
+    this.checkAlreadyLogin()
   }
-};
+}
 </script>
 
 <style scoped>

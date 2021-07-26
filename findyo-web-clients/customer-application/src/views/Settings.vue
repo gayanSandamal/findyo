@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import {findyoName} from './../func/usables'
+import { findyoName } from './../func/usables'
 export default {
   name: 'settings',
   data () {
@@ -44,11 +44,11 @@ export default {
     },
     initRedirect () {
       if (this.$route.name === 'settings') {
-        this.$router.push({path: '/settings/profile'})
+        this.$router.push({ path: '/settings/profile' })
       }
     }
   },
-  created() {
+  created () {
     this.initRedirect()
   }
 }

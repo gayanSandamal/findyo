@@ -25,13 +25,13 @@
 <script>
 export default {
   name: 'profile-settings',
-  data() {
+  data () {
     return {
 
     }
   },
   components: {
-    Button: () => import("@/components/inputs/Button")
+    Button: () => import('@/components/inputs/Button')
   }
 }
 </script>

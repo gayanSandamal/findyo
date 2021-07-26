@@ -25,17 +25,17 @@ export default {
   },
   methods: {
     remove () {
-      let item = this.files.find(o => {
+      const item = this.files.find(o => {
         return o === this.file
       })
-      let index = this.files.indexOf(item)
+      const index = this.files.indexOf(item)
       if (index > -1) {
         this.files.splice(index, 1)
       }
     },
     setFile () {
       if (this.file) {
-        const reader = new FileReader
+        const reader = new FileReader()
         reader.onload = e => {
           this.imageData = e.target.result
         }

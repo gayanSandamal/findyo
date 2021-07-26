@@ -7,29 +7,29 @@ import 'firebase/auth'
 // import 'firebase/messaging'
 import router from './router'
 
-import {firebaseConfig} from './firebaseConfig'
-let firebaseInitiated = firebase.initializeApp(firebaseConfig)
-import {fbIinit} from './firebaseInit'
+import { firebaseConfig } from './firebaseConfig'
+import { fbIinit } from './firebaseInit'
+
+import VueAutosize from 'vue-autosize'
+
+import VueContentPlaceholders from 'vue-content-placeholders'
+const firebaseInitiated = firebase.initializeApp(firebaseConfig)
 // import {firebaseMessaging} from './firebaseMessaging'
 
 // firebaseMessaging(firebase)
 
 fbIinit.obj = firebaseInitiated
 Vue.config.productionTip = false
-
-import VueAutosize from 'vue-autosize'
 Vue.use(VueAutosize)
-
-import VueContentPlaceholders from 'vue-content-placeholders'
 Vue.use(VueContentPlaceholders)
 
 let app
 firebase.auth().onAuthStateChanged(() => {
-  if(!app){
+  if (!app) {
     app = new Vue({
       router,
       store,
       render: h => h(App)
-    }).$mount('#app')    
+    }).$mount('#app')
   }
 })

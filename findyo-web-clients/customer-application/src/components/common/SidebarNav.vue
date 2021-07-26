@@ -27,35 +27,35 @@
 </template>
 
 <script>
-import { findyoName } from "./../../func/usables";
+import { findyoName } from './../../func/usables'
 export default {
-  name: "sidebar-nav",
+  name: 'sidebar-nav',
   props: {},
   components: {
     // Logo: () => import ('@/components/common/Logo')
   },
   computed: {
-    userData() {
-      return this.$store.state.user.userData;
+    userData () {
+      return this.$store.state.user.userData
     },
-    user() {
-      return this.$store.state.user.user;
+    user () {
+      return this.$store.state.user.user
     },
-    displayName() {
-      let displayName = "";
+    displayName () {
+      let displayName = ''
       if (this.userData) {
-        displayName = this.userData.displayName;
+        displayName = this.userData.displayName
       }
-      return displayName;
+      return displayName
     }
   },
   methods: {
-    findyoName(str) {
-      return findyoName(str);
+    findyoName (str) {
+      return findyoName(str)
     }
   },
-  mounted() {}
-};
+  mounted () {}
+}
 </script>
 
 <style lang="scss" scoped>

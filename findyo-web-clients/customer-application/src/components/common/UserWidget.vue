@@ -10,9 +10,9 @@
 
 <script>
 export default {
-  name: "user-widget",
-  data() {
-    return {};
+  name: 'user-widget',
+  data () {
+    return {}
   },
   props: {
     displayName: {
@@ -26,9 +26,9 @@ export default {
     }
   },
   components: {
-    UserImageOwn: () => import("@/components/common/UserImageOwn")
+    UserImageOwn: () => import('@/components/common/UserImageOwn')
   }
-};
+}
 </script>
 
 <style scoped>

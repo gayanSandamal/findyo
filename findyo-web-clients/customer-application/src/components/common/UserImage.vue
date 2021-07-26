@@ -7,12 +7,12 @@
 </template>
 
 <script>
-import {findyoName} from './../../func/usables'
+import { findyoName } from './../../func/usables'
 export default {
-  name: "UserImage",
-  data() {
+  name: 'UserImage',
+  data () {
     return {
-    };
+    }
   },
   props: {
     userImage: {
@@ -27,7 +27,7 @@ export default {
       return findyoName(str)
     }
   }
-};
+}
 </script>
 
 <style scoped lang="scss">

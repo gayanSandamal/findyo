@@ -19,13 +19,13 @@
 export default {
   name: 'notifications',
   components: {
-    NotificationWidget: () => import ('@/components/common/NotificationWidget')
+    NotificationWidget: () => import('@/components/common/NotificationWidget')
   },
-  data() {
+  data () {
     return {}
   },
   props: {}
-};
+}
 </script>
 
 <style scoped lang="scss">
