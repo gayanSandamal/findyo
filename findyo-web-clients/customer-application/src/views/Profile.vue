@@ -18,13 +18,13 @@
       </div>
       <div class="profile-banner-image-wrapepr">
         <UserWidget
-          v-if="isProfileDataLoaded"
+          v-if="userData"
           class="profile-banner-image"
           :displayName="firstLastName"
           :email="displayName"
           :photoUrl="profilePhotoUrl"
         />
-        <label v-if="isMyProfile && isProfileDataLoaded" for="profile-upload" class="update-image"></label>
+        <label v-if="isMyProfile && userData" for="profile-upload" class="update-image"></label>
         <input
           v-if="isMyProfile"
           id="profile-upload"
@@ -87,7 +87,6 @@
         :profileSettings="profileSettings"
         :profileData="profileData"
         :userData="userData"
-        :isProfileDataLoaded="isProfileDataLoaded"
         :isMyProfile="isMyProfile"
       />
     </div>
@@ -113,6 +112,11 @@ export default {
       isMyProfile: false
     };
   },
+  computed: {
+    userData() {
+      this.$store.state.user.userData;
+    }
+  },
   props: {
     eventBus: undefined,
     db: undefined,
@@ -137,10 +141,6 @@ export default {
         return {};
       }
     },
-    isProfileDataLoaded: {
-      type: Boolean,
-      default: false
-    },
     locations: {
       type: Object
     }
@@ -155,12 +155,12 @@ export default {
       return categoryHierarchy;
     },
     locationHierarchy() {
-      let locationHierarchy = []
-      this.mapLocationHierarchy(this.locationList, locationHierarchy)
-      return locationHierarchy
+      let locationHierarchy = [];
+      this.mapLocationHierarchy(this.locationList, locationHierarchy);
+      return locationHierarchy;
     },
     locationList() {
-      return this.locations.locations ? this.locations.locations : []
+      return this.locations.locations ? this.locations.locations : [];
     },
     nestedCats() {
       let list = [];
@@ -179,29 +179,29 @@ export default {
       return list;
     },
     coverPhotoUrl() {
-      return this.profileData.coverURL
-        ? this.profileData.coverURL
-        : '';
+      return this.profileData.coverURL ? this.profileData.coverURL : "";
     },
     profilePhotoUrl() {
-      let url = ''
-      if (this.isProfileDataLoaded) {
+      let url = "";
+      if (this.userData) {
         url = this.profileData.displayPicture
           ? this.profileData.displayPicture
-          : ''
+          : "";
       }
       return url;
     },
     displayName() {
-      let displayName = ''
-      if (this.isProfileDataLoaded) {
-        displayName = this.profileData.displayName ? this.profileData.displayName : ''
+      let displayName = "";
+      if (this.userData) {
+        displayName = this.profileData.displayName
+          ? this.profileData.displayName
+          : "";
       }
-      return displayName
+      return displayName;
     },
     firstLastName() {
       let firstLastName = "";
-      if (this.isProfileDataLoaded) {
+      if (this.userData) {
         if (this.profileData.first_name && this.profileData.last_name) {
           firstLastName =
             this.profileData.first_name + " " + this.profileData.last_name;
@@ -221,9 +221,9 @@ export default {
     },
     checkUserForProfile() {
       if (this.$route.params.id !== this.userData.displayName) {
-        this.isMyProfile = false
+        this.isMyProfile = false;
       } else {
-        this.isMyProfile = true
+        this.isMyProfile = true;
       }
     },
     mapCategoryHierarchy(list, categoryHierarchy) {
@@ -319,19 +319,26 @@ export default {
         task.on(
           "state_changed",
           function progress(snapshot) {
-            snap = snapshot
-            let percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            self.eventBus.$emit('progress', {mode: 'state', percentage: percentage})
+            snap = snapshot;
+            let percentage =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            self.eventBus.$emit("progress", {
+              mode: "state",
+              percentage: percentage
+            });
           },
           function error(err) {
-            self.eventBus.$emit("message", { msg: 'Profile picture did not uploaded successfully', type: 1 });
+            self.eventBus.$emit("message", {
+              msg: "Profile picture did not uploaded successfully",
+              type: 1
+            });
           },
           function complete(obj) {
-            let isPictureExistsInStorage = false
+            let isPictureExistsInStorage = false;
             if (self.user.photoURL) {
               isPictureExistsInStorage = self.user.photoURL
-              .toString()
-              .includes("firebasestorage.googleapis.com");
+                .toString()
+                .includes("firebasestorage.googleapis.com");
             }
 
             if (!isPictureExistsInStorage) {
@@ -345,32 +352,34 @@ export default {
                 type: 0
               });
               setTimeout(() => {
-                location.reload()
-              }, 2000)
+                location.reload();
+              }, 2000);
             }
           }
         );
       }
     },
     saveNewProfileUrlInUserObject(downloadURL) {
-      this.user.updateProfile({
-        photoURL: downloadURL
-      }).then(() => {
+      this.user
+        .updateProfile({
+          photoURL: downloadURL
+        })
+        .then(() => {
           this.eventBus.$emit("message", {
             msg: "Profile picture Uploaded Successfully",
             type: 0
           });
           setTimeout(() => {
-            location.reload()
-          }, 2000)
+            location.reload();
+          }, 2000);
         })
         .catch(error => {
           this.eventBus.$emit("message", { msg: error, type: 1 });
         });
     },
     addCompressCoverPhoto(event) {
-      let self = this
-      this.eventBus.$emit('progress', {mode: 'state', percentage: 0})
+      let self = this;
+      this.eventBus.$emit("progress", { mode: "state", percentage: 0 });
       const file = event.target.files[0];
       // check for accepted file meme types
       if (file.type === "image/png" || file.type === "image/jpeg") {
@@ -401,21 +410,28 @@ export default {
       task.on(
         "state_changed",
         function progress(snapshot) {
-          snap = snapshot
-          let percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          snap = snapshot;
+          let percentage =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           // if (percentage === 100) {
           //   self.eventBus.$emit('progress', {mode: 'state', percentage: percentage})
           // }
         },
         function error(err) {
-          self.eventBus.$emit("message", { msg: 'Cover photo did not uploaded successfully', type: 1 })
+          self.eventBus.$emit("message", {
+            msg: "Cover photo did not uploaded successfully",
+            type: 1
+          });
         },
         function complete() {
           snap.ref.getDownloadURL().then(function(downloadURL) {
-            self.saveNewCoverUrlInDB(downloadURL)
-          })
-          self.eventBus.$emit('progress', {mode: 'state', percentage: 100})
-          self.eventBus.$emit("message", { msg: 'Cover photo uploaded successfully', type: 0 })
+            self.saveNewCoverUrlInDB(downloadURL);
+          });
+          self.eventBus.$emit("progress", { mode: "state", percentage: 100 });
+          self.eventBus.$emit("message", {
+            msg: "Cover photo uploaded successfully",
+            type: 0
+          });
         }
       );
     },
@@ -437,12 +453,12 @@ export default {
     mapLocationHierarchy(list, locationHierarchy) {
       list.map(o => {
         if (o.selected) {
-          locationHierarchy.push(o)
+          locationHierarchy.push(o);
           if (o.locations && o.locations.length > 0) {
-            this.mapLocationHierarchy(o.locations, locationHierarchy)
+            this.mapLocationHierarchy(o.locations, locationHierarchy);
           }
         }
-      })
+      });
     }
   },
   watch: {
@@ -450,8 +466,8 @@ export default {
       immediate: true,
       deep: true,
       handler: function(val, oldVal) {
-        if (val && val.displayName && val.displayName.trim() !== '') {
-          this.checkUserForProfile()
+        if (val && val.displayName && val.displayName.trim() !== "") {
+          this.checkUserForProfile();
         }
       }
     }
@@ -460,7 +476,7 @@ export default {
     this.eventBus.$emit("load-profile", this.$route.params.id);
   },
   mounted() {
-    this.getHomeStaticData()
+    this.getHomeStaticData();
   },
   beforeDestroy() {
     this.eventBus.$emit("clean-profile");

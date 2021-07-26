@@ -11,24 +11,16 @@ const mutations = {
     state.profileData = undefined;
   },
   login(state, user) {
-    state.user = user;
+    state.user = { ...state.user, ...user };
   },
   setUserData(state, payload) {
-    state.userData = payload;
+    state.userData = { ...state.userData, ...payload };
   },
   setProfileData(state, payload) {
-    state.profileData = payload;
-  },
-  updateUserData(state, payload) {
-    if (Object.keys(payload).length > 0) {
-    }
-  },
-  updateProfileData(state, payload) {
-    if (Object.keys(payload).length > 0) {
-    }
+    state.profileData = { ...state.profileData, ...payload };
   },
   updateUser(state, payload) {
-    state.user = payload;
+    state.user = { ...state.user, ...payload };
   },
 };
 

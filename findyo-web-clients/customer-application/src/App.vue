@@ -1,12 +1,6 @@
 <template>
   <div id="app" :class="{ available: loaded }">
-    <Header
-      :eventBus="eventBus"
-      :isUser="user ? true : false"
-      :user="user"
-      :userData="userData"
-      :isProfileDataLoaded="isProfileDataLoaded"
-    />
+    <Header :eventBus="eventBus" :isUser="!!user" :user="user" :userData="userData" />
     <article class="container">
       <router-view
         :eventBus="eventBus"
@@ -18,18 +12,12 @@
         :fb="fb"
         :profileData="profileData"
         :userData="userData"
-        :isProfileDataLoaded="isProfileDataLoaded"
         :locations="locations"
         :chatData="chatData"
         :chatUserList="chatUserList"
       />
     </article>
-    <sidebar-nav
-      :eventBus="eventBus"
-      :user="user"
-      :userData="userData"
-      :isProfileDataLoaded="isProfileDataLoaded"
-    />
+    <sidebar-nav :eventBus="eventBus" :user="user" :userData="userData" />
     <info-window v-if="infoObject.state" :info="infoObject" />
     <Message :eventBus="eventBus" :msg="''" />
     <Progress :eventBus="eventBus" />
@@ -76,7 +64,6 @@ export default {
         title: null,
         message: null
       },
-      isProfileDataLoaded: false,
       locations: {},
       chatData: {},
       chatUserList: []
@@ -115,7 +102,7 @@ export default {
     },
     authChanged() {
       return new Promise((resolve, reject) => {
-        if (this.user && user.token !== undefined && user.token !== undefined) {
+        if (this.user && this.user.token !== undefined) {
           this.getUserProfile(this.user);
           resolve();
         } else {
@@ -124,14 +111,13 @@ export default {
       });
     },
     async getUserProfile(user, fromCompletion) {
-      this.isProfileDataLoaded = false;
       await this.getUser(
         {
           url: `GetUser/${user.id}`,
           method: "GET"
         },
         async response => {
-          const { data } = response;
+          const { data } = await response;
           // setProfile Data
           this.profileData.email = this.user.email;
           this.profileData.last_name = data[0].lastname;
@@ -192,28 +178,27 @@ export default {
         }
       );
 
-      this.db
-        .collection("Users")
-        .doc(user.uid)
-        .onSnapshot(querySnapshot => {
-          this.profileData = querySnapshot.data();
-          this.userData = querySnapshot.data();
-          this.$set(this.profileData, "id", querySnapshot.id);
-          this.$set(this.userData, "id", querySnapshot.id);
-          this.isProfileDataLoaded = true;
-          if (fromCompletion) {
-            this.eventBus.$emit("message", {
-              msg:
-                "Profile Updated Successfully. You will be redirected to your profile",
-              type: 0
-            });
-            setTimeout(() => {
-              this.$router.push({
-                path: "/" + findyoName(this.userData.displayName) + "/timeline"
-              });
-            }, 3000);
-          }
-        });
+      // this.db
+      //   .collection("Users")
+      //   .doc(user.uid)
+      //   .onSnapshot(querySnapshot => {
+      //     this.profileData = querySnapshot.data();
+      //     this.userData = querySnapshot.data();
+      //     this.$set(this.profileData, "id", querySnapshot.id);
+      //     this.$set(this.userData, "id", querySnapshot.id);
+      //     if (fromCompletion) {
+      //       this.eventBus.$emit("message", {
+      //         msg:
+      //           "Profile Updated Successfully. You will be redirected to your profile",
+      //         type: 0
+      //       });
+      //       setTimeout(() => {
+      //         this.$router.push({
+      //           path: "/" + findyoName(this.userData.displayName) + "/timeline"
+      //         });
+      //       }, 3000);
+      //     }
+      //   });
     },
     loadProfile(displayName) {
       this.db
@@ -318,16 +303,15 @@ export default {
     this.eventBus = eventBus;
     this.db = firebase.firestore();
     this.auth = firebase.auth();
-
-    this.authChanged()
-      .then(() => {
-        this.getChatUserList();
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    // this.authChanged()
+    //   .then(() => {
+    //   })
+    //   .catch(error => {
+    //     console.error(error);
+    //   });
   },
   mounted() {
+    this.authChanged();
     this.fb = fbIinit.obj;
     this.eventBus.$on("check-auth", this.authChanged);
     this.eventBus.$on("set-info", this.setInfoObj);

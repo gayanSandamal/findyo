@@ -174,9 +174,17 @@ export default {
     },
     goToLogin() {
       this.$router.push({ name: "login" });
+    },
+    checkAlreadyLogin() {
+      console.log(this.user.user);
+      if (this.user.user) {
+        this.$router.push({ name: "home" });
+      }
     }
   },
-  mounted() {}
+  mounted() {
+    this.checkAlreadyLogin();
+  }
 };
 </script>
 

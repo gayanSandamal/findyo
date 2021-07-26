@@ -7,7 +7,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.user;
+      return this.$store.state.user.user;
     },
   },
   methods: {
@@ -18,7 +18,13 @@ export default {
           method: object.method || 'GET',
           url: object.url,
           headers: {
-            Authorization: this.user ? `Bearer ${this.user.token}` : '',
+            Authorization: `Bearer ${
+              this.user && this.user.token
+                ? this.user.token
+                : object.data && object.data.token
+                ? object.data.token
+                : ''
+            }`,
           },
         };
         if (object.data) {

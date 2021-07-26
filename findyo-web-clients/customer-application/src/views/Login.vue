@@ -128,7 +128,83 @@ export default {
     },
     loginToStore(user) {
       this.$store.commit("login", user);
-      this.$router.push({ name: "home" });
+      this.fillVueXStore(user);
+    },
+    async fillVueXStore(user) {
+      await this.getUser(
+        {
+          url: `GetUser/${user.id}`,
+          method: "GET",
+          data: {
+            token: user.token
+          }
+        },
+        async response => {
+          const { data } = await response;
+          const profileData = {};
+          const userData = {};
+          // setProfile Data
+          profileData.email = user.email;
+          profileData.last_name = data[0].lastname;
+          profileData.displayName = data[0].displayname;
+          profileData.first_name = data[0].firstname;
+          profileData.username = data[0].username;
+          profileData.district = data[0].district;
+          profileData.creationTime = data[0].created_at;
+          profileData.phoneNumber = data[0].phone;
+          profileData.postal_code = data[0].postal_code;
+          profileData.address = data[0].address;
+          profileData.emailVerified = data[0].email_verified_at
+            ? data[0].email_verified_at
+            : false;
+          profileData.job_title = data[0].job_title;
+          profileData.country = data[0].country;
+          profileData.province = data[0].province;
+          profileData.city = data[0].city;
+          profileData.id = user.id;
+
+          //set userData
+          userData.creationTime = data[0].created_at;
+          userData.job_title = data[0].job_title;
+          userData.address = data[0].address;
+          userData.postal_code = data[0].postal_code;
+          userData.displayName = data[0].displayname;
+          userData.username = data[0].username;
+          userData.phoneNumber = data[0].phone;
+          userData.district = data[0].district;
+          userData.email = user.email;
+          userData.country = data[0].country;
+          userData.last_name = data[0].lastname;
+          userData.province = data[0].province;
+          userData.emailVerified = data[0].email_verified_at
+            ? data[0].email_verified_at
+            : false;
+          userData.first_name = data[0].firstname;
+          userData.city = data[0].city;
+          userData.id = user.id;
+
+          const updatedUser = {
+            ...user,
+            displayName: data[0].displayname,
+            phoneNumber: data[0].phone,
+            emailVerified: data[0].email_verified_at
+              ? data[0].email_verified_at
+              : false,
+            userId: data[0].cid,
+            username: data[0].username
+          };
+          // save to store for later use inside components
+          this.$store.commit("updateUser", updatedUser);
+          this.$store.commit("setUserData", userData);
+          this.$store.commit("setProfileData", profileData);
+          setTimeout(() => {
+            this.$router.push({ name: "home" });
+          }, 1000);
+        },
+        error => {
+          console.error(error);
+        }
+      );
     },
     logout() {
       this.$store.commit("logout");
@@ -168,9 +244,16 @@ export default {
     },
     goToRegister() {
       this.$router.push({ name: "register" });
+    },
+    checkAlreadyLogin() {
+      if (this.user.user) {
+        this.$router.push({ name: "home" });
+      }
     }
   },
-  mounted() {}
+  mounted() {
+    this.checkAlreadyLogin();
+  }
 };
 </script>
 

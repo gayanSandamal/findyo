@@ -1,10 +1,39 @@
 <template>
   <div>
-    <categorySelectModal v-if="isMyProfile && isCategorySelectModal.state" :list="nestedCats" :breadcrumb="categoryHierarchy" :isCategorySelectModal="isCategorySelectModal"/>
-    <add-post :eventBus="eventBus" v-if="isMyProfile && user ? true : false" :db="db" :auth="auth" :user="user" :fb="fb" :postTypes="postTypes" :isAddPostFocused="isAddPostFocused" :breadcrumb="categoryHierarchy" :nestedCats="nestedCats" :nestedLocs="locations.locations" :locationBreadcrumb="locationHierarchy" :isCategorySelectModal="isCategorySelectModal" :isLocationSelectModal="isLocationSelectModal" :profileData="userData" :isProfileDataLoaded="isProfileDataLoaded"/>
+    <categorySelectModal
+      v-if="isMyProfile && isCategorySelectModal.state"
+      :list="nestedCats"
+      :breadcrumb="categoryHierarchy"
+      :isCategorySelectModal="isCategorySelectModal"
+    />
+    <add-post
+      :eventBus="eventBus"
+      v-if="isMyProfile && user ? true : false"
+      :db="db"
+      :auth="auth"
+      :user="user"
+      :fb="fb"
+      :postTypes="postTypes"
+      :isAddPostFocused="isAddPostFocused"
+      :breadcrumb="categoryHierarchy"
+      :nestedCats="nestedCats"
+      :nestedLocs="locations.locations"
+      :locationBreadcrumb="locationHierarchy"
+      :isCategorySelectModal="isCategorySelectModal"
+      :isLocationSelectModal="isLocationSelectModal"
+      :profileData="userData"
+    />
     <ul class="feed-main-posts-block" v-if="posts.length > 0 && !isZeroPosts">
       <li v-for="post in posts" :key="post.id">
-        <Post :data="post" :user="user" :postTypes="postTypes" :isAddPostFocused="isAddPostFocused" :eventBus="eventBus" :db="db" :auth="auth"/>
+        <Post
+          :data="post"
+          :user="user"
+          :postTypes="postTypes"
+          :isAddPostFocused="isAddPostFocused"
+          :eventBus="eventBus"
+          :db="db"
+          :auth="auth"
+        />
       </li>
     </ul>
   </div>
@@ -12,13 +41,13 @@
 
 <script>
 export default {
-  name: 'timeline',
-  data () {
+  name: "timeline",
+  data() {
     return {
       posts: [],
       isZeroPosts: true,
       isAddPostFocused: {
-        'state': false
+        state: false
       },
       pageSize: 10,
       isCategorySelectModal: {
@@ -27,7 +56,7 @@ export default {
       isLocationSelectModal: {
         state: false
       }
-    }
+    };
   },
   props: {
     eventBus: undefined,
@@ -37,8 +66,8 @@ export default {
     fb: undefined,
     postTypes: {
       type: Array,
-      default () {
-        return []
+      default() {
+        return [];
       }
     },
     nestedCats: {
@@ -56,18 +85,14 @@ export default {
     profileData: {
       type: Object,
       default() {
-        return {}
+        return {};
       }
     },
     userData: {
       type: Object,
       default() {
-        return {}
+        return {};
       }
-    },
-    isProfileDataLoaded: {
-      type: Boolean,
-      default: false
     },
     isMyProfile: {
       type: Boolean,
@@ -78,41 +103,42 @@ export default {
     }
   },
   components: {
-    'add-post': () => import ('@/components/feed/AddPost'),
-    Post: () => import ('@/components/feed/Post'),
-    categorySelectModal: () => import("@/components/common/Modals/CategorySelection")
+    "add-post": () => import("@/components/feed/AddPost"),
+    Post: () => import("@/components/feed/Post"),
+    categorySelectModal: () =>
+      import("@/components/common/Modals/CategorySelection")
   },
   methods: {
-    postTypeLabel (typeId) {
-      let type
+    postTypeLabel(typeId) {
+      let type;
       if (typeId === 1) {
-        type = 'consumer'
+        type = "consumer";
       } else if (typeId === 2) {
-        type = 'seller'
+        type = "seller";
       }
-      return type
+      return type;
     },
     getPostsInitialy() {
       this.db
-      .collection("User_Posts")
-      .where('userId', '==', this.profileData.uid)
-      .orderBy('postedTime', 'desc')
-      .limit(this.pageSize)
-      .onSnapshot(querySnapshot => {
-        this.posts = []
-        this.isMorePostsLoading = false
-        this.addToPosts(querySnapshot.docs)
-      })
+        .collection("User_Posts")
+        .where("userId", "==", this.profileData.uid)
+        .orderBy("postedTime", "desc")
+        .limit(this.pageSize)
+        .onSnapshot(querySnapshot => {
+          this.posts = [];
+          this.isMorePostsLoading = false;
+          this.addToPosts(querySnapshot.docs);
+        });
     },
-    addToPosts (arr) {
+    addToPosts(arr) {
       if (arr.length > 0) {
         arr.map(o => {
-          let obj = o.data()
-          this.$set(obj, 'id', o.id)
-          this.posts.push(obj)
-          this.lastSnapshot = o
-          this.isZeroPosts = this.posts.length > 0 ? false : true
-        })
+          let obj = o.data();
+          this.$set(obj, "id", o.id);
+          this.posts.push(obj);
+          this.lastSnapshot = o;
+          this.isZeroPosts = this.posts.length > 0 ? false : true;
+        });
       }
     }
   },
@@ -121,15 +147,16 @@ export default {
       immediate: true,
       deep: true,
       handler: function(val, oldVal) {
-        if (val && oldVal && (val.uid !== oldVal.uid)) {
-          this.getPostsInitialy()
+        if (val && oldVal && val.uid !== oldVal.uid) {
+          this.getPostsInitialy();
         }
       }
     }
   },
   mounted() {
+    this.getPostsInitialy();
   }
-}
+};
 </script>
 
 <style scoped>

@@ -29,7 +29,6 @@
         :isCategorySelectModal="isCategorySelectModal"
         :isLocationSelectModal="isLocationSelectModal"
         :profileData="userData"
-        :isProfileDataLoaded="isProfileDataLoaded"
       />
       <ul
         v-if="posts.length > 0 && !isZeroPosts"
@@ -43,9 +42,7 @@
           class="feed-main-filter-icon-all switch-nue"
           :class="[{ selected: 0 === selectedType.typeId }, postTypeLabel(0)]"
           @click.stop="filterByType(0)"
-        >
-          All
-        </li>
+        >All</li>
         <li
           class="switch-nue"
           :class="[
@@ -55,9 +52,7 @@
           v-for="postType in postTypes"
           :key="postType.typeId"
           @click.stop="filterByType(postType.typeId)"
-        >
-          {{ postType.filterLabel }}
-        </li>
+        >{{ postType.filterLabel }}</li>
       </ul>
       <ul
         v-else
@@ -85,7 +80,6 @@
             :isCategorySelectModal="isCategorySelectModal"
             :isLocationSelectModal="isLocationSelectModal"
             :profileData="userData"
-            :isProfileDataLoaded="isProfileDataLoaded"
           />
         </li>
       </ul>
@@ -93,9 +87,7 @@
         v-if="!isMorePostsLoading"
         @click.stop="loadPosts"
         class="button flex v-center h-center m-b-2"
-      >
-        Load more posts
-      </div>
+      >Load more posts</div>
       <div class="placeholder-wrapper" v-if="isMorePostsLoading">
         <content-placeholders class="box-nue" v-for="item in 3" :key="item">
           <content-placeholders-text :lines="3" />
@@ -128,7 +120,7 @@
                 <UserWidget :displayName="'Signgno'" :email="'welding engineer'" :photoUrl="''"/>
               </li>
             </ul>
-          </div> -->
+          </div>-->
         </div>
       </div>
       <div class="home-sidebar home-sidebar-2">
@@ -142,7 +134,8 @@
           <ul class="filter-breadcrumb">
             <li v-for="(item, idx) in locationBreadcrumb" :key="idx">
               {{ title(item)
-              }}<span class="tag-remove" @click.stop="removeLoc(item)"></span>
+              }}
+              <span class="tag-remove" @click.stop="removeLoc(item)"></span>
             </li>
           </ul>
           <location-list
@@ -152,7 +145,7 @@
             :isParent="true"
           />
           <div class="full-width">
-            <Button class="" :label="'Filter'" :action="applyFilter" />
+            <Button class :label="'Filter'" :action="applyFilter" />
           </div>
         </div>
       </div>
@@ -162,13 +155,13 @@
 
 <script>
 /* eslint-disable */
-import firebase from 'firebase/app';
-import 'firebase/firestore';
+import firebase from "firebase/app";
+import "firebase/firestore";
 // import locs from './../json/locations.json'
-import { languageLabel } from './../func/usables';
+import { languageLabel } from "./../func/usables";
 
 export default {
-  name: 'home',
+  name: "home",
   data() {
     return {
       posts: [],
@@ -181,19 +174,19 @@ export default {
       locationBreadcrumb: [],
       selectedType: {},
       isAddPostFocused: {
-        state: false,
+        state: false
       },
       isInitial: true,
       categories: [],
       childCategories: [],
       isCategorySelectModal: {
-        state: false,
+        state: false
       },
       isLocationSelectModal: {
-        state: false,
+        state: false
       },
       categoryHierarchyInit: [],
-      fromEdit: false,
+      fromEdit: false
     };
   },
   props: {
@@ -203,57 +196,53 @@ export default {
     user: undefined,
     fb: undefined,
     locations: {
-      type: Object,
+      type: Object
     },
     languageId: {
       type: Number,
-      default: 0,
+      default: 0
     },
     postTypes: {
       type: Array,
       default() {
         return [];
-      },
+      }
     },
     profileData: {
       type: Object,
       default() {
         return {};
-      },
+      }
     },
     userData: {
       type: Object,
       default() {
         return {};
-      },
-    },
-    isProfileDataLoaded: {
-      type: Boolean,
-      default: false,
-    },
+      }
+    }
   },
   components: {
-    'add-post': () =>
-      import(/* webpackChunkName: "add-post"*/ '@/components/feed/AddPost'),
-    Post: () => import(/* webpackChunkName: "Post"*/ '@/components/feed/Post'),
-    'location-list': () =>
+    "add-post": () =>
+      import(/* webpackChunkName: "add-post"*/ "@/components/feed/AddPost"),
+    Post: () => import(/* webpackChunkName: "Post"*/ "@/components/feed/Post"),
+    "location-list": () =>
       import(
-        /* webpackChunkName: "location-list"*/ '@/components/common/Lists/LocationList'
+        /* webpackChunkName: "location-list"*/ "@/components/common/Lists/LocationList"
       ),
     Button: () =>
-      import(/* webpackChunkName: "Button"*/ '@/components/inputs/Button'),
+      import(/* webpackChunkName: "Button"*/ "@/components/inputs/Button"),
     UserWidget: () =>
       import(
-        /* webpackChunkName: "UserWidget"*/ '@/components/common/UserWidget'
+        /* webpackChunkName: "UserWidget"*/ "@/components/common/UserWidget"
       ),
     categorySelectModal: () =>
       import(
-        /* webpackChunkName: "categorySelectModal"*/ '@/components/common/Modals/CategorySelection'
+        /* webpackChunkName: "categorySelectModal"*/ "@/components/common/Modals/CategorySelection"
       ),
     locationSelectModal: () =>
       import(
-        /* webpackChunkName: "locationSelectModal"*/ '@/components/common/Modals/LocationSelection'
-      ),
+        /* webpackChunkName: "locationSelectModal"*/ "@/components/common/Modals/LocationSelection"
+      )
   },
   computed: {
     locationList() {
@@ -287,9 +276,9 @@ export default {
     nestedCats() {
       let list = [];
       if (this.categories.length > 0) {
-        this.categories.map((o) => {
+        this.categories.map(o => {
           let childs = [];
-          this.childCategories.map((p) => {
+          this.childCategories.map(p => {
             if (o.id === p.parent_id) {
               childs.push(p);
             }
@@ -299,11 +288,11 @@ export default {
         });
       }
       return list;
-    },
+    }
   },
   methods: {
     mapCategoryHierarchy(list, categoryHierarchy) {
-      list.map((o) => {
+      list.map(o => {
         if (o.selected) {
           categoryHierarchy.push(o);
           if (o.childs && o.childs.length > 0) {
@@ -313,7 +302,7 @@ export default {
       });
     },
     mapLocationHierarchy(list, locationHierarchy) {
-      list.map((o) => {
+      list.map(o => {
         if (o.selected) {
           locationHierarchy.push(o);
           if (o.locations && o.locations.length > 0) {
@@ -325,9 +314,9 @@ export default {
     postTypeLabel(typeId) {
       let type;
       if (typeId === 1) {
-        type = 'consumer';
+        type = "consumer";
       } else if (typeId === 2) {
-        type = 'seller';
+        type = "seller";
       }
       return type;
     },
@@ -338,21 +327,21 @@ export default {
       this.isMorePostsLoading = true;
       if (postsFilter !== 0) {
         this.db
-          .collection('User_Posts')
-          .where('postType', '==', postsFilter)
-          .orderBy('postedTime', 'desc')
+          .collection("User_Posts")
+          .where("postType", "==", postsFilter)
+          .orderBy("postedTime", "desc")
           .limit(this.pageSize)
           .get()
-          .then((querySnapshot) => {
+          .then(querySnapshot => {
             this.posts = [];
             this.isMorePostsLoading = false;
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach(doc => {
               //console.log(doc.data())
               this.addToPosts(doc);
             });
           })
-          .catch((err) => {
-            console.log('Error getting posts', err);
+          .catch(err => {
+            console.log("Error getting posts", err);
           });
         // .onSnapshot(querySnapshot => {
         //   this.posts = []
@@ -362,17 +351,17 @@ export default {
         // })
       } else {
         this.db
-          .collection('User_Posts')
-          .orderBy('postedTime', 'desc')
+          .collection("User_Posts")
+          .orderBy("postedTime", "desc")
           .limit(this.pageSize)
           .get()
-          .then((querySnapshot) => {
+          .then(querySnapshot => {
             this.posts = [];
             this.isMorePostsLoading = false;
             this.addToPosts(querySnapshot.docs);
           })
-          .catch((err) => {
-            console.log('Error getting posts', err);
+          .catch(err => {
+            console.log("Error getting posts", err);
           });
       }
     },
@@ -380,13 +369,13 @@ export default {
       // Get filterd result
       if (postsFilter !== 0) {
         this.db
-          .collection('User_Posts')
-          .where('postType', '==', postsFilter)
-          .orderBy('postedTime', 'desc')
+          .collection("User_Posts")
+          .where("postType", "==", postsFilter)
+          .orderBy("postedTime", "desc")
           .startAfter(this.lastSnapshot)
           .limit(this.pageSize)
           .get()
-          .then((querySnapshot) => {
+          .then(querySnapshot => {
             this.isMorePostsLoading = false;
             this.addToPosts(querySnapshot.docs);
             if (querySnapshot.docs.length > 0) {
@@ -399,12 +388,12 @@ export default {
           });
       } else {
         this.db
-          .collection('User_Posts')
-          .orderBy('postedTime', 'desc')
+          .collection("User_Posts")
+          .orderBy("postedTime", "desc")
           .startAfter(this.lastSnapshot)
           .limit(this.pageSize)
           .get()
-          .then((querySnapshot) => {
+          .then(querySnapshot => {
             this.addToPosts(querySnapshot.docs);
             // setTimeout(() => {
             this.isMorePostsLoading = false;
@@ -422,9 +411,9 @@ export default {
     addToPosts(arr) {
       //console.log(arr)
       if (arr.length > 0) {
-        arr.map((o) => {
+        arr.map(o => {
           let obj = o.data();
-          this.$set(obj, 'id', o.id);
+          this.$set(obj, "id", o.id);
           this.posts.push(obj);
           this.lastSnapshot = o;
           this.lastSnapshotChkObj1 = obj;
@@ -441,13 +430,13 @@ export default {
     filterByType(typeId) {
       if (typeId === 0) {
         this.selectedType = {
-          filterLabel: 'Freelancer',
-          label: 'Provide a service',
-          placeholder: 'Let the world know about your service',
-          typeId: 0,
+          filterLabel: "Freelancer",
+          label: "Provide a service",
+          placeholder: "Let the world know about your service",
+          typeId: 0
         };
       } else {
-        this.selectedType = this.postTypes.find((o) => {
+        this.selectedType = this.postTypes.find(o => {
           return o.typeId === typeId;
         });
       }
@@ -486,19 +475,19 @@ export default {
     },
     getCategories() {
       this.db
-        .collection('Categories')
+        .collection("Categories")
         .get()
-        .then((snapShot) => {
+        .then(snapShot => {
           this.categories = [];
           this.childCategories = [];
-          snapShot.forEach((o) => {
-            if (o.data().parent_id && o.data().parent_id.trim() !== '') {
+          snapShot.forEach(o => {
+            if (o.data().parent_id && o.data().parent_id.trim() !== "") {
               let childObj = {
                 id: o.id,
                 name_en: o.data().name_en,
                 name_sn: o.data().name_sn,
                 name_tm: o.data().name_tm,
-                parent_id: o.data().parent_id,
+                parent_id: o.data().parent_id
               };
               this.childCategories.push(childObj);
             }
@@ -507,12 +496,12 @@ export default {
               name_en: o.data().name_en,
               name_sn: o.data().name_sn,
               name_tm: o.data().name_tm,
-              parent_id: o.data().parent_id,
+              parent_id: o.data().parent_id
             };
             this.categories.push(obj);
           });
         })
-        .catch((error) => {
+        .catch(error => {
           console.log(error);
         });
     },
@@ -522,7 +511,7 @@ export default {
     setCategoryHierarchy(list) {
       this.categoryHierarchyInit = list;
       // this.categoryHierarchy = list
-    },
+    }
   },
   created() {
     // window.addEventListener('scroll', (e) => {
@@ -533,16 +522,16 @@ export default {
     // window.removeEventListener('scroll', (e) => {
     //   this.homeScroll(e)
     // }, {passive: true})
-    this.eventBus.$off('set-catHierarchy', this.setCategoryHierarchy);
+    this.eventBus.$off("set-catHierarchy", this.setCategoryHierarchy);
   },
   mounted() {
     this.filterByType(0);
     this.getHomeStaticData();
-    this.eventBus.$on('set-catHierarchy', this.setCategoryHierarchy);
+    this.eventBus.$on("set-catHierarchy", this.setCategoryHierarchy);
     // if (!this.user.displayName) {
     //   this.$router.push({path: '/completion'})
     // }
-  },
+  }
 };
 </script>
 

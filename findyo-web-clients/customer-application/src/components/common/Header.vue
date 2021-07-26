@@ -53,22 +53,6 @@ export default {
     isUser: {
       type: Boolean,
       default: false
-    },
-    user: {
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    userData: {
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    isProfileDataLoaded: {
-      type: Boolean,
-      default: false
     }
   },
   components: {
@@ -76,16 +60,22 @@ export default {
     UserWidget: () => import("@/components/common/UserWidget")
   },
   computed: {
+    user() {
+      return this.$store.state.user.user;
+    },
+    userData() {
+      return this.$store.state.user.userData;
+    },
     profilePhotoUrl() {
       let url = "";
-      if (this.isProfileDataLoaded) {
+      if (this.userData) {
         url = this.userData.displayPicture ? this.userData.displayPicture : "";
       }
       return url;
     },
     displayName() {
       let displayName = "";
-      if (this.isProfileDataLoaded) {
+      if (this.userData) {
         displayName = this.userData.displayName
           ? this.userData.displayName
           : "";
@@ -94,14 +84,14 @@ export default {
     },
     firstLastName() {
       let firstLastName = "";
-      if (this.isProfileDataLoaded) {
+      if (this.userData) {
         if (this.userData.first_name && this.userData.last_name) {
           firstLastName =
             this.userData.first_name + " " + this.userData.last_name;
         } else if (this.userData.first_name) {
           firstLastName = this.userData.first_name;
         } else {
-          firstLastName = this.user.providerData[0].displayName;
+          firstLastName = this.userData.displayName;
         }
       }
       return firstLastName;
