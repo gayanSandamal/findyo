@@ -88,12 +88,12 @@ export default {
         return this.toggleReplyAction()
       }
     },
-    viewLikes() {
+    viewLikes () {
       if (this.viewLikesActions) {
         return this.viewLikesActions()
       }
     },
-    concat() {
+    concat () {
       if (this.contactAction) {
         return this.contactAction()
       }

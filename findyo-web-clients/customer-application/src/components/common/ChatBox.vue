@@ -36,10 +36,10 @@
 export default {
   name: 'chat-box',
   components: {
-    Button: () => import ('@/components/inputs/Button'),
-    UserImage: () => import("@/components/common/UserImage")
+    Button: () => import('@/components/inputs/Button'),
+    UserImage: () => import('@/components/common/UserImage')
   },
-  data() {
+  data () {
     return {
       height: 300
     }
@@ -52,7 +52,7 @@ export default {
     },
     chatHistory: {
       type: Array,
-      default() {
+      default () {
         return []
       }
     },
@@ -61,48 +61,48 @@ export default {
     auth: undefined,
     user: {
       type: Object,
-      default() {
+      default () {
         return {}
       }
     },
     currentChatUser: {
       type: Object,
-      default() {
+      default () {
         return {}
       }
     },
     message_obj: {
       type: Object,
-      default() {
+      default () {
         return {}
       }
-    },
+    }
   },
   methods: {
-    updateReplyMsg(event) {
+    updateReplyMsg (event) {
       this.message_obj.message = event.target.innerText
       this.$set(this.message_obj, 'message', event.target.innerText)
     },
-    pasteContent(event) {
+    pasteContent (event) {
       this.replyToUser = undefined
       setTimeout(() => {
-        this.$set(this.message_obj, 'message', event.target.innerText.replace(/\n/g, " "))
+        this.$set(this.message_obj, 'message', event.target.innerText.replace(/\n/g, ' '))
         this.$refs.chatDiv.innerText = this.message_obj.message
       }, 0)
     },
-    reply() {
+    reply () {
       if (this.replyAction) {
         return this.replyAction()
       }
     },
-    setHeight() {
+    setHeight () {
       this.height = this.$refs.chatHistory.clientHeight - 60
     }
   },
-  mounted() {
+  mounted () {
     this.setHeight()
   },
-  created() {
+  created () {
     window.addEventListener('resize', () => {
       this.setHeight()
     })

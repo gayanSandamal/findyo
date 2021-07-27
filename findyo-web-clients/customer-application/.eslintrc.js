@@ -1,9 +1,26 @@
 module.exports = {
-    "root": true,
-    "extends": ["plugin:vue/base"],
-    "parserOptions": {
-        "parser": "babel-eslint",
-        "ecmaVersion": 2020,
-        "sourceType": "module"
+  root: true,
+  env: {
+    node: true
+  },
+  extends: ['plugin:vue/essential', '@vue/standard'],
+  parserOptions: {
+    parser: 'babel-eslint'
+  },
+  rules: {
+    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'vue/no-mutating-props': 'off'
+  },
+  overrides: [
+    {
+      files: [
+        '**/__tests__/*.{j,t}s?(x)',
+        '**/tests/unit/**/*.spec.{j,t}s?(x)'
+      ],
+      env: {
+        jest: true
+      }
     }
-  }
+  ]
+}

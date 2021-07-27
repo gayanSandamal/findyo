@@ -19,8 +19,8 @@ export default {
     user: undefined
   },
   components: {
-    'add-post': () => import ('@/components/feed/AddPost'),
-    Post: () => import ('@/components/feed/Post')
+    'add-post': () => import('@/components/feed/AddPost'),
+    Post: () => import('@/components/feed/Post')
   }
 }
 </script>

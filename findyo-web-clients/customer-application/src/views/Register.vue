@@ -51,133 +51,139 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import common from "../assets/javascript/common/common";
-import user from "@/assets/javascript/api/user";
+import user from '@/assets/javascript/api/user'
 export default {
   mixins: [user],
-  name: "register",
+  name: 'register',
   components: {
-    Button: () => import("@/components/inputs/Button")
+    Button: () => import('@/components/inputs/Button')
   },
   props: {
     eventBus: undefined
   },
-  data() {
+  data () {
     return {
       button: {
-        label: "Register",
+        label: 'Register',
         disabled: false,
         loading: false
       },
       loginBinds: {
-        email: "",
-        password: "",
-        c_password: ""
+        email: '',
+        password: '',
+        c_password: ''
       },
       InfoError: {
         state: true,
         type: 2,
-        title: "Sorry",
-        message: `Something went wrong`
+        title: 'Sorry',
+        message: 'Something went wrong'
       },
       InfoSuccess: {
         state: true,
         type: 2,
-        title: "Success",
-        message: `Success`
+        title: 'Success',
+        message: 'Success'
       }
-    };
+    }
   },
   computed: {
-    user() {
-      return this.$store.state.user;
+    user () {
+      return this.$store.state.user
     }
   },
   methods: {
-    async handleSubmit(loginBinds) {
+    async handleSubmit (loginBinds) {
       const userObj = await {
-        displayName: "",
-        token: "",
+        displayName: '',
+        token: '',
         roles: null,
         userId: 0
-      };
+      }
       await this.register(
         {
-          url: "emailregister",
+          url: 'emailregister',
           data: {
             email: loginBinds.email,
             password: loginBinds.password,
             c_password: loginBinds.c_password
           },
-          method: "POST"
+          method: 'POST'
         },
         async response => {
-          const responseData = await response;
+          const responseData = await response
           if (!responseData || !responseData.data) {
-            this.eventBus.$emit("message", {
-              msg: "Something went wrong!",
+            this.eventBus.$emit('message', {
+              msg: 'Something went wrong!',
               type: 1
-            });
-            return;
+            })
+            return
           }
           if (responseData.status === 202) {
-            this.showValidation(responseData);
+            this.showValidation(responseData)
           } else if (responseData.status === 200) {
-            userObj.token = responseData.data.token;
+            userObj.token = responseData.data.token
             userObj.roles = Array.isArray(responseData.data.userrole)
               ? [...responseData.data.userrole]
-              : responseData.data.userrole;
-            userObj.userId = responseData.data.cid;
-            this.$router.push({ name: "login" });
+              : responseData.data.userrole
+            userObj.userId = responseData.data.cid
+            this.$router.push({ name: 'login' })
           }
         },
         error => {
           // this.showValidation(responseData);
-          console.error(error);
+          console.error(error)
         }
-      );
+      )
     },
-    showValidation(responseData) {
+    showValidation (responseData) {
       if (!responseData) {
-        this.eventBus.$emit("message", {
-          msg: "Something went wrong!",
+        this.eventBus.$emit('message', {
+          msg: 'Something went wrong!',
           type: 1
-        });
-        return;
+        })
+        return
       }
       if (responseData.data.email && responseData.data.email.length > 0) {
         responseData.data.email.forEach((err, index, array) => {
-          this.eventBus.$emit("message", {
+          this.eventBus.$emit('message', {
             msg: err,
             type: 1
-          });
-        });
+          })
+        })
       } else if (
         responseData.data.password &&
         responseData.data.password.length > 0
       ) {
         responseData.data.password.forEach((err, index, array) => {
-          this.eventBus.$emit("message", {
+          this.eventBus.$emit('message', {
             msg: err,
             type: 1
-          });
-        });
+          })
+        })
       }
     },
-    resetFields(all = false) {
-      loginBinds.password = "";
-      loginBinds.c_password = "";
+    resetFields (all = false) {
+      this.loginBinds.password = ''
+      this.loginBinds.c_password = ''
       if (all) {
-        loginBinds.email = "";
+        this.loginBinds.email = ''
       }
     },
-    goToLogin() {
-      this.$router.push({ name: "login" });
+    goToLogin () {
+      this.$router.push({ name: 'login' })
+    },
+    checkAlreadyLogin () {
+      console.log(this.user.user)
+      if (this.user.user) {
+        this.$router.push({ name: 'home' })
+      }
     }
   },
-  mounted() {}
-};
+  mounted () {
+    this.checkAlreadyLogin()
+  }
+}
 </script>
 
 <style scoped>

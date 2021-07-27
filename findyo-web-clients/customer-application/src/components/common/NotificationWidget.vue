@@ -32,7 +32,7 @@ export default {
     }
   },
   components: {
-    UserImageOwn: () => import ('@/components/common/UserImageOwn')
+    UserImageOwn: () => import('@/components/common/UserImageOwn')
   }
 }
 </script>

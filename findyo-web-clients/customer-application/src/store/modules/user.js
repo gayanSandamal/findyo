@@ -1,42 +1,35 @@
 const state = {
   user: undefined,
   userData: undefined,
-  profileData: undefined,
-};
+  profileData: undefined
+}
 
 const mutations = {
-  logout(state) {
-    state.user = undefined;
-    state.userData = undefined;
-    state.profileData = undefined;
+  logout (state) {
+    state.user = undefined
+    state.userData = undefined
+    state.profileData = undefined
   },
-  login(state, user) {
-    state.user = user;
+  login (state, user) {
+    state.user = { ...state.user, ...user }
   },
-  setUserData(state, payload) {
-    state.userData = payload;
+  setUserData (state, payload) {
+    state.userData = { ...state.userData, ...payload }
   },
-  setProfileData(state, payload) {
-    state.profileData = payload;
+  setProfileData (state, payload) {
+    state.profileData = { ...state.profileData, ...payload }
   },
-  updateUserData(state, payload) {
-    if (Object.keys(payload).length > 0) {
-    }
-  },
-  updateProfileData(state, payload) {
-    if (Object.keys(payload).length > 0) {
-    }
-  },
-  updateUser(state, payload) {
-    state.user = payload;
-  },
-};
+  updateUser (state, payload) {
+    state.user = { ...state.user, ...payload }
+  }
+}
 
 const getters = {
-  getUser: (state) => state.user,
-};
+  getUser: (state) => state.user
+}
 
 export default {
   state,
   mutations,
-};
+  getters
+}

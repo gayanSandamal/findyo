@@ -37,7 +37,7 @@
         <Button class="pull-right" :label="'Save'" :action="'Save'" />
       </div>
     </div>
-    
+
     <stateleess-modal class="deactivate-modal" v-if="isDeactivateConfirmationModal" :ok="deactivateAccount" :okLabel="'Yes, Deactivate'" :cancelLabel="'Cancel'" :close="hideDeactivateConfirmationModal">
       <div>
         <h3 style="font-size: 18px; margin-bottom: 20px;">Do you want to deactivate your account?</h3>
@@ -50,23 +50,23 @@
 <script>
 export default {
   name: 'profile-settings',
-  data() {
+  data () {
     return {
       isDeactivateConfirmationModal: false
     }
   },
   components: {
-    Button: () => import("@/components/inputs/Button"),
-    'stateleess-modal': () => import ('@/components/modals/statelessModal')
+    Button: () => import('@/components/inputs/Button'),
+    'stateleess-modal': () => import('@/components/modals/statelessModal')
   },
   methods: {
-    getDeactivateConfirmationModal() {
+    getDeactivateConfirmationModal () {
       this.isDeactivateConfirmationModal = true
     },
-    hideDeactivateConfirmationModal() {
+    hideDeactivateConfirmationModal () {
       this.isDeactivateConfirmationModal = false
     },
-    deactivateAccount() {
+    deactivateAccount () {
 
     }
   }

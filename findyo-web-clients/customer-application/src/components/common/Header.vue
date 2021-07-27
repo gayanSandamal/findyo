@@ -34,15 +34,14 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
+import 'firebase/auth'
 
 export default {
-  name: "header-element",
-  data() {
+  name: 'header-element',
+  data () {
     return {
       isDropdown: false
-    };
+    }
   },
   props: {
     eventBus: undefined,
@@ -53,75 +52,65 @@ export default {
     isUser: {
       type: Boolean,
       default: false
-    },
-    user: {
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    userData: {
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    isProfileDataLoaded: {
-      type: Boolean,
-      default: false
     }
   },
   components: {
-    Logo: () => import("@/components/common/Logo"),
-    UserWidget: () => import("@/components/common/UserWidget")
+    Logo: () => import('@/components/common/Logo'),
+    UserWidget: () => import('@/components/common/UserWidget')
   },
   computed: {
-    profilePhotoUrl() {
-      let url = "";
-      if (this.isProfileDataLoaded) {
-        url = this.userData.displayPicture ? this.userData.displayPicture : "";
-      }
-      return url;
+    user () {
+      return this.$store.state.user.user
     },
-    displayName() {
-      let displayName = "";
-      if (this.isProfileDataLoaded) {
+    userData () {
+      return this.$store.state.user.userData
+    },
+    profilePhotoUrl () {
+      let url = ''
+      if (this.userData) {
+        url = this.userData.displayPicture ? this.userData.displayPicture : ''
+      }
+      return url
+    },
+    displayName () {
+      let displayName = ''
+      if (this.userData) {
         displayName = this.userData.displayName
           ? this.userData.displayName
-          : "";
+          : ''
       }
-      return displayName;
+      return displayName
     },
-    firstLastName() {
-      let firstLastName = "";
-      if (this.isProfileDataLoaded) {
+    firstLastName () {
+      let firstLastName = ''
+      if (this.userData) {
         if (this.userData.first_name && this.userData.last_name) {
           firstLastName =
-            this.userData.first_name + " " + this.userData.last_name;
+            this.userData.first_name + ' ' + this.userData.last_name
         } else if (this.userData.first_name) {
-          firstLastName = this.userData.first_name;
+          firstLastName = this.userData.first_name
         } else {
-          firstLastName = this.user.providerData[0].displayName;
+          firstLastName = this.userData.displayName
         }
       }
-      return firstLastName;
+      return firstLastName
     }
   },
   methods: {
-    delyedCall() {
-      setTimeout(() => this.dropdownTrigger(), 500);
+    delyedCall () {
+      setTimeout(() => this.dropdownTrigger(), 500)
     },
-    dropdownTrigger() {
-      this.isDropdown = !this.isDropdown;
+    dropdownTrigger () {
+      this.isDropdown = !this.isDropdown
     },
-    logout() {
-      this.$store.commit("logout");
+    logout () {
+      this.$store.commit('logout')
       setTimeout(() => {
-        this.$router.push({ name: "login" });
-      }, 1000);
+        this.$router.push({ name: 'login' })
+      }, 1000)
     }
   }
-};
+}
 </script>
 
 <style scoped lang="scss">

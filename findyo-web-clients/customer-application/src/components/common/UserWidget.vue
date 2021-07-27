@@ -1,6 +1,6 @@
 <template>
   <div class="user-widget-wrapper">
-    <UserImageOwn :userImage="photoUrl" :displayName="email"/>
+    <UserImageOwn :userImage="photoUrl" :displayName="email" />
     <div class="user-title-wrapper">
       <h3 v-text="displayName"></h3>
       <h5 v-if="email" v-text="email"></h5>
@@ -26,7 +26,7 @@ export default {
     }
   },
   components: {
-    UserImageOwn: () => import ('@/components/common/UserImageOwn')
+    UserImageOwn: () => import('@/components/common/UserImageOwn')
   }
 }
 </script>

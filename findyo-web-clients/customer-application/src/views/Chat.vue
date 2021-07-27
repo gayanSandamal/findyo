@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { findyoName } from "./../func/usables";
+import { findyoName } from './../func/usables'
 /*eslint-disable*/
 export default {
   name: "chat",

@@ -14,47 +14,37 @@
       <li v-if="user">
         <router-link :to="'/notifications'">
           <span class="sidebar-icon bell"></span>
-        </router-link> 
+        </router-link>
         <!-- <router-link to="login" class="login login-navigate-container">Login</router-link></li> -->
       </li>
       <li v-if="user">
         <router-link :to="'/chat'">
           <span class="sidebar-icon chat"></span>
-        </router-link> 
-      </li> 
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>
 
 <script>
-import {findyoName} from './../../func/usables'
+import { findyoName } from './../../func/usables'
 export default {
   name: 'sidebar-nav',
-  props: {
-    isMobile: {
-      type: Boolean,
-      default: false
-    },
-    user: undefined,
-    userData: {
-      type: Object,
-      default() {
-        return {}
-      }
-    },
-    isProfileDataLoaded: {
-      type: Boolean,
-      default: false
-    }
-  },
+  props: {},
   components: {
     // Logo: () => import ('@/components/common/Logo')
   },
   computed: {
-    displayName() {
+    userData () {
+      return this.$store.state.user.userData
+    },
+    user () {
+      return this.$store.state.user.user
+    },
+    displayName () {
       let displayName = ''
-      if (this.isProfileDataLoaded) {
-        displayName = this.userData.displayName ? this.userData.displayName : this.user.providerData[0].displayName
+      if (this.userData) {
+        displayName = this.userData.displayName
       }
       return displayName
     }
@@ -64,9 +54,7 @@ export default {
       return findyoName(str)
     }
   },
-  mounted () {
-    
-  }
+  mounted () {}
 }
 </script>
 

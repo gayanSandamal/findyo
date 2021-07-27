@@ -52,7 +52,7 @@ export default {
           // if the timeout is not defined auto close the message
           if (this.content.timeout === undefined) {
             // change the timeout depends on the character length
-            let interval = this.content.msg.length < 50 ? 3000 : 5000
+            const interval = this.content.msg.length < 50 ? 3000 : 5000
             setTimeout(() => {
               this.toggleMessage(false)
             }, interval)
@@ -89,7 +89,7 @@ export default {
   beforeDestroy () {
     this.eventBus.$off('message', this.getMessage)
   }
-};
+}
 </script>
 
 <style scoped lang="scss">
