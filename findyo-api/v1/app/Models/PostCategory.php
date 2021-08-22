@@ -22,8 +22,7 @@ class PostCategory extends Model
 
     public function getCIdAttribute()
     {
-        //Controller name should be provided
-        $hashids = new Hashids("JobTitle", 15);
+        $hashids = new Hashids("PostCategory", 15);
         return $hashids->encode($this->id);
     }
 }

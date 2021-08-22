@@ -34,6 +34,10 @@ class PostController extends Controller
         $post->like_count = 0;
         $post->user_id =  $request['user_id'];
         $post->verified = $request['verified'];
+        $post->category_id = $request['category_id'];
+        $post->location_id = $request['location_id'];
+        $post->post_content = $request['post_content'];
+        $post->post_type = $request['post_type'];
         $post->save();
         
         return response()->json($post, 200);
@@ -56,6 +60,7 @@ class PostController extends Controller
         $post->likes = $request['likes'];
         $post->share_count = $request['share_count'];
         $post->shares = $request['shares'];
+       
         $post->save();
 
         return response()->json($post, 200);

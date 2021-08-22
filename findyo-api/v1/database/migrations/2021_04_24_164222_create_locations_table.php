@@ -16,7 +16,7 @@ class CreateLocationsTable extends Migration
         Schema::create('locations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('parent')->constrained('locations')->nullable();
+            $table->foreignId('parent')->nullable()->constrained('locations');
             $table->timestamps();
         });
     }
