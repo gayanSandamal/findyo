@@ -23,7 +23,7 @@
 <script>
 export default {
   name: 'locations',
-  data() {
+  data () {
     return {
       postChilds: [
         {
@@ -38,20 +38,20 @@ export default {
   components: {
   },
   computed: {
-    allRoutes() {
+    allRoutes () {
       return this.$router.options.routes
     },
-    currentRouteName() {
+    currentRouteName () {
       return this.$route.name
     },
-    currentChild() {
+    currentChild () {
       return this.allRoutes.find(o => this.currentRouteName === o.name)
     }
   },
   methods: {
   },
-  mounted() {
-    this.$router.push({path: '/posts/pending'})
+  mounted () {
+    this.$router.push({ path: '/posts/pending' })
   }
 }
 </script>

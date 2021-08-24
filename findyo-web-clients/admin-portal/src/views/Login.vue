@@ -5,30 +5,30 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
-import * as firebaseui from "firebaseui";
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import * as firebaseui from 'firebaseui'
 
 export default {
-  name: "login",
-  mounted() {
+  name: 'login',
+  mounted () {
     var uiConfig = {
-      signInSuccessUrl: "/",
+      signInSuccessUrl: '/',
       signInOptions: [
         {
           provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-          scopes: ["https://www.googleapis.com/auth/contacts.readonly"],
+          scopes: ['https://www.googleapis.com/auth/contacts.readonly'],
           customParameters: {
-            prompt: "select_account"
+            prompt: 'select_account'
           }
         },
         {
           provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-          scopes: ["public_profile", "email", "user_likes", "user_friends"],
+          scopes: ['public_profile', 'email', 'user_likes', 'user_friends'],
           customParameters: {
             // Forces password re-entry.
-            auth_type: "reauthenticate"
-          },
+            auth_type: 'reauthenticate'
+          }
 
         },
         firebase.auth.TwitterAuthProvider.PROVIDER_ID,
@@ -38,11 +38,11 @@ export default {
           requireDisplayName: false
         }
       ]
-    };
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
-    ui.start("#firebaseui-auth-container", uiConfig);
+    }
+    var ui = new firebaseui.auth.AuthUI(firebase.auth())
+    ui.start('#firebaseui-auth-container', uiConfig)
   }
-};
+}
 </script>
 
 <style scoped>

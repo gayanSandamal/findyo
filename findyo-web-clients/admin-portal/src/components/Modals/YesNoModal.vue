@@ -26,7 +26,7 @@ export default {
   props: {
     content: {
       type: Object,
-      default() {
+      default () {
         return {
           title: 'Modal title',
           msg: 'Modal body text goes here.',
@@ -38,8 +38,8 @@ export default {
     }
   },
   computed: {
-    okButtonType() {
-      let type = 'btn-primary' 
+    okButtonType () {
+      let type = 'btn-primary'
       if (this.content.type === 'primary') {
         type = 'btn-primary'
       } else if (this.content.type === 'danger') {

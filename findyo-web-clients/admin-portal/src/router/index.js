@@ -51,10 +51,10 @@ const routes = [
       {
         path: 'pending',
         name: 'Pending',
-        component: () => import("../views/posts/Pending.vue")
+        component: () => import('../views/posts/Pending.vue')
       }
     ]
-  },
+  }
 ]
 
 const router = new VueRouter({
@@ -62,7 +62,6 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
-
 
 router.beforeEach((to, from, next) => {
   // Check for requiredAuth guard

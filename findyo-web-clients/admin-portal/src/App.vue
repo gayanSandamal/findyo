@@ -28,17 +28,17 @@ import 'firebase/auth'
 import 'firebase/firestore'
 
 export default {
-  data() {
+  data () {
     return {
       isLoggedIn: false,
       firebaseConfig: {
-        apiKey: "AIzaSyDkwSysVahS_1DAkXCawbjMC-kM0-6E5go",
-        authDomain: "findyo-staging.firebaseapp.com",
-        databaseURL: "https://findyo-staging.firebaseio.com",
-        projectId: "findyo-staging",
-        storageBucket: "findyo-staging.appspot.com",
-        messagingSenderId: "554549914414",
-        appId: "1:554549914414:web:d882f705ebf33726"
+        apiKey: 'AIzaSyDkwSysVahS_1DAkXCawbjMC-kM0-6E5go',
+        authDomain: 'findyo-staging.firebaseapp.com',
+        databaseURL: 'https://findyo-staging.firebaseio.com',
+        projectId: 'findyo-staging',
+        storageBucket: 'findyo-staging.appspot.com',
+        messagingSenderId: '554549914414',
+        appId: '1:554549914414:web:d882f705ebf33726'
       },
       db: {},
       alertSettings: {
@@ -49,11 +49,11 @@ export default {
     }
   },
   components: {
-    Alert: () => import ('@/components/Alert')
+    Alert: () => import('@/components/Alert')
   },
   computed: {
-    menuRoutes() {
-      let mappedMenues = []
+    menuRoutes () {
+      const mappedMenues = []
       this.$router.options.routes.forEach(o => {
         if (o.meta.requiresAuth) {
           mappedMenues.push(o)
@@ -64,10 +64,10 @@ export default {
   },
   methods: {
     logout () {
-      firebase.auth().signOut().then(()=>{
+      firebase.auth().signOut().then(() => {
         this.$router.push('/login')
         this.isLoggedIn = undefined
-      }).catch((error)=>{
+      }).catch((error) => {
         alert('Error in logout' + error)
       })
     }

@@ -87,7 +87,7 @@
 <script>
 export default {
   name: 'locations',
-  data() {
+  data () {
     return {
       message: 'Add Locations',
       methods: [
@@ -132,7 +132,7 @@ export default {
       }
       return val
     },
-    isInputTextEnable() {
+    isInputTextEnable () {
       let state = false
       if (this.selectedMethod === 1) {
         state = true
@@ -140,14 +140,14 @@ export default {
         state = true
       } else if (this.selectedMethod === 3 && this.selectedCountry !== null && this.selectedProvince !== null) {
         state = true
-      }else if(this.selectedMethod === 4 && this.selectedCountry !== null && this.selectedProvince !== null && this.selectedDistrict !== null){
+      } else if (this.selectedMethod === 4 && this.selectedCountry !== null && this.selectedProvince !== null && this.selectedDistrict !== null) {
         state = true
       }
       return state
     }
   },
   methods: {
-    clear() {
+    clear () {
       this.name_en = ''
       this.name_sn = ''
       this.name_tm = ''
@@ -159,32 +159,32 @@ export default {
       this.selectedDistrict = null
       this.selectedMethod = 1
     },
-    clearFields() {
+    clearFields () {
       this.name_en = ''
       this.name_sn = ''
       this.name_tm = ''
     },
-    save() {
-      let selected = this.selectedMethod;
+    save () {
+      const selected = this.selectedMethod
       switch (selected) {
         case 1:
-          this.saveCountry();
-          break;
+          this.saveCountry()
+          break
         case 2:
-          this.saveProvince();
-          break;
+          this.saveProvince()
+          break
         case 3:
-          this.saveDistrict();
-          break;
+          this.saveDistrict()
+          break
         case 4:
-          this.saveCity();
-          break;
+          this.saveCity()
+          break
       }
     },
-    saveToDB() {
+    saveToDB () {
 
     },
-    onMethodChange() {
+    onMethodChange () {
       this.name_en = ''
       this.name_sn = ''
       this.name_tm = ''
@@ -218,127 +218,127 @@ export default {
     selectDistrict (val) {
       this.selectedDistrict = val
     },
-    onCountryChange() {
+    onCountryChange () {
       if (this.selectedMethod === 3) {
         this.getProvincesToCountry(this.selectedCountry)
       } else if (this.selectedMethod === 4) {
         this.getProvincesToCountry(this.selectedCountry)
       }
     },
-    onProvinceChange(){
-      if(this.selectedMethod > 3){
+    onProvinceChange () {
+      if (this.selectedMethod > 3) {
         this.getDistrictsToProvince(this.selectedProvince)
       }
     },
-    getCountries() {
+    getCountries () {
       this.provinces = []
-      this.db.collection("Locations").where("is_country", "==", true).get().then(snapShot => {
+      this.db.collection('Locations').where('is_country', '==', true).get().then(snapShot => {
         this.countries = []
         snapShot.forEach(doc => {
-          //debugger
+          // debugger
           this.countries.push({
             value: doc.id,
             text: doc.data().name_en
           })
-          //console.log(doc.id, " => ", doc.data());
-        })
-      }).catch(error => {
-          console.log(error)
-      })
-    },
-    getProvincesToCountry(countryID) {
-      this.db.collection("Locations").where("is_province", "==", true).where("country_id", "==", countryID).get().then(snapShot => {
-        snapShot.forEach(doc => {
-          this.provinces.push({
-            value: doc.id,
-            text: doc.data().name_en
-          })
-          //console.log(doc.id, " => ", doc.data());
+          // console.log(doc.id, " => ", doc.data());
         })
       }).catch(error => {
         console.log(error)
       })
     },
-    getDistrictsToProvince(provinceID) {
+    getProvincesToCountry (countryID) {
+      this.db.collection('Locations').where('is_province', '==', true).where('country_id', '==', countryID).get().then(snapShot => {
+        snapShot.forEach(doc => {
+          this.provinces.push({
+            value: doc.id,
+            text: doc.data().name_en
+          })
+          // console.log(doc.id, " => ", doc.data());
+        })
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getDistrictsToProvince (provinceID) {
       this.districts = []
-      this.db.collection("Locations").where("is_district", "==", true).where("province_id", "==", provinceID).get().then(snapShot => {
+      this.db.collection('Locations').where('is_district', '==', true).where('province_id', '==', provinceID).get().then(snapShot => {
         snapShot.forEach(doc => {
           this.districts.push({
             value: doc.id,
             text: doc.data().name_en
           })
-          console.log(doc.id, " => ", doc.data());
+          console.log(doc.id, ' => ', doc.data())
         })
       }).catch(error => {
         console.log(error)
       })
     },
     saveCountry () {
-      this.db.collection("Locations").add({
+      this.db.collection('Locations').add({
         is_country: true,
         name_en: this.name_en.trim(),
         name_si: this.name_sn.trim(),
-        name_ta: this.name_tm.trim(),
+        name_ta: this.name_tm.trim()
       }).then(() => {
         this.clear()
-        alert("Country added successfully")
+        alert('Country added successfully')
       }).catch((error) => {
-        alert("Error in adding the country")
+        alert('Error in adding the country')
         console.log(error)
       })
     },
-    saveProvince() {
-      this.db.collection("Locations").add({
+    saveProvince () {
+      this.db.collection('Locations').add({
         is_province: true,
         country_id: this.selectedCountry,
         name_en: this.name_en.trim(),
         name_si: this.name_sn.trim(),
-        name_ta: this.name_tm.trim(),
+        name_ta: this.name_tm.trim()
       }).then(() => {
-        alert("Province added successfully")
+        alert('Province added successfully')
         this.initialLoad()
         this.clearFields()
       }).catch((error) => {
-        alert("Error in adding the province")
+        alert('Error in adding the province')
         console.log(error)
       })
     },
-    saveDistrict() {
-      this.db.collection("Locations").add({
+    saveDistrict () {
+      this.db.collection('Locations').add({
         is_district: true,
         country_id: this.selectedCountry,
         province_id: this.selectedProvince,
         name_en: this.name_en.trim(),
         name_si: this.name_sn.trim(),
-        name_ta: this.name_tm.trim(),
+        name_ta: this.name_tm.trim()
       }).then(() => {
-        alert("District added successfully")
+        alert('District added successfully')
         this.clearFields()
       }).catch((error) => {
-        alert("Error in adding the district")
+        alert('Error in adding the district')
         console.log(error)
       })
     },
-    saveCity() {
-      this.db.collection("Locations").add({
+    saveCity () {
+      this.db.collection('Locations').add({
         is_city: true,
         country_id: this.selectedCountry,
         province_id: this.selectedProvince,
         district_id: this.selectedDistrict,
         name_en: this.name_en.trim(),
         name_si: this.name_sn.trim(),
-        name_ta: this.name_tm.trim(),
+        name_ta: this.name_tm.trim()
       }).then(() => {
-        alert("City added successfully")
+        alert('City added successfully')
         this.clear()
       }).catch((error) => {
-        alert("Error in adding the city")
+        alert('Error in adding the city')
         console.log(error)
       })
     },
-    initialLoad() {
+    initialLoad () {
       this.provinces = []
-      this.db.collection("Locations").where("is_country", "==", true).get().then(snapShot => {
+      this.db.collection('Locations').where('is_country', '==', true).get().then(snapShot => {
         this.countries = []
         snapShot.forEach(doc => {
           this.countries.push({
@@ -355,7 +355,7 @@ export default {
       })
     }
   },
-  mounted() {
+  mounted () {
     this.initialLoad()
   }
 }
