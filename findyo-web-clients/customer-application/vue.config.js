@@ -6,7 +6,7 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
     compress: true,
-    port: 8090,
+    port: 8090
     // proxy: {
     //   "^/api": {
     //     target: "<url>",
@@ -29,7 +29,7 @@ module.exports = {
         // data: `@import "@/main.scss";`
       },
       // pass Less.js Options to less-loader
-      less:{
+      less: {
         // http://lesscss.org/usage/#less-options-strict-units `Global Variables`
         // `primary` is global variables fields name
         globalVars: {
@@ -38,4 +38,4 @@ module.exports = {
       }
     }
   }
-};
+}
