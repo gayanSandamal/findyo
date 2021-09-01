@@ -23,7 +23,7 @@ export default {
   css: ['~/assets/main.scss'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: ['~/plugins/vue-tooltip.ts'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -54,7 +54,26 @@ export default {
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    // fallback url
+    baseURL: 'http://127.0.0.1:8000/api/',
+    retry: { retries: 3 },
+    common: {
+      Accept: 'application/json, text/plain, */*'
+    }
+  },
+
+  publicRuntimeConfig: {
+    axios: {
+      browserBaseURL: process.env.VUE_APP_FIND_YO_API_URL
+    }
+  },
+
+  privateRuntimeConfig: {
+    axios: {
+      baseURL: process.env.VUE_APP_FIND_YO_API_URL
+    }
+  },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {
@@ -84,6 +103,6 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-    transpile: ['vuex-composition-helpers']
+    transpile: ['vuex-composition-helpers', 'vue-tooltip']
   }
 }
