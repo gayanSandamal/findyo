@@ -75,6 +75,7 @@
 
 <script>
 export default {
+  auth: false,
   data: () => ({
     valid: true,
     email: '',
@@ -121,11 +122,8 @@ export default {
           c_password: this.confirmPassword
         }
         const response = await this.$axios.post('emailregister', postData)
-        console.log(response)
-        const { status, data } = response
+        const { status } = response
         if (status === 200) {
-          console.log(data)
-          console.log(status)
           this.$router.push('/login')
         } else if (status === 202) {
           this.showBackendValidations(response)

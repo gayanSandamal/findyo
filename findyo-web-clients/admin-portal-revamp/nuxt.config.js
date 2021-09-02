@@ -1,8 +1,9 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
+  mode: 'spa',
   // Target: https://go.nuxtjs.dev/config-target
-  target: 'static',
+  target: 'server',
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -53,6 +54,28 @@ export default {
     '@nuxtjs/auth-next'
   ],
 
+  auth: {
+    strategies: {
+      local: {
+        token: {
+          property: 'token',
+          global: true,
+          required: true,
+          type: 'Bearer'
+        },
+        user: {
+          property: 'id',
+          autoFetch: true
+        },
+        endpoints: {
+          login: { url: 'emaillogin', method: 'post' },
+          logout: false,
+          user: false
+        }
+      }
+    }
+  },
+
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // fallback url
@@ -61,6 +84,10 @@ export default {
     common: {
       Accept: 'application/json, text/plain, */*'
     }
+  },
+
+  router: {
+    middleware: ['auth']
   },
 
   publicRuntimeConfig: {

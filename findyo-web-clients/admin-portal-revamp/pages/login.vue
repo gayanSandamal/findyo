@@ -85,32 +85,38 @@ export default {
     validate() {
       this.$refs.form.validate()
       if (this.valid) {
-        this.save()
+        this.login()
       }
     },
     reset() {
       this.$refs.form.reset()
     },
-    async save() {
+    async login() {
       try {
         const postData = {
           email: this.email,
-          password: this.password,
-          c_password: this.confirmPassword
+          password: this.password
         }
-        const response = await this.$axios.post('emailregister', postData)
+        // const response = await this.$axios.post('emaillogin', postData)
+        const response = await this.$auth.loginWith('local', {
+          data: postData
+        })
         console.log(response)
         const { status, data } = response
         if (status === 200) {
-          console.log(data)
-          console.log(status)
-          this.$router.push('/login')
+          this.setUser(data)
         } else if (status === 202) {
           this.showBackendValidations(response)
+        } else if (status === 203) {
+          this.errorList = 'username or password is incorrect please try again'
+          this.alert = true
         }
       } catch (error) {
         console.log(error)
       }
+    },
+    setUser(user) {
+      this.$auth.setUser(user)
     },
     showBackendValidations(responseData) {
       this.errorList = ''
