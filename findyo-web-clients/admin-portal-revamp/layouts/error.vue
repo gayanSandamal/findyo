@@ -13,28 +13,37 @@
 </template>
 
 <script>
-export default {
-  layout: 'empty',
+import {
+  defineComponent,
+  reactive
+} from '@nuxtjs/composition-api'
+
+export default defineComponent({
   props: {
     error: {
       type: Object,
       default: null
     }
   },
-  data () {
-    return {
+  setup(props) {
+    const state = reactive({
       pageNotFound: '404 Not Found',
       otherError: 'An error occurred'
+    })
+
+    const head = () => {
+      const title = props.error.statusCode === 404 ? state.pageNotFound : state.otherError
+      return {
+        title
+      }
     }
-  },
-  head () {
-    const title =
-      this.error.statusCode === 404 ? this.pageNotFound : this.otherError
+
     return {
-      title
+      state,
+      head
     }
   }
-}
+})
 </script>
 
 <style scoped>

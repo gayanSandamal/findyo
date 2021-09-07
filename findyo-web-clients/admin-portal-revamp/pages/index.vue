@@ -14,8 +14,7 @@
               target="_blank"
               rel="noopener noreferrer"
             >
-              Facebook </a
-            >.
+              Facebook </a>
           </p>
 
           <hr class="my-3" />
@@ -32,14 +31,15 @@
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-import VuetifyLogo from '~/components/VuetifyLogo.vue'
+import { defineComponent, useContext } from '@nuxtjs/composition-api'
 
-export default {
-  auth: 'guest',
-  components: {
-    Logo,
-    VuetifyLogo
+export default defineComponent({
+  setup() {
+    const { $auth } = useContext()
+    // CODE GOES HERE
+    return {
+      $auth
+    }
   }
-}
+})
 </script>

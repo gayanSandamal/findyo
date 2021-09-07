@@ -17,7 +17,12 @@
 </template>
 
 <script>
-export default {
-  methods: {}
-}
+import {
+  defineComponent
+} from '@nuxtjs/composition-api'
+export default defineComponent({
+  setup() {
+    // CODE GOES HERE
+  }
+})
 </script>

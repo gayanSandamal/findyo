@@ -1,9 +1,9 @@
 <template>
   <v-app dark>
     <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
+      v-model="state.drawer"
+      :mini-variant="state.miniVariant"
+      :clipped="state.clipped"
       fixed
       app
     >
@@ -24,18 +24,18 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar :clipped-left="clipped" fixed app>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
+    <v-app-bar :clipped-left="state.clipped" fixed app>
+      <v-app-bar-nav-icon @click.stop="state.drawer = !state.drawer" />
+      <v-btn icon @click.stop="state.miniVariant = !state.miniVariant">
+        <v-icon>mdi-{{ `chevron-${state.miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
+      <v-btn icon @click.stop="state.clipped = !state.clipped">
         <v-icon>mdi-application</v-icon>
       </v-btn>
-      <v-btn icon @click.stop="fixed = !fixed">
+      <v-btn icon @click.stop="state.fixed = !state.fixed">
         <v-icon>mdi-minus</v-icon>
       </v-btn>
-      <v-toolbar-title v-text="title" />
+      <v-toolbar-title v-text="state.title" />
       <v-spacer />
       <v-btn v-if="$auth.loggedIn" color="secondary" @click="logout">
         <v-icon>mdi-logout</v-icon>
@@ -47,16 +47,23 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-footer :absolute="!fixed" app>
+    <v-footer :absolute="!state.fixed" app>
       <span>&copy; {{ new Date().getFullYear() }}</span>
     </v-footer>
   </v-app>
 </template>
 
 <script>
-export default {
-  data() {
-    return {
+import {
+  defineComponent,
+  reactive,
+  computed,
+  useContext
+} from '@nuxtjs/composition-api'
+export default defineComponent({
+  setup() {
+    const { $auth } = useContext()
+    const state = reactive({
       clipped: false,
       drawer: false,
       fixed: false,
@@ -85,14 +92,13 @@ export default {
       miniVariant: false,
       right: true,
       title: 'Findyo Admin'
-    }
-  },
-  computed: {
-    filteredItems() {
+    })
+
+    const filteredItems = computed(() => {
       const newArray = []
-      this.items.forEach(i => {
+      state.items.forEach((i) => {
         if (i.title === 'Login' || i.title === 'Register') {
-          if (!this.$auth.loggedIn) {
+          if (!$auth.loggedIn) {
             newArray.push(i)
           }
         } else {
@@ -100,15 +106,20 @@ export default {
         }
       })
       return newArray
-    }
-  },
-  methods: {
-    async logout() {
+    })
+
+    const logout = async () => {
       // console.log(this.$auth.$storage.getUniversal('userId'))
       // console.log(this.$auth.user)
       await this.$auth.logout()
       this.$router.push('/login')
     }
+
+    return {
+      state,
+      filteredItems,
+      logout
+    }
   }
-}
+})
 </script>
