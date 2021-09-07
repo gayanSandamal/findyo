@@ -66,6 +66,7 @@ import {
   reactive,
   useContext
 } from '@nuxtjs/composition-api'
+import forEach from 'lodash/forEach'
 export default defineComponent({
   setup(_, context: any) {
     const { $auth } = useContext()
@@ -128,7 +129,7 @@ export default defineComponent({
         return
       }
       if (responseData.data.email && responseData.data.email.length > 0) {
-        responseData.data.email.forEach((err: string, index: number) => {
+        forEach(responseData.data.email, (err: string, index: number) => {
           state.errorList += `${err}${
             responseData.data.email.length - 1 !== index ? '\n \n' : ''
           }`
@@ -138,7 +139,7 @@ export default defineComponent({
         responseData.data.password &&
         responseData.data.password.length > 0
       ) {
-        responseData.data.password.forEach((err: string, index: number) => {
+        forEach(responseData.data.password, (err: string, index: number) => {
           state.errorList += `${err}${
             responseData.data.password.length - 1 !== index ? '\n \n' : ''
           }`
@@ -148,7 +149,7 @@ export default defineComponent({
         responseData.data.c_password &&
         responseData.data.c_password.length > 0
       ) {
-        responseData.data.c_password.forEach((err: string, index: number) => {
+        forEach(responseData.data.c_password, (err: string, index: number) => {
           state.errorList += `${err.replace('c password', 'confirm password')}${
             responseData.data.c_password.length - 1 !== index ? '\n \n' : ''
           }`

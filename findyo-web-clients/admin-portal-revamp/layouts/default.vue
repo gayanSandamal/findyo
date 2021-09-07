@@ -61,6 +61,7 @@ import {
   useContext,
   useRouter
 } from '@nuxtjs/composition-api'
+import filter from 'lodash/filter'
 import { IDrawerMenu } from '@/interfaces/ui'
 
 export default defineComponent({
@@ -98,21 +99,12 @@ export default defineComponent({
       title: 'Findyo Admin'
     })
 
-    const filteredItems = computed(() => {
-      const newArray: IDrawerMenu[] = []
-      state.items.forEach((i) => {
-        if (i.title === 'Login' || i.title === 'Register') {
-          if (!$auth.loggedIn) {
-            newArray.push(i)
-          }
-        } else {
-          newArray.push(i)
-        }
-      })
-      return newArray
-    })
+    const filteredItems = computed(() => filter(state.items, (i: IDrawerMenu) =>
+      (i.title === 'Login' || i.title === 'Register') && (!$auth.loggedIn)
+    ))
 
     const logout = async () => {
+      // REMOVE UNWANTED CODE BLOCKS
       // console.log(this.$auth.$storage.getUniversal('userId'))
       // console.log(this.$auth.user)
       await $auth.logout()
