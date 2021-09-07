@@ -53,16 +53,20 @@
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
 import {
   defineComponent,
   reactive,
   computed,
-  useContext
+  useContext,
+  useRouter
 } from '@nuxtjs/composition-api'
+import { IDrawerMenu } from '@/interfaces/ui'
+
 export default defineComponent({
   setup() {
     const { $auth } = useContext()
+    const router = useRouter()
     const state = reactive({
       clipped: false,
       drawer: false,
@@ -88,14 +92,14 @@ export default defineComponent({
           title: 'Login',
           to: '/login'
         }
-      ],
+      ] as IDrawerMenu[],
       miniVariant: false,
       right: true,
       title: 'Findyo Admin'
     })
 
     const filteredItems = computed(() => {
-      const newArray = []
+      const newArray: IDrawerMenu[] = []
       state.items.forEach((i) => {
         if (i.title === 'Login' || i.title === 'Register') {
           if (!$auth.loggedIn) {
@@ -111,8 +115,8 @@ export default defineComponent({
     const logout = async () => {
       // console.log(this.$auth.$storage.getUniversal('userId'))
       // console.log(this.$auth.user)
-      await this.$auth.logout()
-      this.$router.push('/login')
+      await $auth.logout()
+      router.push('/login')
     }
 
     return {

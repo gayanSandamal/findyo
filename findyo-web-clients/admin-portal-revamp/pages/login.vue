@@ -60,24 +60,24 @@
   </v-row>
 </template>
 
-<script>
+<script lang="ts">
 import {
   defineComponent,
   reactive,
   useContext
 } from '@nuxtjs/composition-api'
 export default defineComponent({
-  setup(_, context) {
+  setup(_, context: any) {
     const { $auth } = useContext()
     const state = reactive({
       valid: true,
       email: '',
       emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+\..+/.test(v) || 'E-mail must be valid'
+        (v: string) => !!v || 'E-mail is required',
+        (v: string) => /.+@.+\..+/.test(v) || 'E-mail must be valid'
       ],
       password: '',
-      passwordRules: [v => !!v || 'Password is required'],
+      passwordRules: [(v: string) => !!v || 'Password is required'],
       checkbox: false,
       alert: false,
       errorList: ''
@@ -104,7 +104,7 @@ export default defineComponent({
           data: postData
         })
         console.log(response) // REMOVE UNWANTED CONSOLE LOGS
-        const { status, data } = response
+        const { status, data }: any = response
         if (status === 200) {
           setUser(data)
         } else if (status === 202) {
@@ -117,10 +117,10 @@ export default defineComponent({
         console.log(error) // USE CONSOLE.ERROR NEXT TIME
       }
     }
-    const setUser = (user) => {
+    const setUser = (user: object) => {
       $auth.setUser(user)
     }
-    const showBackendValidations = (responseData) => {
+    const showBackendValidations = (responseData: any) => {
       state.errorList = ''
       if (!responseData) {
         state.errorList = 'Something went wrong'
@@ -128,7 +128,7 @@ export default defineComponent({
         return
       }
       if (responseData.data.email && responseData.data.email.length > 0) {
-        responseData.data.email.forEach((err, index) => {
+        responseData.data.email.forEach((err: string, index: number) => {
           state.errorList += `${err}${
             responseData.data.email.length - 1 !== index ? '\n \n' : ''
           }`
@@ -138,22 +138,22 @@ export default defineComponent({
         responseData.data.password &&
         responseData.data.password.length > 0
       ) {
-        responseData.data.password.forEach((err, index) => {
+        responseData.data.password.forEach((err: string, index: number) => {
           state.errorList += `${err}${
             responseData.data.password.length - 1 !== index ? '\n \n' : ''
           }`
         })
-        this.alert = true
+        state.alert = true
       } else if (
         responseData.data.c_password &&
         responseData.data.c_password.length > 0
       ) {
-        responseData.data.c_password.forEach((err, index) => {
+        responseData.data.c_password.forEach((err: string, index: number) => {
           state.errorList += `${err.replace('c password', 'confirm password')}${
             responseData.data.c_password.length - 1 !== index ? '\n \n' : ''
           }`
         })
-        this.alert = true
+        state.alert = true
       }
     }
     // ALWAYS USE camelCase FOR FUNCTION NAMES

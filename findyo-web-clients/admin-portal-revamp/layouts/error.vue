@@ -12,7 +12,7 @@
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
 import {
   defineComponent,
   reactive

@@ -6,14 +6,14 @@
       </div>
       <div class="text-center">
         <v-alert
-          :value="alert"
+          :value="state.alert"
           color="red"
           dark
           border="top"
           icon="mdi-home"
           transition="slide-y-transition"
         >
-          {{ errorList }}
+          {{ state.errorList }}
         </v-alert>
       </div>
       <div class="register-card">
@@ -22,39 +22,39 @@
             <h5>Please fill the details</h5>
           </v-card-title>
           <v-card-text>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="form" v-model="state.valid" lazy-validation>
               <v-text-field
-                v-model="email"
-                :rules="emailRules"
+                v-model="state.email"
+                :rules="state.emailRules"
                 label="E-mail"
                 required
               ></v-text-field>
 
               <v-text-field
-                v-model="password"
-                :rules="passwordRules"
+                v-model="state.password"
+                :rules="state.passwordRules"
                 label="Password"
                 required
                 type="password"
               ></v-text-field>
 
               <v-text-field
-                v-model="confirmPassword"
-                :rules="confirmPasswordRules"
+                v-model="state.confirmPassword"
+                :rules="state.confirmPasswordRules"
                 label="confirm Password"
                 required
                 type="password"
               ></v-text-field>
 
               <v-checkbox
-                v-model="checkbox"
+                v-model="state.checkbox"
                 :rules="[v => !!v || 'You must agree to continue!']"
                 label="Do you agree to terms and conditions?"
                 required
               ></v-checkbox>
 
               <v-btn
-                :disabled="!valid"
+                :disabled="!state.valid"
                 color="success"
                 class="mr-4"
                 @click="validate"
@@ -73,108 +73,119 @@
   </v-row>
 </template>
 
-<script>
-export default {
-  auth: false,
-  data: () => ({
-    valid: true,
-    email: '',
-    emailRules: [
-      v => !!v || 'E-mail is required',
-      v => /.+@.+\..+/.test(v) || 'E-mail must be valid'
-    ],
-    password: '',
-    passwordRules: [
-      v => !!v || 'Password is required',
-      v => (v && v.length >= 8) || 'Password must be greater than 8 characters'
-    ],
-    confirmPassword: '',
-    checkbox: false,
-    alert: false,
-    errorList: ''
-  }),
-  computed: {
-    confirmPasswordRules() {
+<script lang="ts">
+import {
+  defineComponent,
+  reactive,
+  computed,
+  useContext,
+  useRouter
+} from '@nuxtjs/composition-api'
+export default defineComponent({
+  setup(_, context: any) {
+    const { $axios } = useContext()
+    const router = useRouter()
+    const state = reactive({
+      valid: true,
+      email: '',
+      emailRules: [
+        (v: string) => !!v || 'E-mail is required',
+        (v: string) => /.+@.+\..+/.test(v) || 'E-mail must be valid'
+      ],
+      password: '',
+      passwordRules: [
+        (v: string) => !!v || 'Password is required',
+        (v: string) => (v && v.length >= 8) || 'Password must be greater than 8 characters'
+      ],
+      confirmPassword: '',
+      checkbox: false,
+      alert: false,
+      errorList: ''
+    })
+    const confirmPasswordRules = computed(() => {
       return [
-        v => !!v || 'Confirm Password is required',
-        v => (v && v === this.password) || 'Password not match'
+        (v: string) => !!v || 'Confirm Password is required',
+        (v: string) => (v && v === state.password) || 'Password not match'
       ]
-    }
-  },
-  mounted() {
-    this.hide_alert()
-  },
-  methods: {
-    validate() {
-      this.$refs.form.validate()
-      if (this.valid) {
-        this.save()
+    })
+
+    const validate = () => {
+      context.$refs.form.validate()
+      if (state.valid) {
+        save()
       }
-    },
-    reset() {
-      this.$refs.form.reset()
-    },
-    async save() {
+    }
+    const reset = () => {
+      context.$refs.form.reset()
+    }
+    const save = async () => {
       try {
         const postData = {
-          email: this.email,
-          password: this.password,
-          c_password: this.confirmPassword
+          email: state.email,
+          password: state.password,
+          c_password: state.confirmPassword
         }
-        const response = await this.$axios.post('emailregister', postData)
+        const response = await $axios.post('emailregister', postData)
         const { status } = response
         if (status === 200) {
-          this.$router.push('/login')
+          router.push('/login')
         } else if (status === 202) {
-          this.showBackendValidations(response)
+          showBackendValidations(response)
         }
       } catch (error) {
         console.log(error)
       }
-    },
-    showBackendValidations(responseData) {
-      this.errorList = ''
+    }
+    const showBackendValidations = (responseData: any) => {
+      state.errorList = ''
       if (!responseData) {
-        this.errorList = 'Something went wrong'
-        this.alert = true
+        state.errorList = 'Something went wrong'
+        state.alert = true
         return
       }
       if (responseData.data.email && responseData.data.email.length > 0) {
-        responseData.data.email.forEach((err, index) => {
-          this.errorList += `${err}${
+        responseData.data.email.forEach((err: string, index: number) => {
+          state.errorList += `${err}${
             responseData.data.email.length - 1 !== index ? '\n \n' : ''
           }`
         })
-        this.alert = true
+        state.alert = true
       } else if (
         responseData.data.password &&
         responseData.data.password.length > 0
       ) {
-        responseData.data.password.forEach((err, index) => {
-          this.errorList += `${err}${
+        responseData.data.password.forEach((err: string, index: number) => {
+          state.errorList += `${err}${
             responseData.data.password.length - 1 !== index ? '\n \n' : ''
           }`
         })
-        this.alert = true
+        state.alert = true
       } else if (
         responseData.data.c_password &&
         responseData.data.c_password.length > 0
       ) {
-        responseData.data.c_password.forEach((err, index) => {
-          this.errorList += `${err.replace('c password', 'confirm password')}${
+        responseData.data.c_password.forEach((err: string, index: number) => {
+          state.errorList += `${err.replace('c password', 'confirm password')}${
             responseData.data.c_password.length - 1 !== index ? '\n \n' : ''
           }`
         })
-        this.alert = true
+        state.alert = true
       }
-    },
-    hide_alert() {
+    }
+    const hideAlert = () => {
       setInterval(() => {
-        this.alert = false
+        state.alert = false
       }, 5000)
     }
+    hideAlert()
+    return {
+      state,
+      confirmPasswordRules,
+      validate,
+      reset
+    }
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>
