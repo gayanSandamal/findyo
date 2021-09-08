@@ -118,7 +118,7 @@ export default defineComponent({
         console.log(error) // USE CONSOLE.ERROR NEXT TIME
       }
     }
-    const setUser = (user: object) => {
+    const setUser = (user: object) => { // CREATE A PROPER INTERFACE
       $auth.setUser(user)
     }
     const showBackendValidations = (responseData: any) => {
