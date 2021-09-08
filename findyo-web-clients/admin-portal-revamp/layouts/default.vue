@@ -89,6 +89,11 @@ export default defineComponent({
           to: '/register'
         },
         {
+          icon: 'mdi-account',
+          title: 'Review Lib',
+          to: '/review-lib'
+        },
+        {
           icon: 'mdi-login',
           title: 'Login',
           to: '/login'
@@ -99,9 +104,10 @@ export default defineComponent({
       title: 'Findyo Admin'
     })
 
-    const filteredItems = computed(() => filter(state.items, (i: IDrawerMenu) =>
-      (i.title === 'Login' || i.title === 'Register') && (!$auth.loggedIn)
-    ))
+    // const filteredItems = computed(() => filter(state.items, (i: IDrawerMenu) =>
+    //   (i.title === 'Login' || i.title === 'Register') && (!$auth.loggedIn)
+    // ))
+    const filteredItems = computed(() => filter(state.items, (i: IDrawerMenu) => i))
 
     const logout = async () => {
       // REMOVE UNWANTED CODE BLOCKS
