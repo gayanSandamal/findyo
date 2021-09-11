@@ -1,22 +1,17 @@
 <template>
   <v-app dark>
     <h1 v-if="error.statusCode === 404">
-      {{ pageNotFound }}
+      {{ state.pageNotFound }}
     </h1>
     <h1 v-else>
-      {{ otherError }}
+      {{ state.otherError }}
     </h1>
-    <NuxtLink to="/">
-      Home page
-    </NuxtLink>
+    <NuxtLink to="/"> Home page </NuxtLink>
   </v-app>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  reactive
-} from '@nuxtjs/composition-api'
+import { defineComponent, reactive } from '@nuxtjs/composition-api'
 
 export default defineComponent({
   props: {
@@ -32,7 +27,8 @@ export default defineComponent({
     })
 
     const head = () => {
-      const title = props.error.statusCode === 404 ? state.pageNotFound : state.otherError
+      const title =
+        props.error.statusCode === 404 ? state.pageNotFound : state.otherError
       return {
         title
       }

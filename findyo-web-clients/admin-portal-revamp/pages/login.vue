@@ -28,6 +28,7 @@
                 :rules="state.emailRules"
                 label="E-mail"
                 required
+                @keyup.enter="validate"
               ></v-text-field>
 
               <v-text-field
@@ -36,9 +37,13 @@
                 label="Password"
                 required
                 type="password"
+                @keyup.enter="validate"
               ></v-text-field>
 
-              <v-checkbox v-model="state.checkbox" label="Remember me"></v-checkbox>
+              <v-checkbox
+                v-model="state.checkbox"
+                label="Remember me"
+              ></v-checkbox>
 
               <v-btn
                 :disabled="!state.valid"
@@ -61,11 +66,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  reactive,
-  useContext
-} from '@nuxtjs/composition-api'
+import { defineComponent, reactive, useContext } from '@nuxtjs/composition-api'
 import forEach from 'lodash/forEach'
 export default defineComponent({
   setup(_, context: any) {
@@ -85,13 +86,13 @@ export default defineComponent({
     })
 
     const validate = () => {
-      context.$refs.form.validate()
+      context.refs.form.validate()
       if (state.valid) {
         login()
       }
     }
     const reset = () => {
-      context.$refs.form.reset()
+      context.refs.form.reset()
     }
     const login = async () => {
       try {
@@ -99,12 +100,9 @@ export default defineComponent({
           email: state.email,
           password: state.password
         }
-        // REMOVE COMMENTED CODE BLOCK IF NOT USING
-        // const response = await $axios.post('emaillogin', postData)
         const response = await $auth.loginWith('local', {
           data: postData
         })
-        console.log(response) // REMOVE UNWANTED CONSOLE LOGS
         const { status, data }: any = response
         if (status === 200) {
           setUser(data)
@@ -115,7 +113,7 @@ export default defineComponent({
           state.alert = true
         }
       } catch (error) {
-        console.log(error) // USE CONSOLE.ERROR NEXT TIME
+        console.error(error)
       }
     }
     const setUser = (user: object) => {
@@ -157,7 +155,6 @@ export default defineComponent({
         state.alert = true
       }
     }
-    // ALWAYS USE camelCase FOR FUNCTION NAMES
     const hideAlert = () => {
       setInterval(() => {
         state.alert = false

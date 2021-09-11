@@ -83,6 +83,7 @@ import {
 } from '@nuxtjs/composition-api'
 import forEach from 'lodash/forEach'
 export default defineComponent({
+  auth: false,
   setup(_, context: any) {
     const { $axios } = useContext()
     const router = useRouter()
@@ -96,7 +97,8 @@ export default defineComponent({
       password: '',
       passwordRules: [
         (v: string) => !!v || 'Password is required',
-        (v: string) => (v && v.length >= 8) || 'Password must be greater than 8 characters'
+        (v: string) =>
+          (v && v.length >= 8) || 'Password must be greater than 8 characters'
       ],
       confirmPassword: '',
       checkbox: false,
@@ -111,13 +113,13 @@ export default defineComponent({
     })
 
     const validate = () => {
-      context.$refs.form.validate()
+      context.refs.form.validate()
       if (state.valid) {
         save()
       }
     }
     const reset = () => {
-      context.$refs.form.reset()
+      context.refs.form.reset()
     }
     const save = async () => {
       try {

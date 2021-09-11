@@ -14,7 +14,8 @@
               target="_blank"
               rel="noopener noreferrer"
             >
-              Facebook </a>
+              Facebook
+            </a>
           </p>
 
           <hr class="my-3" />
@@ -31,15 +32,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, useContext } from '@nuxtjs/composition-api'
+import { defineComponent } from '@nuxtjs/composition-api'
 
 export default defineComponent({
   setup() {
-    const { $auth } = useContext()
-    // CODE GOES HERE
-    return {
-      $auth
-    }
+    return {}
   }
 })
 </script>

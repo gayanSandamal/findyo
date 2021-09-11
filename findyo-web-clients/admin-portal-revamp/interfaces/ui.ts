@@ -1,5 +1,6 @@
 export interface IDrawerMenu {
   icon: string,
   title: string,
-  to: string
+  to: string,
+  authentication: boolean
 }

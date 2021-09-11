@@ -27,7 +27,9 @@
     <v-app-bar :clipped-left="state.clipped" fixed app>
       <v-app-bar-nav-icon @click.stop="state.drawer = !state.drawer" />
       <v-btn icon @click.stop="state.miniVariant = !state.miniVariant">
-        <v-icon>mdi-{{ `chevron-${state.miniVariant ? 'right' : 'left'}` }}</v-icon>
+        <v-icon
+          >mdi-{{ `chevron-${state.miniVariant ? 'right' : 'left'}` }}</v-icon
+        >
       </v-btn>
       <v-btn icon @click.stop="state.clipped = !state.clipped">
         <v-icon>mdi-application</v-icon>
@@ -48,7 +50,9 @@
       </v-container>
     </v-main>
     <v-footer :absolute="!state.fixed" app>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
+      <span
+        >&copy; {{ new Date().getFullYear() }} Findyo All rights reserved</span
+      >
     </v-footer>
   </v-app>
 </template>
@@ -76,22 +80,32 @@ export default defineComponent({
         {
           icon: 'mdi-apps',
           title: 'Welcome',
-          to: '/'
+          to: '/',
+          authentication: true
         },
         {
           icon: 'mdi-chart-bubble',
           title: 'Profile',
-          to: '/profile'
+          to: '/profile',
+          authentication: true
+        },
+        {
+          icon: 'mdi-crosshairs-gps',
+          title: 'locations',
+          to: '/locations',
+          authentication: true
         },
         {
           icon: 'mdi-account',
           title: 'Register',
-          to: '/register'
+          to: '/register',
+          authentication: false
         },
         {
           icon: 'mdi-login',
           title: 'Login',
-          to: '/login'
+          to: '/login',
+          authentication: false
         }
       ] as IDrawerMenu[],
       miniVariant: false,
@@ -99,14 +113,17 @@ export default defineComponent({
       title: 'Findyo Admin'
     })
 
-    const filteredItems = computed(() => filter(state.items, (i: IDrawerMenu) =>
-      (i.title === 'Login' || i.title === 'Register') && (!$auth.loggedIn)
-    ))
+    const filteredItems = computed(() =>
+      filter(state.items, (i: IDrawerMenu) => {
+        if ($auth.loggedIn) {
+          return i.authentication
+        } else {
+          return !i.authentication
+        }
+      })
+    )
 
     const logout = async () => {
-      // REMOVE UNWANTED CODE BLOCKS
-      // console.log(this.$auth.$storage.getUniversal('userId'))
-      // console.log(this.$auth.user)
       await $auth.logout()
       router.push('/login')
     }
