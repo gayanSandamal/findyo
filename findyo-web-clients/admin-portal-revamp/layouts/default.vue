@@ -102,6 +102,11 @@ export default defineComponent({
           authentication: false
         },
         {
+          icon: 'mdi-account',
+          title: 'Review Lib',
+          to: '/review-lib'
+        },
+        {
           icon: 'mdi-login',
           title: 'Login',
           to: '/login',
