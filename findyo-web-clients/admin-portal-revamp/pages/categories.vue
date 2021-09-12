@@ -135,26 +135,21 @@ export default defineComponent({
           })
           state.parentItems = [...state.parentItems, ...mappedData]
 
-          const parentIdList: any = state.categories.map(
-            (category: ICategory) => category.parent
-          )
-
-          const map = new Map()
-          let resultList = []
-
-          state.categories.forEach(({ id, parent, name }) => {
-            parent = parent ?? 0
-            map.has(parent) || map.set(parent, { parent, children: [] })
-            map.get(parent).children.push({ name, id })
-          })
-
-          resultList = [...map.values()]
-          console.log(resultList)
+          state.items = nest(state.categories)
         }
       } catch (error) {
         console.error(error)
       }
     }
+
+    const nest = (
+      items: ICategory[],
+      id: number | null = null,
+      link: string = 'parent'
+    ): ICategoryTreeItem[] =>
+      items
+        .filter((item: any) => item[link] === id)
+        .map((item: ICategory) => ({ ...item, children: nest(items, item.id) }))
 
     const onParentSelect = (val: number) => {
       //
