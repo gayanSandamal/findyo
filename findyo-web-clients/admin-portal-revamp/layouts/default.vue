@@ -66,6 +66,7 @@ import {
   useRouter
 } from '@nuxtjs/composition-api'
 import filter from 'lodash/filter'
+import sortBy from 'lodash/sortBy'
 import { IDrawerMenu } from '@/interfaces/ui'
 
 export default defineComponent({
@@ -78,39 +79,53 @@ export default defineComponent({
       fixed: false,
       items: [
         {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/',
-          authentication: true
-        },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Profile',
-          to: '/profile',
-          authentication: true
-        },
-        {
-          icon: 'mdi-crosshairs-gps',
-          title: 'locations',
-          to: '/locations',
-          authentication: true
+          icon: 'mdi-login',
+          title: 'Login',
+          to: '/login',
+          authentication: false,
+          order: 1
         },
         {
           icon: 'mdi-account',
           title: 'Register',
           to: '/register',
-          authentication: false
+          authentication: false,
+          order: 2
+        },
+        {
+          icon: 'mdi-apps',
+          title: 'Welcome',
+          to: '/',
+          authentication: true,
+          order: 3
+        },
+        {
+          icon: 'mdi-chart-bubble',
+          title: 'Profile',
+          to: '/profile',
+          authentication: true,
+          order: 4
+        },
+        {
+          icon: 'mdi-crosshairs-gps',
+          title: 'locations',
+          to: '/locations',
+          authentication: true,
+          order: 5
         },
         {
           icon: 'mdi-account',
           title: 'Review Lib',
-          to: '/review-lib'
+          to: '/review-lib',
+          authentication: true,
+          order: 7
         },
         {
-          icon: 'mdi-login',
-          title: 'Login',
-          to: '/login',
-          authentication: false
+          icon: 'mdi-cart',
+          title: 'Categories',
+          to: '/categories',
+          authentication: true,
+          order: 6
         }
       ] as IDrawerMenu[],
       miniVariant: false,
@@ -118,15 +133,17 @@ export default defineComponent({
       title: 'Findyo Admin'
     })
 
-    const filteredItems = computed(() =>
-      filter(state.items, (i: IDrawerMenu) => {
+    const filteredItems: IDrawerMenu[] = computed(() => {
+      const result: IDrawerMenu[] = filter(state.items, (i: IDrawerMenu) => {
         if ($auth.loggedIn) {
           return i.authentication
         } else {
           return !i.authentication
         }
       })
-    )
+      const sortedList: IDrawerMenu[] = sortBy(result, ['order'])
+      return sortedList
+    }).value
 
     const logout = async () => {
       await $auth.logout()

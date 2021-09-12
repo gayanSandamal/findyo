@@ -46,7 +46,7 @@ import {
 } from '@nuxtjs/composition-api'
 import { ILocation, ILocationLevel } from '@/interfaces/location'
 export default defineComponent({
-  setup(_, context) {
+  setup() {
     const { $axios } = useContext()
     const state = reactive({
       allLocations: [] as ILocation[],
@@ -108,8 +108,6 @@ export default defineComponent({
     const onMount = async () => {
       await getAllLevels()
       await getAllLocations()
-      // console.log('allLocations = ', state.allLocations)
-      // console.log('allLocationLevels = ', state.allLocationLevels)
     }
 
     onMounted(onMount)
