@@ -1,31 +1,50 @@
 <template>
   <v-row class="mt-5">
-    <v-col cols="12" lg="6">
-      <v-row>
-        <v-col>
+    <v-col cols="12" lg="6" class="left-side">
+      <v-form ref="form" v-model="state.valid" lazy-validation>
+        <v-row class="px-3">
           <v-text-field
+            v-model="categoryName"
             label="Add Category"
             placeholder="Enter new category name here"
             autofocus
+            :rules="state.categoryNameRules"
           >
           </v-text-field>
-        </v-col>
-        <v-col cols="3">
-          <v-btn class="mt-4" block clearable color="success">Add</v-btn>
-        </v-col>
-      </v-row>
-      <v-select
-        v-model="selectedParent"
-        class="mt-3"
-        append-icon="mdi-arrow-down"
-        :items="state.parentItems"
-        label="Parent Category"
-        placeholder="Select a parent category"
-        :change="onParentSelect"
-      ></v-select>
+        </v-row>
+        <v-row class="px-3">
+          <v-select
+            v-model="state.modalParentComboBox"
+            item-text="name"
+            item-value="id"
+            class="mt-5"
+            append-icon="mdi-arrow-down"
+            :items="state.parentItems"
+            label="Parent Category"
+            placeholder="Select a parent category"
+            @change="onParentSelect"
+          ></v-select>
+        </v-row>
+        <v-row class="btn-group">
+          <div v-if="!state.activeTreeNode" style="width: 100%">
+            <v-btn
+              class="mt-4"
+              block
+              clearable
+              color="success"
+              @click="validate"
+              >Add</v-btn
+            >
+          </div>
+          <div v-else style="width: 100%">
+            <v-btn class="mt-4" block clearable color="primary">Update</v-btn>
+            <v-btn class="mt-4" block clearable color="error">Delete</v-btn>
+          </div>
+        </v-row>
+      </v-form>
     </v-col>
     <v-col cols="12" lg="6">
-      <v-card class="py-4 px-3">
+      <v-card class="py-4 px-3 my-card">
         <v-treeview
           class="ml-5"
           hoverable
@@ -50,70 +69,34 @@ import {
   useContext,
   ref
 } from '@nuxtjs/composition-api'
-import {
-  ICategory,
-  ICategoryTreeItem,
-  ICategoryComboItem
-} from '@/interfaces/category'
+import { ICategory, ICategoryTreeItem } from '@/interfaces/category'
 export default defineComponent({
-  setup() {
+  setup(_, context: any) {
     const state = reactive({
+      valid: true,
       categories: [] as ICategory[],
-      items: [
-        {
-          id: 5,
-          name: 'Documents :',
-          children: [
-            {
-              id: 6,
-              name: 'vuetify :',
-              children: [
-                {
-                  id: 7,
-                  name: 'src :',
-                  children: [
-                    { id: 8, name: 'index : ts' },
-                    { id: 9, name: 'bootstrap : ts' }
-                  ]
-                }
-              ]
-            },
-            {
-              id: 10,
-              name: 'material2 :',
-              children: [
-                {
-                  id: 11,
-                  name: 'src :',
-                  children: [
-                    { id: 12, name: 'v-btn : ts' },
-                    { id: 13, name: 'v-card : ts' },
-                    { id: 14, name: 'v-window : ts' }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ] as ICategoryTreeItem[],
-      parentItems: [
-        {
-          id: -1,
-          name: 'No Parent',
-          parent: null,
-          disabled: false,
-          text: 'No Parent',
-          value: -1
-        }
-      ] as ICategoryComboItem[]
+      categoryNameRules: [(v: string) => !!v || 'Category name is required'],
+      items: [] as ICategoryTreeItem[],
+      parentItems: [] as ICategory[],
+      activeTreeNode: null as null | number,
+      selectedParent: null as ICategory | null | undefined,
+      modalParentComboBox: null as null | number
     })
 
-    const selectedParent = ref(null)
+    const categoryName = ref('')
 
     const { $axios } = useContext()
 
     const onTreeActive = (val: number[]) => {
-      // console.log(val[0])
+      state.activeTreeNode = val.length > 0 ? val[0] : null
+      if (state.activeTreeNode) {
+        const activeNode = state.categories.find(
+          c => c.id === state?.activeTreeNode
+        )
+        categoryName.value = activeNode ? activeNode.name : ''
+        return
+      }
+      categoryName.value = ''
     }
 
     const getAllCategories = async () => {
@@ -125,16 +108,19 @@ export default defineComponent({
         } = response
         if (status === 200) {
           state.categories = [...data]
-          const mappedData: ICategoryComboItem[] = data.map((d: ICategory) => {
+          const mappedData: ICategory[] = data.map((d: ICategory) => {
             return {
               ...d,
-              disabled: false,
-              text: d.name,
-              value: d.id
+              disabled: false
             }
           })
-          state.parentItems = [...state.parentItems, ...mappedData]
-
+          state.parentItems = [...mappedData]
+          state.parentItems.push({
+            id: -1,
+            name: 'No Parent',
+            parent: null,
+            disabled: false
+          })
           state.items = nest(state.categories)
         }
       } catch (error) {
@@ -152,7 +138,40 @@ export default defineComponent({
         .map((item: ICategory) => ({ ...item, children: nest(items, item.id) }))
 
     const onParentSelect = (val: number) => {
-      //
+      if (!val) {
+        return
+      }
+      state.selectedParent = state.parentItems.find(item => item.id === val)
+    }
+
+    const validate = () => {
+      context.refs.form.validate()
+      if (state.valid) {
+        saveCategory()
+      }
+    }
+
+    const saveCategory = async () => {
+      const postData = {
+        name: categoryName.value,
+        parent:
+          state.modalParentComboBox === -1 ||
+          state.modalParentComboBox === null ||
+          state.modalParentComboBox === undefined
+            ? null
+            : state.modalParentComboBox
+      }
+      try {
+        const response = await $axios.post('admin/PostCategory', postData)
+        console.log(response)
+        const { status } = response
+        if (status === 200) {
+          categoryName.value = ''
+          await getAllCategories()
+        }
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     const mounted = async () => {
@@ -161,7 +180,22 @@ export default defineComponent({
 
     onMounted(mounted)
 
-    return { state, onParentSelect, selectedParent, onTreeActive }
+    return { state, onParentSelect, onTreeActive, categoryName, validate }
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.my-card {
+  min-height: 340px;
+}
+.btn-group {
+  margin-top: 40px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.left-side {
+  margin: 25px 0 0 0;
+  padding: 30px 40px 30px 30px;
+}
+</style>

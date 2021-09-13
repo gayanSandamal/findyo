@@ -2,7 +2,8 @@ export interface ICategory {
   id: number,
   name: string,
   parent?: number|null,
-  cid?: string
+  cid?: string,
+  disabled?: boolean|null,
 }
 
 interface ICategoryTreeChild {
@@ -13,10 +14,4 @@ interface ICategoryTreeChild {
 
 export interface ICategoryTreeItem extends ICategory {
   children: ICategoryTreeChild[]
-}
-
-export interface ICategoryComboItem extends ICategory {
-  text?: string,
-  disabled: boolean,
-  value: number
 }
