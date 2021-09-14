@@ -1,19 +1,21 @@
 <template>
   <v-row class="mt-5">
     <v-col cols="12" lg="6" class="left-side">
-      <v-form ref="form" v-model="state.valid" lazy-validation>
+      <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">Add new category</h3>
+      <h3 v-else class="mb-5 pb-5">Update / Delete category</h3>
+      <v-form ref="form" v-model="state.valid" lazy-validation class="pt-3">
         <v-row class="px-3">
           <v-text-field
             v-model="categoryName"
             label="Add Category"
             placeholder="Enter new category name here"
-            autofocus
             :rules="state.categoryNameRules"
+            outlined
           >
           </v-text-field>
         </v-row>
         <v-row class="px-3">
-          <v-select
+          <v-combobox
             v-model="state.modalParentComboBox"
             item-text="name"
             item-value="id"
@@ -22,23 +24,22 @@
             :items="state.parentItems"
             label="Parent Category"
             placeholder="Select a parent category"
-            @change="onParentSelect"
-          ></v-select>
+            outlined
+          ></v-combobox>
         </v-row>
         <v-row class="btn-group">
           <div v-if="!state.activeTreeNode" style="width: 100%">
-            <v-btn
-              class="mt-4"
-              block
-              clearable
-              color="success"
-              @click="validate"
-              >Add</v-btn
-            >
+            <v-btn class="mt-1" block color="success" @click="validate">
+              Add
+            </v-btn>
           </div>
           <div v-else style="width: 100%">
-            <v-btn class="mt-4" block clearable color="primary">Update</v-btn>
-            <v-btn class="mt-4" block clearable color="error">Delete</v-btn>
+            <v-btn class="" block color="primary" @click="updateCategory"
+              >Update</v-btn
+            >
+            <v-btn class="mt-4" block color="error" @click="deleteCategory"
+              >Delete</v-btn
+            >
           </div>
         </v-row>
       </v-form>
@@ -80,20 +81,102 @@ export default defineComponent({
       parentItems: [] as ICategory[],
       activeTreeNode: null as null | number,
       selectedParent: null as ICategory | null | undefined,
-      modalParentComboBox: null as null | number
+      modalParentComboBox: {
+        id: -1,
+        name: 'No Parent',
+        parent: null,
+        disabled: false
+      } as null | undefined | ICategory
     })
 
     const categoryName = ref('')
 
     const { $axios } = useContext()
 
+    const updateCategory = async () => {
+      context.refs.form.validate()
+      if (!state.valid || !state.activeTreeNode) {
+        return
+      }
+      const activeNode = state.categories.find(
+        c => c.id === state.activeTreeNode
+      )
+
+      if (!activeNode) {
+        return
+      }
+
+      const putData = {
+        name: categoryName.value,
+        cid: activeNode?.cid,
+        id: activeNode.id
+      }
+
+      try {
+        const response = await $axios.put('admin/PostCategory', putData)
+        const { status } = response
+        if (status === 200) {
+          await getAllCategories()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const deleteCategory = async () => {
+      context.refs.form.validate()
+      if (!state.valid || !state.activeTreeNode) {
+        return
+      }
+      const activeNode = state.categories.find(
+        c => c.id === state.activeTreeNode
+      )
+
+      if (!activeNode) {
+        return
+      }
+
+      const deleteData = {
+        cid: activeNode?.cid,
+        id: activeNode.id
+      }
+
+      try {
+        const req = {
+          url: 'admin/PostCategory',
+          method: 'delete',
+          data: deleteData
+        }
+        // @ts-ignore
+        const response = await $axios.request(req)
+        const { status } = response
+        if (status === 200) {
+          categoryName.value = ''
+          state.activeTreeNode = null
+          await getAllCategories()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     const onTreeActive = (val: number[]) => {
       state.activeTreeNode = val.length > 0 ? val[0] : null
       if (state.activeTreeNode) {
         const activeNode = state.categories.find(
-          c => c.id === state?.activeTreeNode
+          c => c.id === state.activeTreeNode
         )
-        categoryName.value = activeNode ? activeNode.name : ''
+        if (activeNode) {
+          const parentNode = state.categories.find(
+            category => category.id === activeNode.parent
+          )
+          categoryName.value = activeNode.name
+          if (parentNode) {
+            state.modalParentComboBox = parentNode
+          } else {
+            state.modalParentComboBox = state.parentItems.find(c => c.id === -1)
+          }
+        }
         return
       }
       categoryName.value = ''
@@ -137,13 +220,6 @@ export default defineComponent({
         .filter((item: any) => item[link] === id)
         .map((item: ICategory) => ({ ...item, children: nest(items, item.id) }))
 
-    const onParentSelect = (val: number) => {
-      if (!val) {
-        return
-      }
-      state.selectedParent = state.parentItems.find(item => item.id === val)
-    }
-
     const validate = () => {
       context.refs.form.validate()
       if (state.valid) {
@@ -155,15 +231,14 @@ export default defineComponent({
       const postData = {
         name: categoryName.value,
         parent:
-          state.modalParentComboBox === -1 ||
           state.modalParentComboBox === null ||
-          state.modalParentComboBox === undefined
+          state.modalParentComboBox === undefined ||
+          (state.modalParentComboBox && state.modalParentComboBox.id === -1)
             ? null
-            : state.modalParentComboBox
+            : state.modalParentComboBox.id
       }
       try {
         const response = await $axios.post('admin/PostCategory', postData)
-        console.log(response)
         const { status } = response
         if (status === 200) {
           categoryName.value = ''
@@ -180,22 +255,29 @@ export default defineComponent({
 
     onMounted(mounted)
 
-    return { state, onParentSelect, onTreeActive, categoryName, validate }
+    return {
+      state,
+      onTreeActive,
+      categoryName,
+      validate,
+      updateCategory,
+      deleteCategory
+    }
   }
 })
 </script>
 
 <style lang="scss" scoped>
 .my-card {
-  min-height: 340px;
+  min-height: 400px;
 }
 .btn-group {
-  margin-top: 40px;
+  margin-top: 35px;
   padding-left: 10px;
   padding-right: 10px;
 }
 .left-side {
-  margin: 25px 0 0 0;
+  margin: 0;
   padding: 30px 40px 30px 30px;
 }
 </style>
