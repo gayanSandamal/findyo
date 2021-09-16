@@ -15,7 +15,7 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $locations = Location::paginate(15)->appends(['sort' => 'name']);
+        $locations = Location::paginate()->appends(['sort' => 'name']);
         return response()->json($locations, 200);
     }
 
@@ -39,6 +39,7 @@ class LocationController extends Controller
         $locationData = new Location;
         $locationData->name = $request['name'];
         $locationData->parent = $request['parent'];
+        $locationData->location_level_id = $request['location_level_id'];
         $locationData->save();
 
         return response()->json($locationData, 200);
