@@ -14,6 +14,13 @@ class Location extends Model
 
     protected $table = 'locations';
 
+    protected $fillable = [
+        'id',
+        'name',
+        'parent',
+        'location_level_id'
+    ];
+
     public $timestamps = true;
 
     protected $hidden = array('created_at', 'updated_at');
@@ -28,6 +35,6 @@ class Location extends Model
 
     public function LocationLevel()
     {
-        return $this->belongsTo(LocationLevel::class,'location_level_id');
+        return $this->belongsTo(LocationLevel::class, 'location_level_id');
     }
 }
