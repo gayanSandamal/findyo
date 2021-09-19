@@ -52,12 +52,12 @@ class PostCategoryController extends Controller
      */
     public function update(Request $request)
     {
-    
+
         $validation = Validator::make($request->all(), [
             'id' => 'exists:App\Models\PostCategory,id',
             'name' => 'bail|required|max:50|regex:/^[a-zA-Z0-9_\\s]*$/u'
         ]);
-        
+
         if ($validation->fails()) {
             return response()->json($validation->errors(), 400);
         }

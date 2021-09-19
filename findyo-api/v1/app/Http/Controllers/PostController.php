@@ -14,12 +14,16 @@ class PostController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    // public function index()
+    // {
+    //     $post = Post::paginate(15)->appends(['sort' => 'id']);
+    //     return response()->json($post, 200);
+    // }
+    public function index(Request $request)
     {
-        $post = Post::paginate(15)->appends(['sort' => 'id']);
+        $post = Post::filter($request)->paginate(15)->appends(['sort' => 'id']);
         return response()->json($post, 200);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -29,7 +33,7 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-       
+
         $post = new Post;
         $post->like_count = 0;
         $post->user_id =  $request['user_id'];
@@ -39,9 +43,8 @@ class PostController extends Controller
         $post->post_content = $request['post_content'];
         $post->post_type = $request['post_type'];
         $post->save();
-        
+
         return response()->json($post, 200);
-        
     }
 
     public function update(Request $request)
@@ -60,7 +63,7 @@ class PostController extends Controller
         $post->likes = $request['likes'];
         $post->share_count = $request['share_count'];
         $post->shares = $request['shares'];
-       
+
         $post->save();
 
         return response()->json($post, 200);
@@ -93,7 +96,7 @@ class PostController extends Controller
         return response()->json('Post Deleted', 200);
     }
 
-     /**
+    /**
      * This will be returned the post with it's images.
      *
      * @param  \App\Models\Post  $post
