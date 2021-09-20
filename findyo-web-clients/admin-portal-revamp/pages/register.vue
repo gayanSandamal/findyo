@@ -22,7 +22,7 @@
             <h5>Please fill the details</h5>
           </v-card-title>
           <v-card-text>
-            <v-form ref="form" v-model="state.valid" lazy-validation>
+            <v-form ref="form" v-model="state.valid">
               <v-text-field
                 v-model="state.email"
                 :rules="state.emailRules"
@@ -47,7 +47,7 @@
               ></v-text-field>
 
               <v-checkbox
-                v-model="state.checkbox"
+                v-model="state.agreed"
                 :rules="[v => !!v || 'You must agree to continue!']"
                 label="Do you agree to terms and conditions?"
                 required
@@ -101,7 +101,7 @@ export default defineComponent({
           (v && v.length >= 8) || 'Password must be greater than 8 characters'
       ],
       confirmPassword: '',
-      checkbox: false,
+      agreed: false,
       alert: false,
       errorList: ''
     })
