@@ -27,9 +27,7 @@
     <v-app-bar :clipped-left="state.clipped" fixed app>
       <v-app-bar-nav-icon @click.stop="state.drawer = !state.drawer" />
       <v-btn icon @click.stop="state.miniVariant = !state.miniVariant">
-        <v-icon
-          >mdi-{{ `chevron-${state.miniVariant ? 'right' : 'left'}` }}</v-icon
-        >
+        <v-icon>mdi-{{ `chevron-${state.miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
       <v-btn icon @click.stop="state.clipped = !state.clipped">
         <v-icon>mdi-application</v-icon>
@@ -39,10 +37,12 @@
       </v-btn>
       <v-toolbar-title v-text="state.title" />
       <v-spacer />
-      <v-btn v-if="$auth.loggedIn" color="secondary" @click="logout">
-        <v-icon>mdi-logout</v-icon>
-        &nbsp; Logout
-      </v-btn>
+      <client-only>
+        <v-btn v-if="$auth.loggedIn" color="secondary" @click="logout">
+          <v-icon>mdi-logout</v-icon>
+          &nbsp; Logout
+        </v-btn>
+      </client-only>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -50,9 +50,8 @@
       </v-container>
     </v-main>
     <v-footer :absolute="!state.fixed" app>
-      <span
-        >&copy; {{ new Date().getFullYear() }} Findyo All rights reserved</span
-      >
+      <span>&copy; {{ new Date().getFullYear() }} Findyo All rights reserved</span>
+      {{ state.config }}
     </v-footer>
   </v-app>
 </template>
@@ -130,10 +129,11 @@ export default defineComponent({
       ] as IDrawerMenu[],
       miniVariant: false,
       right: true,
-      title: 'Findyo Admin'
+      title: 'Findyo Admin',
+      config: process.env
     })
 
-    const filteredItems: IDrawerMenu[] = computed(() => {
+    const filteredItems = computed((): IDrawerMenu[] => {
       const result: IDrawerMenu[] = filter(state.items, (i: IDrawerMenu) => {
         if ($auth.loggedIn) {
           return i.authentication
@@ -143,7 +143,7 @@ export default defineComponent({
       })
       const sortedList: IDrawerMenu[] = sortBy(result, ['order'])
       return sortedList
-    }).value
+    })
 
     const logout = async () => {
       await $auth.logout()

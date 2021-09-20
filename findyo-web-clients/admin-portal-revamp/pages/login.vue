@@ -22,7 +22,7 @@
             <h5>Please fill the details</h5>
           </v-card-title>
           <v-card-text>
-            <v-form ref="form" v-model="state.valid" lazy-validation>
+            <v-form ref="form" v-model="state.valid">
               <v-text-field
                 v-model="state.email"
                 :rules="state.emailRules"

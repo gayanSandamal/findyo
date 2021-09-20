@@ -81,7 +81,7 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // fallback url
-    baseURL: 'http://127.0.0.1:8000/api/',
+    baseURL: process.env.NODE_ENV === 'production' ? 'https://findyo-admin.audiblepro.com/api/' : 'http://127.0.0.1:8000/api/',
     retry: { retries: 3 },
     common: {
       Accept: 'application/json, text/plain, */*'
@@ -89,7 +89,7 @@ export default {
   },
 
   router: {
-    // middleware: ['auth']
+    middleware: ['auth']
   },
 
   publicRuntimeConfig: {
@@ -130,8 +130,15 @@ export default {
     }
   },
 
+  // env: {
+  //   baseApi: process.env.BASE_API || 'http://127.0.0.1:8000/api/'
+  // },
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-    transpile: ['vuex-composition-helpers', 'vue-tooltip']
+    transpile: ['vuex-composition-helpers', 'vue-tooltip'],
+    extend(config) {
+      config.devtool = 'source-map'
+    }
   }
 }

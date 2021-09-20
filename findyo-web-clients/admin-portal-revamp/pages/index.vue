@@ -22,9 +22,11 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn v-if="!$auth.loggedIn" color="primary" nuxt to="/login">
-            Login
-          </v-btn>
+          <client-only>
+            <v-btn v-if="!$auth.loggedIn" color="primary" nuxt to="/login">
+              Login
+            </v-btn>
+          </client-only>
         </v-card-actions>
       </v-card>
     </v-col>
