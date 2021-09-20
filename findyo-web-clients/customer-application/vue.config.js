@@ -6,17 +6,8 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
     compress: true,
-    port: 8090
-    // proxy: {
-    //   "^/api": {
-    //     target: "<url>",
-    //     ws: true,
-    //     changeOrigin: true
-    //   },
-    //   "^/foo": {
-    //     target: "<other_url>"
-    //   }
-    // }
+    port: 8090,
+    proxy: 'http://127.0.0.1:8000/api/'
   },
   css: {
     requireModuleExtension: false,

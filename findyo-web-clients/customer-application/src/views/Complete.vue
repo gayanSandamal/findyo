@@ -40,6 +40,7 @@
                 type="text"
                 class="display-inline full-width"
                 :class="{'error': field.error}"
+                :name="field.name"
               />
               <input
                 v-if="field.type === 'single-email'"
@@ -48,11 +49,12 @@
                 class="display-inline full-width"
                 :disabled="!isRegisteredOnPhone"
                 :class="{'error': field.error}"
+                :name="field.name"
               />
               <datepicker
                 v-if="field.type === 'single-date'"
                 v-model="field.value"
-                name="dateofbirth"
+                :name="field.name"
                 :format="'dd MMM yyyy'"
                 :maximum-view="'year'"
               ></datepicker>
@@ -72,6 +74,7 @@
                     v-model="innerField.value"
                     :disabled="innerIndex === 0 && isRegisteredOnPhone"
                     :class="{'error': field.error}"
+                    :name="field.name"
                   />
                   <button
                     class="hollow"
@@ -92,6 +95,7 @@
                 v-model="field.value"
                 class="display-inline full-width"
                 :class="{'error': field.error}"
+                :name="field.name"
               />
               <div
                 v-if="field.type === 'input-array'"
@@ -109,6 +113,7 @@
                     class="display-inline full-width"
                     v-model="innerField.value"
                     :class="{'error': field.error}"
+                    :name="field.name"
                   />
                   <input
                     v-if="innerField.type === 'single-numeric'"
@@ -116,6 +121,7 @@
                     class="display-inline full-width"
                     v-model="innerField.value"
                     :class="{'error': field.error}"
+                    :name="field.name"
                   />
                 </div>
               </div>
@@ -345,23 +351,27 @@ export default {
       return result;
     },
     async saveProfileCompletion() {
-      this.saveDisabled = true;
-      let saveObj = this.makeProfileSaveObj();
-      saveObj.phoneNumber =
-        Array.isArray(saveObj.phoneNumber) && saveObj.phoneNumber.length
-          ? saveObj.phoneNumber[0]
-          : saveObj.phoneNumber
-          ? saveObj.phoneNumber
-          : "";
-      this.$set(saveObj, "id", this.user.id);
-      this.$set(saveObj, "cid", this.user.userId);
-      const objectArray = Object.entries(saveObj);
+      this.saveDisabled = true
+      let saveObj = this.makeProfileSaveObj()
+      let phone = saveObj.phoneNumber.length > 0 ? saveObj.phoneNumber : undefined
+      if (saveObj.phoneNumber.length > 0) {
+        const emptyPhones = phone.filter(item => item.trim() === '')
+        if (emptyPhones.length > 0) {
+          saveObj.phone = null
+        } else {
+          phone = JSON.stringify(phone)
+          saveObj.phone = phone
+        }
+      }
+      this.$set(saveObj, "id", this.user.id)
+      this.$set(saveObj, "cid", this.user.userId)
+      const objectArray = Object.entries(saveObj)
       objectArray.forEach(([key, value]) => {
         if (value === undefined) {
-          delete saveObj[key];
+          delete saveObj[key]
         }
-      });
-      saveObj = this.replaceUnderscoresToNormal(saveObj);
+      })
+      saveObj = this.replaceUnderscoresToNormal(saveObj)
       try {
         await this.updateUser(
           {
@@ -376,7 +386,6 @@ export default {
               const updatedUser = {
                 ...user,
                 displayName: data.displayname ?? data[0].displayname,
-                phoneNumber: data.phone,
                 emailVerified: data.email_verified_at
                   ? data.email_verified_at
                   : false,
@@ -387,25 +396,22 @@ export default {
 
               const updatedUserData = {};
               //set userData
-              updatedUserData.creationTime = data.created_at;
-              updatedUserData.job_title = data.job_title;
-              updatedUserData.address = data.address;
-              updatedUserData.postal_code = data.postal_code;
-              updatedUserData.displayName =
-                data.displayname ?? data.displayname;
-              updatedUserData.username = data.username;
-              updatedUserData.phoneNumber = data.phone;
-              updatedUserData.district = data.district;
-              updatedUserData.email = this.user.email;
-              updatedUserData.country = data.country;
-              updatedUserData.last_name = data.lastname;
-              updatedUserData.province = data.province;
-              updatedUserData.emailVerified = data.email_verified_at
-                ? data.email_verified_at
-                : false;
-              updatedUserData.first_name = data.firstname;
-              updatedUserData.city = data.city;
               updatedUserData.id = this.user.id;
+              updatedUserData.email = this.user.email;
+              updatedUserData.username = data.username;
+              updatedUserData.phone = data.phone;
+              updatedUserData.address = data.address;
+              updatedUserData.creationTime = data.created_at;
+              updatedUserData.displayName = data.displayname ?? data.displayname;
+              updatedUserData.first_name = data.firstname;
+              updatedUserData.last_name = data.lastname;
+              updatedUserData.emailVerified = data.email_verified_at ? data.email_verified_at : false;
+              // updatedUserData.job_title = data.job_title;
+              // updatedUserData.postal_code = data.postal_code;
+              // updatedUserData.district = data.district;
+              // updatedUserData.country = data.country;
+              // updatedUserData.province = data.province;
+              // updatedUserData.city = data.city;
               this.$store.commit("setUserData", updatedUserData);
               this.$router.push({ name: "home" });
             }

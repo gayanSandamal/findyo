@@ -9,6 +9,7 @@
           type="email"
           placeholder="Enter your email here"
           v-on:keyup.enter="handleSubmit(loginBinds)"
+          name="email"
         />
       </div>
       <div class="text-wrapper">
@@ -19,6 +20,7 @@
           type="password"
           placeholder="Enter your password here"
           v-on:keyup.enter="handleSubmit(loginBinds)"
+          name="password"
         />
       </div>
       <div class="text-wrapper">
