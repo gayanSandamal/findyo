@@ -15,7 +15,7 @@ class PostCategoryController extends Controller
      */
     public function index()
     {
-        $postCategory = PostCategory::paginate(15)->appends(['sort' => 'name']);
+        $postCategory = PostCategory::paginate()->appends(['sort' => 'name']);
         return response()->json($postCategory, 200);
     }
 
