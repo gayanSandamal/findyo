@@ -1,8 +1,14 @@
 <template>
   <v-row class="mt-5">
     <v-col cols="12" lg="6" class="left-side">
-      <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">Add new category</h3>
-      <h3 v-else class="mb-5 pb-5">Update / Delete category</h3>
+      <client-only>
+        <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">
+          Add new category
+        </h3>
+        <h3 v-else class="mb-5 pb-5">
+          Update / Delete category
+        </h3>
+      </client-only>
       <v-form ref="form" v-model="state.valid" lazy-validation class="pt-3">
         <v-row class="px-3">
           <v-text-field
@@ -28,19 +34,21 @@
           ></v-combobox>
         </v-row>
         <v-row class="btn-group">
-          <div v-if="!state.activeTreeNode" style="width: 100%">
-            <v-btn class="mt-1" block color="success" @click="validate">
-              Add
-            </v-btn>
-          </div>
-          <div v-else style="width: 100%">
-            <v-btn class="" block color="primary" @click="updateCategory"
-              >Update</v-btn
-            >
-            <v-btn class="mt-4" block color="error" @click="deleteCategory"
-              >Delete</v-btn
-            >
-          </div>
+          <client-only>
+            <div v-if="!state.activeTreeNode" style="width: 100%">
+              <v-btn class="mt-1" block color="success" @click="validate">
+                Add
+              </v-btn>
+            </div>
+            <div v-else style="width: 100%">
+              <v-btn class="" block color="primary" @click="updateCategory">
+                Update
+              </v-btn>
+              <v-btn class="mt-4" block color="error" @click="deleteCategory">
+                Delete
+              </v-btn>
+            </div>
+          </client-only>
         </v-row>
       </v-form>
     </v-col>
