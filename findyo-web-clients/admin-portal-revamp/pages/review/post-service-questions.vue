@@ -89,49 +89,51 @@
       </v-row>
     </v-col>
     <v-col cols="12">
-      <v-data-table
-        :headers="state.headers"
-        :items="state.questions"
-        :items-per-page="5"
-        sort-by="order"
-        class="elevation-1 w-100"
-      >
-        <template #[`item.order`]="{ item }">
-          <v-text-field
-            v-if="state.isEditable"
-            v-model="item.order"
-            :hide-details="true"
-            type="number"
-            dense
-          ></v-text-field>
-          <p v-else class="mb-0" v-text="item.order"></p>
-        </template>
-        <template #[`item.question`]="{ item }">
-          <v-text-field
-            v-if="state.isEditable"
-            v-model="item.question"
-            :hide-details="true"
-            dense
-          ></v-text-field>
-          <p v-else class="mb-0" v-text="item.question"></p>
-        </template>
-        <template #[`item.weight`]="{ item }">
-          <v-text-field
-            v-if="state.isEditable"
-            v-model="item.weight"
-            :hide-details="true"
-            type="number"
-            dense
-          ></v-text-field>
-          <p v-else class="mb-0" v-text="item.weight"></p>
-        </template>
-        <template #[`item.active`]="{ item }">
-          <v-switch
-            v-model="item.active"
-            :disabled="!state.isEditable"
-          ></v-switch>
-        </template>
-      </v-data-table>
+      <client-only>
+        <v-data-table
+          :headers="state.headers"
+          :items="state.questions"
+          :items-per-page="5"
+          sort-by="order"
+          class="elevation-1 w-100"
+        >
+          <template #[`item.order`]="{ item }">
+            <v-text-field
+              v-if="state.isEditable"
+              v-model="item.order"
+              :hide-details="true"
+              type="number"
+              dense
+            ></v-text-field>
+            <p v-else class="mb-0" v-text="item.order"></p>
+          </template>
+          <template #[`item.question`]="{ item }">
+            <v-text-field
+              v-if="state.isEditable"
+              v-model="item.question"
+              :hide-details="true"
+              dense
+            ></v-text-field>
+            <p v-else class="mb-0" v-text="item.question"></p>
+          </template>
+          <template #[`item.weight`]="{ item }">
+            <v-text-field
+              v-if="state.isEditable"
+              v-model="item.weight"
+              :hide-details="true"
+              type="number"
+              dense
+            ></v-text-field>
+            <p v-else class="mb-0" v-text="item.weight"></p>
+          </template>
+          <template #[`item.active`]="{ item }">
+            <v-switch
+              v-model="item.active"
+              :disabled="!state.isEditable"
+            ></v-switch>
+          </template>
+        </v-data-table>
+      </client-only>
     </v-col>
   </v-row>
 </template>
