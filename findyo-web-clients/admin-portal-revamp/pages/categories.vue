@@ -2,19 +2,15 @@
   <v-row class="mt-5">
     <v-col cols="12" lg="6" class="left-side">
       <client-only>
-        <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">
-          Add new category
-        </h3>
-        <h3 v-else class="mb-5 pb-5">
-          Update / Delete category
-        </h3>
+        <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">Add new category</h3>
+        <h3 v-else class="mb-5 pb-5">Update / Delete category</h3>
       </client-only>
-      <v-form ref="form" v-model="state.valid" lazy-validation class="pt-3">
+      <v-form ref="form" v-model="state.valid" class="pt-3">
         <v-row class="px-3">
           <v-text-field
             v-model="categoryName"
-            label="Add Category"
-            placeholder="Enter new category name here"
+            :label="!state.activeTreeNode ? 'Add Category' : 'Update Category'"
+            placeholder="Enter category name here"
             :rules="state.categoryNameRules"
             outlined
           >
@@ -36,15 +32,33 @@
         <v-row class="btn-group">
           <client-only>
             <div v-if="!state.activeTreeNode" style="width: 100%">
-              <v-btn class="mt-1" block color="success" @click="validate">
+              <v-btn
+                :disabled="!state.valid"
+                class="mt-1"
+                block
+                color="success"
+                @click="validate"
+              >
                 Add
               </v-btn>
             </div>
             <div v-else style="width: 100%">
-              <v-btn class="" block color="primary" @click="updateCategory">
+              <v-btn
+                :disabled="!state.valid"
+                class=""
+                block
+                color="primary"
+                @click="updateCategory"
+              >
                 Update
               </v-btn>
-              <v-btn class="mt-4" block color="error" @click="deleteCategory">
+              <v-btn
+                :disabled="!state.valid"
+                class="mt-4"
+                block
+                color="error"
+                @click="deleteCategory"
+              >
                 Delete
               </v-btn>
             </div>
@@ -64,7 +78,6 @@
           class="ml-5"
           hoverable
           :items="state.items"
-          open-all
           transition
           activatable
           color="warning"
@@ -198,6 +211,7 @@ export default defineComponent({
         }
         return
       }
+      state.modalParentComboBox = null
       categoryName.value = ''
     }
 

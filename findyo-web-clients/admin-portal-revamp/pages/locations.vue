@@ -1,133 +1,112 @@
 <template>
   <div class="my-5">
-    <v-card elevation="2" outlined>
-      <v-tabs>
-        <v-tab>Manage Locations</v-tab>
-        <v-tab>Manage Levels</v-tab>
-        <v-tab-item>
-          <!-- <v-container fluid>
-            <v-card-title>Locations</v-card-title>
-            <div class="mx-3 pb-4 text-subtitle-1 font-weight-medium">
-              Add, edit or remove locations
-            </div>
-            <div class="mx-3 mt-5">
-              <v-select
-                v-model="selectedLevel"
-                :items="state.allLocationLevels"
-                :error-messages="[]"
-                label="Select an option"
-                required
-                @change="onSelectLevel"
-              ></v-select>
-            </div>
-          </v-container>
-        </v-tab-item>
-        <v-tab-item>
-          <v-container fluid>
-            <v-card-title>Levels</v-card-title>
-            <div class="mx-3 text-subtitle-1 font-weight-medium">
-              Add, edit or remove locations
-            </div>
-            <div class="mx-3"></div>
-          </v-container> -->
-          <v-row class="mt-5">
-            <v-col cols="12" lg="6" class="left-side">
-              <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">
-                Add new location
-              </h3>
-              <h3 v-else class="mb-5 pb-5">Update / Delete Locations</h3>
-              <v-form
-                ref="form"
-                v-model="state.valid"
-                lazy-validation
-                class="pt-3"
-              >
-                <v-row class="px-3">
-                  <v-text-field
-                    v-model="locationName"
-                    label="Add Location"
-                    placeholder="Enter new category name here"
-                    :rules="state.categoryNameRules"
-                    outlined
+    <v-tabs>
+      <v-tab>Manage Locations</v-tab>
+      <v-tab>Manage Levels</v-tab>
+      <v-tab-item>
+        <v-row class="mt-5">
+          <v-col cols="12" lg="6" class="left-side">
+            <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">
+              Add new location
+            </h3>
+            <h3 v-else class="mb-5 pb-5">Update / Delete Locations</h3>
+            <v-form ref="form" v-model="state.valid" class="pt-3">
+              <v-row class="px-3">
+                <v-text-field
+                  v-model="locationName"
+                  :label="
+                    !state.activeTreeNode ? 'Add Location' : 'Update Location'
+                  "
+                  placeholder="Enter loaction name here"
+                  :rules="state.locationNameRules"
+                  outlined
+                >
+                </v-text-field>
+              </v-row>
+              <v-row class="px-3">
+                <v-combobox
+                  v-model="state.modalParentComboBox"
+                  item-text="name"
+                  item-value="id"
+                  class="mt-5"
+                  append-icon="mdi-arrow-down"
+                  :items="state.parentItems"
+                  label="Parent Location"
+                  placeholder="Select a parent location"
+                  outlined
+                ></v-combobox>
+              </v-row>
+              <v-row class="px-3">
+                <v-combobox
+                  v-model="state.modalLocationLevelComboBox"
+                  item-text="name"
+                  item-value="id"
+                  class="mt-5"
+                  append-icon="mdi-arrow-down"
+                  :items="state.locationLevels"
+                  label="Location Level"
+                  placeholder="Select a location level"
+                  outlined
+                ></v-combobox>
+              </v-row>
+              <v-row class="btn-group">
+                <div v-if="!state.activeTreeNode" style="width: 100%">
+                  <v-btn
+                    :disabled="!state.valid"
+                    class="mt-1"
+                    block
+                    color="success"
+                    @click="validate"
                   >
-                  </v-text-field>
-                </v-row>
-                <v-row class="px-3">
-                  <v-combobox
-                    v-model="state.modalParentComboBox"
-                    item-text="name"
-                    item-value="id"
-                    class="mt-5"
-                    append-icon="mdi-arrow-down"
-                    :items="state.parentItems"
-                    label="Parent Location"
-                    placeholder="Select a parent location"
-                    outlined
-                  ></v-combobox>
-                </v-row>
-                <v-row class="px-3">
-                  <v-combobox
-                    v-model="state.modalParentComboBox"
-                    item-text="name"
-                    item-value="id"
-                    class="mt-5"
-                    append-icon="mdi-arrow-down"
-                    :items="state.parentItems"
-                    label="Location Level"
-                    placeholder="Select a location level"
-                    outlined
-                  ></v-combobox>
-                </v-row>
-                <v-row class="btn-group">
-                  <div v-if="!state.activeTreeNode" style="width: 100%">
-                    <v-btn class="mt-1" block color="success" @click="validate">
-                      Add
-                    </v-btn>
-                  </div>
-                  <div v-else style="width: 100%">
-                    <v-btn
-                      class=""
-                      block
-                      color="primary"
-                      @click="updateCategory"
-                      >Update</v-btn
-                    >
-                    <v-btn
-                      class="mt-4"
-                      block
-                      color="error"
-                      @click="deleteCategory"
-                      >Delete</v-btn
-                    >
-                  </div>
-                </v-row>
-              </v-form>
-            </v-col>
-            <v-col cols="12" lg="6">
-              <v-card class="py-4 px-3 my-card">
-                <v-skeleton-loader
-                  v-if="!state.items"
-                  v-bind="state.attrs"
-                  type="table-heading, list-item-two-line, image, table-tfoot"
-                ></v-skeleton-loader>
-                <v-treeview
-                  v-else
-                  class="ml-5"
-                  hoverable
-                  :items="state.items"
-                  open-all
-                  transition
-                  activatable
-                  color="warning"
-                  shaped
-                  @update:active="onTreeActive"
-                ></v-treeview>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-tab-item>
-      </v-tabs>
-    </v-card>
+                    Add
+                  </v-btn>
+                </div>
+                <div v-else style="width: 100%">
+                  <v-btn
+                    :disabled="!state.valid"
+                    class=""
+                    block
+                    color="primary"
+                    @click="updateLocation"
+                  >
+                    Update
+                  </v-btn>
+                  <v-btn
+                    :disabled="!state.valid"
+                    class="mt-4"
+                    block
+                    color="error"
+                    @click="deleteLocation"
+                  >
+                    Delete
+                  </v-btn>
+                </div>
+              </v-row>
+            </v-form>
+          </v-col>
+          <v-col cols="12" lg="6">
+            <v-card class="py-4 px-3 my-card">
+              <v-skeleton-loader
+                v-if="!state.items"
+                v-bind="state.attrs"
+                type="table-heading, list-item-two-line, image, table-tfoot"
+              ></v-skeleton-loader>
+              <v-treeview
+                v-else
+                class="ml-5"
+                hoverable
+                :items="state.items"
+                transition
+                activatable
+                color="warning"
+                shaped
+                @update:active="onTreeActive"
+              ></v-treeview>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-tab-item>
+    </v-tabs>
   </div>
 </template>
 
@@ -139,17 +118,44 @@ import {
   useContext,
   ref
 } from '@nuxtjs/composition-api'
-import { ILocation, ILocationLevel } from '@/interfaces/location'
+import type {
+  ILocation,
+  ILocationLevel,
+  ILocationTreeItem
+} from '@/interfaces/location'
 export default defineComponent({
-  setup() {
+  setup(_, context: any) {
     const { $axios } = useContext()
     const state = reactive({
-      allLocations: [] as ILocation[],
-      allLocationLevels: [] as ILocationLevel[],
-      items: ['Item 1', 'Item 2', 'Item 3', 'Item 4']
+      locations: [] as ILocation[],
+      attrs: {
+        class: '',
+        boilerplate: true,
+        elevation: 2
+      },
+      modalParentComboBox: {
+        id: -1,
+        name: 'No Parent',
+        parent: null,
+        locationLevelId: null,
+        disabled: false
+      } as null | undefined | ILocation,
+      modalLocationLevelComboBox: {
+        id: -1,
+        name: 'No Location Level',
+        cid: null,
+        disabled: false
+      } as null | undefined | ILocationLevel,
+      valid: false,
+      activeTreeNode: null as null | number,
+      parentItems: [] as ILocation[],
+      locationLevels: [] as null | undefined | ILocationLevel[],
+      items: null as null | ILocationTreeItem[],
+      locationNameRules: [(v: string) => !!v || 'Category name is required']
     })
 
     const selectedLevel = ref(null)
+    const locationName = ref('')
 
     const getAllLocations = async () => {
       try {
@@ -159,19 +165,58 @@ export default defineComponent({
           data: { data }
         } = response
         if (status === 200) {
-          state.allLocations = data.map((d: any) => {
+          state.locations = data.map((d: any) => {
             return {
               id: d.id,
-              name: d.name,
+              originalName: d.name,
               parent: d.parent,
               cid: d.cid,
-              locationLevelId: d.location_level_id
+              locationLevelId: d.location_level_id,
+              name: setNameWithLocationLevel(d.name, d.location_level_id)
             }
           })
+          const mappedData: ILocation[] = data.map((d: ILocation) => {
+            return {
+              ...d,
+              disabled: false
+            }
+          })
+          state.parentItems = [...mappedData]
+          state.parentItems.push({
+            id: -1,
+            name: 'No Parent',
+            parent: null,
+            disabled: false
+          })
+          state.items = nest(state.locations)
         }
       } catch (error) {
         console.error(error)
       }
+    }
+
+    const setNameWithLocationLevel = (
+      name: string,
+      levelId: number
+    ): string => {
+      if (!levelId) {
+        if (name) {
+          return name
+        } else {
+          return ''
+        }
+      }
+      let nameWithLevel = name
+      let selectedLevel = null
+
+      if (state.locationLevels) {
+        selectedLevel = state.locationLevels.find(l => l.id === levelId)
+      }
+      if (selectedLevel) {
+        nameWithLevel = `${name} ${selectedLevel.name}`
+      }
+
+      return nameWithLevel
     }
 
     const getAllLevels = async () => {
@@ -182,12 +227,10 @@ export default defineComponent({
           data: { data }
         } = response
         if (status === 200) {
-          state.allLocationLevels = data.map((d: ILocationLevel) => {
+          state.locationLevels = data.map((d: ILocationLevel) => {
             return {
               ...d,
-              text: d.name,
-              disabled: false,
-              value: d.id
+              disabled: false
             }
           })
         }
@@ -201,18 +244,146 @@ export default defineComponent({
     }
 
     const nest = (
-      items: ICategory[],
+      items: ILocation[],
       id: number | null = null,
       link: string = 'parent'
-    ): ICategoryTreeItem[] =>
+    ): ILocationTreeItem[] =>
       items
         .filter((item: any) => item[link] === id)
-        .map((item: ICategory) => ({ ...item, children: nest(items, item.id) }))
+        .map((item: ILocation) => ({ ...item, children: nest(items, item.id) }))
 
     const validate = () => {
       context.refs.form.validate()
       if (state.valid) {
-        saveCategory()
+        saveLocation()
+      }
+    }
+
+    const onTreeActive = (val: number[]) => {
+      state.activeTreeNode = val.length > 0 ? val[0] : null
+      if (state.activeTreeNode) {
+        const activeNode = state.locations.find(
+          c => c.id === state.activeTreeNode
+        )
+        if (activeNode) {
+          const selectedLevel = state.locationLevels?.find(
+            lev => lev.id === activeNode.locationLevelId
+          )
+          if (selectedLevel) {
+            state.modalLocationLevelComboBox = selectedLevel
+          }
+
+          const parentNode = state.locations.find(
+            category => category.id === activeNode.parent
+          )
+          locationName.value = activeNode.name
+          if (parentNode) {
+            state.modalParentComboBox = parentNode
+          } else {
+            state.modalParentComboBox = state.parentItems.find(c => c.id === -1)
+          }
+        }
+        return
+      }
+      state.modalParentComboBox = null
+      state.modalLocationLevelComboBox = null
+      locationName.value = ''
+    }
+
+    const saveLocation = async () => {
+      const postData = {
+        name: locationName.value,
+        parent:
+          state.modalParentComboBox === null ||
+          state.modalParentComboBox === undefined ||
+          (state.modalParentComboBox && state.modalParentComboBox.id === -1)
+            ? null
+            : state.modalParentComboBox.id,
+        location_level_id:
+          state.modalLocationLevelComboBox === null ||
+          state.modalLocationLevelComboBox === undefined ||
+          (state.modalLocationLevelComboBox &&
+            state.modalLocationLevelComboBox.id === -1)
+            ? null
+            : state.modalLocationLevelComboBox.id
+      }
+      try {
+        const response = await $axios.post('admin/location', postData)
+        const { status } = response
+        if (status === 200) {
+          locationName.value = ''
+          await getAllLocations()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const updateLocation = async () => {
+      context.refs.form.validate()
+      if (!state.valid || !state.activeTreeNode) {
+        return
+      }
+      const activeNode = state.locations.find(
+        c => c.id === state.activeTreeNode
+      )
+
+      if (!activeNode) {
+        return
+      }
+
+      const putData = {
+        name: locationName.value,
+        cid: activeNode?.cid,
+        id: activeNode.id,
+        location_level_id: activeNode.locationLevelId
+      }
+
+      try {
+        const response = await $axios.put('admin/location', putData)
+        const { status } = response
+        if (status === 200) {
+          await getAllLocations()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const deleteLocation = async () => {
+      context.refs.form.validate()
+      if (!state.valid || !state.activeTreeNode) {
+        return
+      }
+      const activeNode = state.locations.find(
+        c => c.id === state.activeTreeNode
+      )
+
+      if (!activeNode) {
+        return
+      }
+
+      const deleteData = {
+        cid: activeNode?.cid,
+        id: activeNode.id
+      }
+
+      try {
+        const req = {
+          url: 'admin/location',
+          method: 'delete',
+          data: deleteData
+        }
+        // @ts-ignore
+        const response = await $axios.request(req)
+        const { status } = response
+        if (status === 200) {
+          locationName.value = ''
+          state.activeTreeNode = null
+          await getAllLocations()
+        }
+      } catch (error) {
+        console.error(error)
       }
     }
 
@@ -226,7 +397,12 @@ export default defineComponent({
     return {
       state,
       selectedLevel,
-      onSelectLevel
+      onSelectLevel,
+      locationName,
+      validate,
+      onTreeActive,
+      deleteLocation,
+      updateLocation
     }
   }
 })
@@ -244,5 +420,6 @@ export default defineComponent({
 .left-side {
   margin: 0;
   padding: 30px 40px 30px 30px;
+  min-height: 65vh;
 }
 </style>
