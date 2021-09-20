@@ -46,7 +46,13 @@
     </v-col>
     <v-col cols="12" lg="6">
       <v-card class="py-4 px-3 my-card">
+        <v-skeleton-loader
+          v-if="!state.items"
+          v-bind="state.attrs"
+          type="table-heading, list-item-two-line, image, table-tfoot"
+        ></v-skeleton-loader>
         <v-treeview
+          v-else
           class="ml-5"
           hoverable
           :items="state.items"
@@ -77,7 +83,7 @@ export default defineComponent({
       valid: true,
       categories: [] as ICategory[],
       categoryNameRules: [(v: string) => !!v || 'Category name is required'],
-      items: [] as ICategoryTreeItem[],
+      items: null as null | ICategoryTreeItem[],
       parentItems: [] as ICategory[],
       activeTreeNode: null as null | number,
       selectedParent: null as ICategory | null | undefined,
@@ -86,7 +92,12 @@ export default defineComponent({
         name: 'No Parent',
         parent: null,
         disabled: false
-      } as null | undefined | ICategory
+      } as null | undefined | ICategory,
+      attrs: {
+        class: '',
+        boilerplate: true,
+        elevation: 2
+      }
     })
 
     const categoryName = ref('')
