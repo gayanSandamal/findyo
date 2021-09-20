@@ -27,6 +27,7 @@
                 v-model="state.email"
                 :rules="state.emailRules"
                 label="E-mail"
+                name="email"
                 required
                 @keyup.enter="validate"
               ></v-text-field>
@@ -57,6 +58,10 @@
               <v-btn color="error" class="mr-4" @click="reset">
                 Reset Form
               </v-btn>
+
+              <nuxt-link class="d-block mt-6" to="/register">
+                I don't have an account. Sign-up
+              </nuxt-link>
             </v-form>
           </v-card-text>
         </v-card>
@@ -71,6 +76,8 @@ import forEach from 'lodash/forEach'
 export default defineComponent({
   setup(_, context: any) {
     const { $auth } = useContext()
+    debugger
+    // const { setUser } = useActions(['setUser'])
     const state = reactive({
       valid: true,
       email: '',
@@ -105,7 +112,7 @@ export default defineComponent({
         })
         const { status, data }: any = response
         if (status === 200) {
-          setUser(data)
+          $auth.setUser(data)
         } else if (status === 202) {
           showBackendValidations(response)
         } else if (status === 203) {
@@ -116,9 +123,7 @@ export default defineComponent({
         console.error(error)
       }
     }
-    const setUser = (user: object) => { // CREATE A PROPER INTERFACE
-      $auth.setUser(user)
-    }
+
     const showBackendValidations = (responseData: any) => {
       state.errorList = ''
       if (!responseData) {

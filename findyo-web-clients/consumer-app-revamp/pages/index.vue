@@ -3,7 +3,7 @@
     <v-col cols="12" sm="8" md="6">
       <v-card class="mt-5">
         <v-card-title class="headline">
-          Welcome to Findyo Admin Panel
+          Welcome to Findyo.lk
         </v-card-title>
         <v-card-text>
           <p>Please use menu to access each functionality</p>

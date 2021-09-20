@@ -3,7 +3,7 @@
     <v-navigation-drawer
       v-model="state.drawer"
       :mini-variant="state.miniVariant"
-      :clipped="state.clipped"
+      :clipped="true"
       fixed
       app
     >
@@ -24,32 +24,85 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar :clipped-left="state.clipped" fixed app>
-      <v-app-bar-nav-icon @click.stop="state.drawer = !state.drawer" />
-      <v-btn icon @click.stop="state.miniVariant = !state.miniVariant">
-        <v-icon>mdi-{{ `chevron-${state.miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="state.clipped = !state.clipped">
-        <v-icon>mdi-application</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="state.fixed = !state.fixed">
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
-      <v-toolbar-title v-text="state.title" />
-      <v-spacer />
-      <client-only>
-        <v-btn v-if="$auth.loggedIn" color="secondary" @click="logout">
-          <v-icon>mdi-logout</v-icon>
-          &nbsp; Logout
-        </v-btn>
-      </client-only>
+    <v-app-bar :clipped-left="true" fixed app>
+      <!-- <div class="w-100 d-flex align-center justify-space-between"> -->
+      <v-row align="center">
+        <v-col cols="1">
+          <img class="img m-0 logo" :src="require('~/assets/img/logo.png')" alt="logo">
+        </v-col>
+        <v-col cols="4" class="offset-md-3">
+          <v-text-field
+            placeholder="Search"
+            :hide-details="true"
+            filled
+            rounded
+          ></v-text-field>
+        </v-col>
+        <v-col cols="2" class="text-right offset-md-2">
+          <client-only>
+            <div v-if="$auth.loggedIn" class="d-flex align-center justify-end">
+              <v-menu offset-y nudge-bottom="18">
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    color="secondary"
+                    dark
+                    text
+                    plain
+                    :ripple="false"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-avatar
+                      color="grey"
+                      size="48"
+                    >
+                      <span class="white--text text-h5">48</span>
+                    </v-avatar>
+                    <span class="mx-4">Gayan sandamal</span>
+                    <v-icon
+                      dark
+                      left
+                    >
+                      mdi-chevron-down
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item>
+                    <v-btn
+                      color="secondary"
+                      text
+                      plain
+                      :ripple="false"
+                      @click="logout"
+                    >
+                      <v-icon
+                        right
+                        dark
+                        block
+                      >
+                        mdi-logout
+                      </v-icon>
+                      <span class="ml-4">Logout</span>
+                    </v-btn>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
+            <v-btn v-else text color="secondary" @click="$router.push({path: '/login'})">
+              &nbsp; Login
+            </v-btn>
+          </client-only>
+        </v-col>
+      </v-row>
     </v-app-bar>
     <v-main>
       <v-container>
+      {{ user }}
         <nuxt />
       </v-container>
     </v-main>
-    <v-footer :absolute="!state.fixed" app>
+    <v-footer app>
       <span>&copy; {{ new Date().getFullYear() }} Findyo All rights reserved</span>
       {{ state.config }}
     </v-footer>
@@ -73,9 +126,7 @@ export default defineComponent({
     const { $auth } = useContext()
     const router = useRouter()
     const state = reactive({
-      clipped: false,
-      drawer: false,
-      fixed: false,
+      drawer: true,
       items: [
         {
           icon: 'mdi-login',
@@ -127,12 +178,13 @@ export default defineComponent({
           order: 6
         }
       ] as IDrawerMenu[],
-      miniVariant: false,
+      miniVariant: true,
       right: true,
-      title: 'Findyo Admin',
+      title: 'findyo.lk',
       config: process.env
     })
-
+    debugger
+    const user = computed(() => $auth.$state.user)
     const filteredItems = computed((): IDrawerMenu[] => {
       const result: IDrawerMenu[] = filter(state.items, (i: IDrawerMenu) => {
         if ($auth.loggedIn) {
@@ -152,6 +204,7 @@ export default defineComponent({
 
     return {
       state,
+      user,
       filteredItems,
       logout
     }
