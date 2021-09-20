@@ -133,7 +133,7 @@ export default defineComponent({
       config: process.env
     })
 
-    const filteredItems: IDrawerMenu[] = computed(() => {
+    const filteredItems = computed((): IDrawerMenu[] => {
       const result: IDrawerMenu[] = filter(state.items, (i: IDrawerMenu) => {
         if ($auth.loggedIn) {
           return i.authentication
@@ -143,7 +143,7 @@ export default defineComponent({
       })
       const sortedList: IDrawerMenu[] = sortBy(result, ['order'])
       return sortedList
-    }).value
+    })
 
     const logout = async () => {
       await $auth.logout()
