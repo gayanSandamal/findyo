@@ -249,6 +249,7 @@ import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
 import { usernameRules, nameRules, emailRules, contactNumberRules, dateRules, addressRules } from '~/assets/scripts/validations'
 export default defineComponent({
+  auth: true,
   setup() {
     const { $axios } = useContext()
     const { showSnack } = useActions(['showSnack'])

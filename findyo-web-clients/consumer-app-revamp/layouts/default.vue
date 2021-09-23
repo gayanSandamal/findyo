@@ -25,12 +25,11 @@
       </v-list>
     </v-navigation-drawer>
     <v-app-bar :clipped-left="true" fixed app>
-      <!-- <div class="w-100 d-flex align-center justify-space-between"> -->
       <v-row align="center">
-        <v-col cols="1">
+        <v-col cols="1" sm="1" class="d-none d-sm-block">
           <img class="img m-0 logo" :src="require('~/assets/img/logo.png')" alt="logo">
         </v-col>
-        <v-col cols="4" class="offset-md-3">
+        <v-col cols="10" sm="5" md="4" class="offset-md-3 offset-sm-2">
           <v-text-field
             placeholder="Search"
             :hide-details="true"
@@ -38,7 +37,7 @@
             rounded
           ></v-text-field>
         </v-col>
-        <v-col cols="2" class="text-right offset-md-2">
+        <v-col cols="2" sm="2" class="text-right offset-md-2 offset-sm-2 d-none d-sm-block">
           <client-only>
             <div v-if="$auth.loggedIn" class="d-flex align-center justify-end">
               <v-menu offset-y nudge-bottom="18">
