@@ -38,6 +38,6 @@ export default {
     }
   },
   created () {
-    this.findYoApiUrl = process.env.VUE_APP_FIND_YO_API_URL
+    // this.findYoApiUrl = process.env.NODE_ENV === 'production' ? 'https://findyo-admin.audiblepro.com/api/' : 'http://127.0.0.1:8000'
   }
 }

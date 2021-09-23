@@ -7,6 +7,7 @@
           v-model="loginBinds.email"
           class="text-input"
           type="email"
+          name="email"
           placeholder="Enter your email here"
           v-on:keyup.enter="handleSubmit(loginBinds)"
         />

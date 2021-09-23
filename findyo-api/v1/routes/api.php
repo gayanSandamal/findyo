@@ -11,6 +11,7 @@ use App\Http\Controllers\SkillsController;
 use App\Http\Controllers\InterestsController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ImagesController;
+use App\Http\Controllers\AdminRatingController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -99,5 +100,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role
         Route::post('/', [InterestsController::class, 'store']);
         Route::put('/', [InterestsController::class, 'update'])->middleware('verifyid');
         Route::delete('/', [InterestsController::class, 'destroy'])->middleware('verifyid');
+    });
+
+      //Adminrating
+      Route::prefix('adminrating')->group(function () {
+        Route::get('/', [AdminRatingController::class, 'index']);
+        Route::post('/', [AdminRatingController::class, 'store']);
+        Route::put('/', [AdminRatingController::class, 'update'])->middleware('verifyid');
+        Route::delete('/', [AdminRatingController::class, 'destroy'])->middleware('verifyid');
     });
 });
