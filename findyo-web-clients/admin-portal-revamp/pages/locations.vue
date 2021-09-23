@@ -31,7 +31,7 @@
                   class="mt-5"
                   append-icon="mdi-arrow-down"
                   :items="state.parentItems"
-                  label="Parent Location"
+                  label="Parent Location (optional)"
                   placeholder="Select a parent location"
                   outlined
                 ></v-combobox>
@@ -44,7 +44,7 @@
                   class="mt-5"
                   append-icon="mdi-arrow-down"
                   :items="state.locationLevels"
-                  label="Location Level"
+                  label="Location Level (optional)"
                   placeholder="Select a location level"
                   outlined
                 ></v-combobox>
@@ -312,6 +312,8 @@ export default defineComponent({
         const { status } = response
         if (status === 200) {
           locationName.value = ''
+          state.modalLocationLevelComboBox = null
+          state.modalParentComboBox = null
           await getAllLocations()
         }
       } catch (error) {
@@ -331,11 +333,11 @@ export default defineComponent({
       if (!activeNode) {
         return
       }
-
       const putData = {
         name: locationName.value,
-        cid: activeNode?.cid,
+        cid: activeNode.cid,
         id: activeNode.id,
+        parent: activeNode.parent,
         location_level_id: activeNode.locationLevelId
       }
 

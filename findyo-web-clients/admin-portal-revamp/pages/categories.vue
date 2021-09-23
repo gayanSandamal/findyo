@@ -25,7 +25,7 @@
             append-icon="mdi-arrow-down"
             :items="state.parentItems"
             label="Parent Category"
-            placeholder="Select a parent category"
+            placeholder="Select a parent category (optional)"
             outlined
           ></v-combobox>
         </v-row>
