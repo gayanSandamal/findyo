@@ -9,7 +9,7 @@
     >
       <v-list>
         <v-list-item
-          v-for="(item, i) in filteredItems"
+          v-for="(item, i) in filteredDrawerItems"
           :key="i"
           :to="item.to"
           router
@@ -56,9 +56,9 @@
                       color="grey"
                       size="48"
                     >
-                      <span class="white--text text-h5">48</span>
+                      <span class="white--text text-h5" v-text="shortName"></span>
                     </v-avatar>
-                    <span class="mx-4">Gayan sandamal</span>
+                    <span class="mx-4" v-text="fullName"></span>
                     <v-icon
                       dark
                       left
@@ -98,14 +98,29 @@
     </v-app-bar>
     <v-main>
       <v-container>
-      {{ user }}
         <nuxt />
       </v-container>
     </v-main>
     <v-footer app>
       <span>&copy; {{ new Date().getFullYear() }} Findyo All rights reserved</span>
-      {{ state.config }}
     </v-footer>
+    <v-snackbar
+      v-model="state.snackbar.state"
+      fixed
+      top
+      center
+      elevation="24"
+      :color="state.snackbar.color"
+      :timeout="state.snackbar.timeout"
+      :multi-line="true"
+    >
+      {{ state.snackbar.text }}
+      <template #action="{ attrs }">
+        <v-btn dark text v-bind="attrs" @click="state.snackbar.state = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -117,95 +132,95 @@ import {
   useContext,
   useRouter
 } from '@nuxtjs/composition-api'
+import { useActions, useGetters } from 'vuex-composition-helpers'
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy'
+import * as Cookies from 'js-cookie'
 import { IDrawerMenu } from '@/interfaces/ui'
 
 export default defineComponent({
-  setup() {
-    const { $auth } = useContext()
+  setup(_, context) {
+    const { $auth, $axios } = useContext()
     const router = useRouter()
+    const { setUser } = useActions(['setUser'])
+    const { user, drawerMenus } = useGetters(['user', 'drawerMenus'])
     const state = reactive({
       drawer: true,
-      items: [
-        {
-          icon: 'mdi-login',
-          title: 'Login',
-          to: '/login',
-          authentication: false,
-          order: 1
-        },
-        {
-          icon: 'mdi-account',
-          title: 'Register',
-          to: '/register',
-          authentication: false,
-          order: 2
-        },
-        {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/',
-          authentication: true,
-          order: 3
-        },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Profile',
-          to: '/profile',
-          authentication: true,
-          order: 4
-        },
-        {
-          icon: 'mdi-crosshairs-gps',
-          title: 'locations',
-          to: '/locations',
-          authentication: true,
-          order: 5
-        },
-        {
-          icon: 'mdi-account',
-          title: 'Review Lib',
-          to: '/review-lib',
-          authentication: true,
-          order: 7
-        },
-        {
-          icon: 'mdi-cart',
-          title: 'Categories',
-          to: '/categories',
-          authentication: true,
-          order: 6
-        }
-      ] as IDrawerMenu[],
       miniVariant: true,
       right: true,
       title: 'findyo.lk',
-      config: process.env
+      snackbar: {
+        text: '',
+        color: '',
+        timeout: -1,
+        state: false
+      }
     })
-    debugger
-    const user = computed(() => $auth.$state.user)
-    const filteredItems = computed((): IDrawerMenu[] => {
-      const result: IDrawerMenu[] = filter(state.items, (i: IDrawerMenu) => {
-        if ($auth.loggedIn) {
-          return i.authentication
-        } else {
-          return !i.authentication
+
+    context.root.$store.subscribe((mutation, val) => {
+      if (mutation.type === 'SHOW_MESSAGE') {
+        state.snackbar.text = val.snackbar.text
+        state.snackbar.color = val.snackbar.color
+        state.snackbar.timeout = val.snackbar.timeout || 3000
+        state.snackbar.state = true
+      }
+    })
+
+    const filteredDrawerItems = computed((): IDrawerMenu[] => sortBy(
+      filter(drawerMenus.value, (i: IDrawerMenu) => {
+        let state = true
+        if (!$auth.loggedIn && i.authentication) {
+          state = false
         }
-      })
-      const sortedList: IDrawerMenu[] = sortBy(result, ['order'])
-      return sortedList
+        return state
+      }), ['order'])
+    )
+
+    const fullName = computed(() => {
+      if (user.value.firstname && user.value.lastname) {
+        return `${user.value.firstname} ${user.value.lastname}`
+      } else if (user.value.firstname) {
+        return user.value.firstname
+      } else {
+        return 'New user'
+      }
     })
+
+    const shortName = computed(() => {
+      if (user.value.firstname && user.value.lastname) {
+        return `${user.value.firstname.charAt(0)}${user.value.lastname.charAt(0)}`
+      } else if (user.value.firstname) {
+        return user.value.firstname.charAt(0)
+      } else {
+        return ':)'
+      }
+    })
+
+    const getUserObj = async () => {
+      const userId = Cookies.get('userId')
+      if (userId) {
+        const user = await $axios.$get(`GetUser/${userId}`)
+        setUser(user)
+        if (user && !user[0].username) {
+          router.push({ path: '/profile/edit' })
+        }
+      } else {
+        router.push({ path: '/' })
+      }
+    }
+
+    getUserObj()
 
     const logout = async () => {
       await $auth.logout()
-      router.push('/login')
+      router.push({ path: '/login' })
     }
 
     return {
       state,
-      user,
-      filteredItems,
+      fullName,
+      shortName,
+      filteredDrawerItems,
       logout
     }
   }

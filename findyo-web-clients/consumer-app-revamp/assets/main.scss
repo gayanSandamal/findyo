@@ -13,3 +13,21 @@
     max-width: 48px;
   }
 }
+
+nav {
+  &.v-navigation-drawer {
+    &.v-navigation-drawer--clipped.v-navigation-drawer--mini-variant {
+      .v-navigation-drawer__content {
+        .v-list {
+          padding-top: 0;
+        }
+      }
+    }
+  }
+}
+
+// v-snack {
+//   .v-snack--absolute {
+//     z-index: 999;
+//   }
+// }
