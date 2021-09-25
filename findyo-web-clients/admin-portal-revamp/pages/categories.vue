@@ -2,8 +2,8 @@
   <v-row class="mt-5">
     <v-col cols="12" lg="6" class="left-side">
       <client-only>
-        <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">Add new category</h3>
-        <h3 v-else class="mb-5 pb-5">Update / Delete category</h3>
+        <h2 v-if="!state.activeTreeNode" class="mb-5 pb-5">Add new category</h2>
+        <h2 v-else class="mb-5 pb-5">Update / Delete category</h2>
       </client-only>
       <v-form ref="form" v-model="state.valid" class="pt-3">
         <v-row class="px-3">

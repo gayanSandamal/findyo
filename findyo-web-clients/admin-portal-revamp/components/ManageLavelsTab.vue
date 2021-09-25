@@ -2,6 +2,10 @@
   <div>
     <v-row class="mt-5">
       <v-col cols="12" lg="6" class="left-side">
+        <h2 v-if="!state.selectedItem" class="mb-5 pb-5">
+          Add new location level
+        </h2>
+        <h2 v-else class="mb-5 pb-5">Update / Delete Location level</h2>
         <v-form ref="form" v-model="state.valid" class="pt-3">
           <v-text-field
             v-model="locationLevelName"
