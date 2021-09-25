@@ -11,7 +11,10 @@ import { defineComponent } from '@nuxtjs/composition-api'
 import { useGetters } from 'vuex-composition-helpers'
 
 export default defineComponent({
-  auth: false,
+  auth: true,
+  meta: {
+    auth: false
+  },
   setup() {
     const { user } = useGetters(['user'])
     return {

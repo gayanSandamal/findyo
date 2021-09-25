@@ -84,6 +84,9 @@ import {
 import forEach from 'lodash/forEach'
 export default defineComponent({
   auth: false,
+  meta: {
+    auth: false
+  },
   setup(_, context: any) {
     const { $axios } = useContext()
     const router = useRouter()

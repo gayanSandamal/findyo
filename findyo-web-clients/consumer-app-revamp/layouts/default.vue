@@ -129,17 +129,20 @@ import {
   reactive,
   computed,
   useContext,
-  useRouter
+  useRouter,
+  useRoute
 } from '@nuxtjs/composition-api'
 import { useActions, useGetters } from 'vuex-composition-helpers'
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy'
+import includes from 'lodash/includes'
 import { IDrawerMenu } from '@/interfaces/ui'
 
 export default defineComponent({
   setup(_, context) {
-    const { $auth, $axios } = useContext()
+    const { $auth } = useContext()
     const router = useRouter()
+    const route = useRoute()
     const { setUser } = useActions(['setUser'])
     const { user, drawerMenus } = useGetters(['user', 'drawerMenus'])
     const state = reactive({
@@ -196,19 +199,15 @@ export default defineComponent({
 
     const getUserObj = () => {
       try {
-        const userAuth: any = $auth.$storage.getCookie('user')
-        if (userAuth.id) {
-          $axios.$get(`GetUser/${userAuth.id}`)
-            .then((userObj) => {
-              setUser(userObj)
-              if (userObj && !userObj[0].username) {
-                router.push({ path: '/profile/edit' })
-              }
-            })
-            .catch((error) => {
-              console.error(error)
-            })
-        } else {
+        const user: any = $auth.$storage.getCookie('userFull')
+        if (user && user.id) {
+          if ($auth.loggedIn && includes(['login', 'register'], route.value.name)) {
+            router.push({ path: '/' })
+          }
+          setUser(user)
+        } else if (includes(['login', 'register', 'index'], route.value.name)) {
+          router.push({ path: route.value.fullPath })
+        } else if (!includes(['login', 'register', 'index'], route.value.name)) {
           router.push({ path: '/' })
         }
       } catch (error) {
@@ -220,7 +219,7 @@ export default defineComponent({
 
     const logout = async () => {
       await $auth.logout()
-      $auth.$storage.removeCookie('user')
+      $auth.$storage.removeCookie('userFull')
       router.push({ path: '/login' })
     }
 

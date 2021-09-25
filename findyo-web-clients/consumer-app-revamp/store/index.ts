@@ -66,7 +66,7 @@ export const mutations: MutationTree<RootState> = {
 
 export const actions: ActionTree<RootState, RootState> = {
   setUser({ commit }, payload) {
-    const user = payload[0]
+    const user = payload
     const mappedUser = {
       about: user.about,
       address: user.address,
