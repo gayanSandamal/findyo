@@ -7,7 +7,7 @@
             v-model="locationLevelName"
             label="Location Level Name"
             placeholder="Enter loaction name here"
-            :rules="state.locationNameRules"
+            :rules="state.locationLevelNameRules"
             outlined
           >
           </v-text-field>
@@ -48,18 +48,20 @@
       </v-col>
       <v-col cols="12" lg="6">
         <v-card class="py-4 pl-5 pr-3 my-card">
-          <v-list v-if="state.locationLevels" flat>
+          <v-list v-if="state.locationLevels" rounded>
             <v-subheader>Location Levels</v-subheader>
-            <v-list-item-group v-model="state.selectedItem" color="primary">
-              <v-list-item v-for="(item, i) in state.locationLevels" :key="i">
-                <v-list-item-icon>
-                  <v-icon v-text="'mdi-apple-keyboard-caps'"></v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.name"></v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
+            <v-list-item
+              v-for="(item, i) in state.locationLevels"
+              :key="i"
+              @click="val => onSelectItem(item, val)"
+            >
+              <v-list-item-icon>
+                <v-icon v-text="'mdi-apple-keyboard-caps'"></v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="item.name"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-card>
       </v-col>
@@ -80,17 +82,27 @@ import { ILocationLevel } from '~/interfaces/location'
 export default defineComponent({
   setup(_, context: any) {
     const state = reactive({
-      locationNameRules: [
+      locationLevelNameRules: [
         (v: string) => !!v || 'Location level name is required'
       ],
       valid: false,
-      selectedItem: null as null | number,
+      selectedItem: null as null | ILocationLevel,
       locationLevels: null as null | ILocationLevel[]
     })
 
     const { $axios } = useContext()
 
     const locationLevelName = ref('')
+
+    const onSelectItem = (selectedItem: ILocationLevel) => {
+      if (!state.selectedItem || state.selectedItem !== selectedItem) {
+        state.selectedItem = selectedItem
+        locationLevelName.value = selectedItem.name ?? ''
+        return
+      }
+      locationLevelName.value = ''
+      state.selectedItem = null
+    }
 
     const validate = () => {
       context.refs.form.validate()
@@ -99,9 +111,75 @@ export default defineComponent({
       }
     }
 
-    const saveLocationLevel = async () => {}
-    const updateLocationLevel = async () => {}
-    const deleteLocationLevel = async () => {}
+    const saveLocationLevel = async () => {
+      const postData = {
+        name: locationLevelName.value
+      }
+
+      try {
+        const response = await $axios.post('admin/Locationlevel', postData)
+        const { status } = response
+        if (status === 200) {
+          locationLevelName.value = ''
+          await getAllLocationLevels()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    const updateLocationLevel = async () => {
+      context.refs.form.validate()
+      if (!state.valid || !state.selectedItem) {
+        return
+      }
+
+      const putData = {
+        name: locationLevelName.value,
+        cid: state.selectedItem.cid,
+        id: state.selectedItem.id
+      }
+
+      try {
+        const response = await $axios.put('admin/Locationlevel', putData)
+        const { status } = response
+        if (status === 200) {
+          locationLevelName.value = ''
+          state.selectedItem = null
+          await getAllLocationLevels()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    const deleteLocationLevel = async () => {
+      context.refs.form.validate()
+      if (!state.valid || !state.selectedItem) {
+        return
+      }
+
+      const deleteData = {
+        cid: state.selectedItem.cid,
+        id: state.selectedItem.id
+      }
+
+      try {
+        const req = {
+          url: 'admin/Locationlevel',
+          method: 'delete',
+          data: deleteData
+        }
+        // @ts-ignore
+        const response = await $axios.request(req)
+        const { status } = response
+        if (status === 200) {
+          locationLevelName.value = ''
+          state.selectedItem = null
+          await getAllLocationLevels()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
 
     const getAllLocationLevels = async () => {
       try {
@@ -134,7 +212,8 @@ export default defineComponent({
       locationLevelName,
       validate,
       deleteLocationLevel,
-      updateLocationLevel
+      updateLocationLevel,
+      onSelectItem
     }
   }
 })
