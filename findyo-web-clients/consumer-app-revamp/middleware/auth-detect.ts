@@ -12,14 +12,15 @@ const authMiddleware: Middleware = (context) => {
   // const fromUrl = context.from ? context.from.fullPath : ''
   const loggedIn = context.$auth.$storage.state.loggedIn
   const userAuth = context.$auth.$storage.state.user
-  let user: IUser
+  const userList: IUser[] = []
+  let user = userList[0]
   const redirect = context.redirect
 
   const getUserObj = async (id: number) => {
     user = await context.$axios.$get(`GetUser/${id}`)
     context.store.dispatch('setUser', user)
-    context.$auth.$storage.setCookie('user', user[0])
-    if (user && !user[0].username) {
+    context.$auth.$storage.setCookie('user', user)
+    if (user && !user.username) {
       redirect('/profile/edit')
     }
   }
@@ -34,7 +35,7 @@ const authMiddleware: Middleware = (context) => {
     }
   } else {
     // when user is logged in
-    user && user.username ? getUserObj(userAuth.id)
+    getUserObj(userAuth.id)
   }
 }
 
