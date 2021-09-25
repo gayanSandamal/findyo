@@ -1,7 +1,7 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12">
-      Home page
+  <v-row justify="start" align="center">
+    <v-col cols="6">
+      <profile-add-post />
     </v-col>
   </v-row>
 </template>
