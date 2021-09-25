@@ -89,7 +89,7 @@ export default {
   },
 
   router: {
-    middleware: ['auth']
+    middleware: ['auth-detect']
   },
 
   publicRuntimeConfig: {

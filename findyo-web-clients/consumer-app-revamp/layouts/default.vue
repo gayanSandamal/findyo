@@ -134,7 +134,6 @@ import {
 import { useActions, useGetters } from 'vuex-composition-helpers'
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy'
-import * as Cookies from 'js-cookie'
 import { IDrawerMenu } from '@/interfaces/ui'
 
 export default defineComponent({
@@ -195,16 +194,25 @@ export default defineComponent({
       }
     })
 
-    const getUserObj = async () => {
-      const userId = Cookies.get('userId')
-      if (userId) {
-        const user = await $axios.$get(`GetUser/${userId}`)
-        setUser(user)
-        if (user && !user[0].username) {
-          router.push({ path: '/profile/edit' })
+    const getUserObj = () => {
+      try {
+        const userAuth: any = $auth.$storage.getCookie('user')
+        if (userAuth.id) {
+          $axios.$get(`GetUser/${userAuth.id}`)
+            .then((userObj) => {
+              setUser(userObj)
+              if (userObj && !userObj[0].username) {
+                router.push({ path: '/profile/edit' })
+              }
+            })
+            .catch((error) => {
+              console.error(error)
+            })
+        } else {
+          router.push({ path: '/' })
         }
-      } else {
-        router.push({ path: '/' })
+      } catch (error) {
+        console.error(error)
       }
     }
 
@@ -212,6 +220,7 @@ export default defineComponent({
 
     const logout = async () => {
       await $auth.logout()
+      $auth.$storage.removeCookie('user')
       router.push({ path: '/login' })
     }
 

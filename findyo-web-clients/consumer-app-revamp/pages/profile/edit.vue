@@ -243,17 +243,18 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, watch, useContext } from '@nuxtjs/composition-api'
+import { computed, defineComponent, reactive, ref, watch, useContext, useRouter } from '@nuxtjs/composition-api'
 import { useActions, useGetters } from 'vuex-composition-helpers'
 import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
 import { usernameRules, nameRules, emailRules, contactNumberRules, dateRules, addressRules } from '~/assets/scripts/validations'
 export default defineComponent({
-  auth: true,
+  auth: false,
   setup() {
     const { $axios } = useContext()
     const { showSnack } = useActions(['showSnack'])
     const { user } = useGetters(['user'])
+    const router = useRouter()
     const userClone = ref(cloneDeep(user))
     const state = reactive({
       isSaving: false,
@@ -387,6 +388,7 @@ export default defineComponent({
                   text: 'your information has been saved successfully!',
                   color: 'success'
                 })
+                router.push({ path: '/profile' })
               }, 2000)
             }, 2000)
           })

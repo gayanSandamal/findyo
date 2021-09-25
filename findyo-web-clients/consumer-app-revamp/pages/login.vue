@@ -72,13 +72,10 @@
 
 <script lang="ts">
 import { defineComponent, reactive, useContext } from '@nuxtjs/composition-api'
-import { useActions } from 'vuex-composition-helpers'
 import forEach from 'lodash/forEach'
-import * as Cookies from 'js-cookie'
 export default defineComponent({
   setup(_, context: any) {
-    const { $auth, $axios } = useContext()
-    const { setUser } = useActions(['setUser'])
+    const { $auth } = useContext()
 
     const state = reactive({
       valid: true,
@@ -103,10 +100,6 @@ export default defineComponent({
     const reset = () => {
       context.refs.form.reset()
     }
-    const setUserObj = async (data: any) => {
-      const user = await $axios.$get(`GetUser/${data.id}`)
-      setUser(user)
-    }
     const login = async () => {
       try {
         const postData = {
@@ -118,9 +111,7 @@ export default defineComponent({
         })
         const { status, data }: any = response
         if (status === 200) {
-          setUserObj(data)
           $auth.setUser(data)
-          Cookies.set('userId', data.id, { secure: true })
         } else if (status === 202) {
           showBackendValidations(response)
         } else if (status === 203) {

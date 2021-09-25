@@ -21,6 +21,13 @@ export const state = () => ({
       order: 2
     },
     {
+      icon: 'mdi-account',
+      title: 'Profile Edit',
+      to: '/profile/edit',
+      authentication: true,
+      order: 2
+    },
+    {
       icon: 'mdi-bell',
       title: 'Notifications',
       to: '/notifications',

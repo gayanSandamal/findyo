@@ -1,12 +1,12 @@
 export interface IUser {
-  about: string
-  address: string
-  apiToken: string
+  about: string | null
+  address: string | null
+  apiToken: string | null
   cid: string
   createdAt: string
-  displayname: string
+  displayname: string | null
   email: string
-  emailVerifiedAt: string
+  emailVerifiedAt: string | null
   firstname: string
   id: number
   lastname: string
