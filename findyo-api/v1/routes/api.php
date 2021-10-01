@@ -12,6 +12,7 @@ use App\Http\Controllers\InterestsController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ImagesController;
 use App\Http\Controllers\AdminRatingController;
+use App\Http\Controllers\UserRatingController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -57,6 +58,12 @@ Route::middleware(['auth:api'])->post('/images', [ImagesController::class, 'stor
 
 Route::middleware(['auth:api'])->put('/updateuser', [UserController::class, 'updateuser'])->middleware('verifyid');
 Route::middleware(['auth:api'])->get('/GetUser/{id}', [UserController::class, 'GetUserByUserId']);
+
+///User Rating Routing Start From Here
+Route::middleware(['auth:api'])->post('/UserRating', [UserRatingController::class, 'store']);
+Route::middleware(['auth:api'])->put('/UserRating', [UserRatingController::class, 'update']);
+Route::middleware(['auth:api'])->delete('/UserRating', [UserRatingController::class, 'destroy']);
+Route::middleware(['auth:api'])->get('/GetUserRatingsByRatedUserId/{rated_by}/{post_id}', [UserRatingController::class, 'GetUserRatingsByRatedUserId']);
 //////////////////////////////////////Admin Routes Start Here///////////////////////////////////////////
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:api', 'scope:user-role-admin']], function () {
 
