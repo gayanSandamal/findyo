@@ -347,10 +347,19 @@ export default defineComponent({
       nestedCategories: ICategory[],
       id: number | null = null,
       link: string = 'parent'
-    ): ICategoryTreeItem[] =>
-      nestedCategories
+    ): ICategoryTreeItem[] => {
+      debugger
+      return nestedCategories
         .filter((item: any) => item[link] === id)
-        .map((item: ICategory) => ({ ...item, children: nestCategories(nestedCategories, item.id) }))
+        .map(
+          (item: ICategory) => (
+            {
+              ...item,
+              children: nestCategories(nestedCategories, item.id)
+            }
+          )
+        )
+    }
 
     const nestLocations = (
       nestedLocations: ILocation[],
@@ -382,10 +391,7 @@ export default defineComponent({
     const getAllCategories = async () => {
       try {
         const response: any = await $axios.get('postcategory')
-        const {
-          status,
-          data: { data }
-        } = response
+        const { status, data } = response
         if (status === 200) {
           state.categories = data
           state.nestedCategories = nestCategories(state.categories)
@@ -398,10 +404,7 @@ export default defineComponent({
     const getAllLocations = async () => {
       try {
         const response: any = await $axios.get('locations')
-        const {
-          status,
-          data: { data }
-        } = response
+        const { status, data } = response
         if (status === 200) {
           state.locations = data
           state.nestedLocations = nestLocations(state.locations)
