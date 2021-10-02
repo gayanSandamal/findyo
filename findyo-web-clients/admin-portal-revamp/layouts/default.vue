@@ -27,7 +27,9 @@
     <v-app-bar :clipped-left="state.clipped" fixed app>
       <v-app-bar-nav-icon @click.stop="state.drawer = !state.drawer" />
       <v-btn icon @click.stop="state.miniVariant = !state.miniVariant">
-        <v-icon>mdi-{{ `chevron-${state.miniVariant ? 'right' : 'left'}` }}</v-icon>
+        <v-icon
+          >mdi-{{ `chevron-${state.miniVariant ? 'right' : 'left'}` }}</v-icon
+        >
       </v-btn>
       <v-btn icon @click.stop="state.clipped = !state.clipped">
         <v-icon>mdi-application</v-icon>
@@ -50,7 +52,9 @@
       </v-container>
     </v-main>
     <v-footer :absolute="!state.fixed" app>
-      <span>&copy; {{ new Date().getFullYear() }} Findyo All rights reserved</span>
+      <span
+        >&copy; {{ new Date().getFullYear() }} Findyo All rights reserved</span
+      >
       {{ state.config }}
     </v-footer>
   </v-app>
@@ -117,7 +121,7 @@ export default defineComponent({
           title: 'Review Lib',
           to: '/review-lib',
           authentication: true,
-          order: 7
+          order: 8
         },
         {
           icon: 'mdi-cart',
@@ -125,6 +129,13 @@ export default defineComponent({
           to: '/categories',
           authentication: true,
           order: 6
+        },
+        {
+          icon: 'mdi-post',
+          title: 'Manage Posts',
+          to: '/posts',
+          authentication: true,
+          order: 7
         }
       ] as IDrawerMenu[],
       miniVariant: false,

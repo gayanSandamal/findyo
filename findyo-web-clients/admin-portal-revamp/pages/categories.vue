@@ -2,19 +2,15 @@
   <v-row class="mt-5">
     <v-col cols="12" lg="6" class="left-side">
       <client-only>
-        <h3 v-if="!state.activeTreeNode" class="mb-5 pb-5">
-          Add new category
-        </h3>
-        <h3 v-else class="mb-5 pb-5">
-          Update / Delete category
-        </h3>
+        <h2 v-if="!state.activeTreeNode" class="mb-5 pb-5">Add new category</h2>
+        <h2 v-else class="mb-5 pb-5">Update / Delete category</h2>
       </client-only>
-      <v-form ref="form" v-model="state.valid" lazy-validation class="pt-3">
+      <v-form ref="form" v-model="state.valid" class="pt-3">
         <v-row class="px-3">
           <v-text-field
             v-model="categoryName"
-            label="Add Category"
-            placeholder="Enter new category name here"
+            :label="!state.activeTreeNode ? 'Add Category' : 'Update Category'"
+            placeholder="Enter category name here"
             :rules="state.categoryNameRules"
             outlined
           >
@@ -29,22 +25,40 @@
             append-icon="mdi-arrow-down"
             :items="state.parentItems"
             label="Parent Category"
-            placeholder="Select a parent category"
+            placeholder="Select a parent category (optional)"
             outlined
           ></v-combobox>
         </v-row>
         <v-row class="btn-group">
           <client-only>
             <div v-if="!state.activeTreeNode" style="width: 100%">
-              <v-btn class="mt-1" block color="success" @click="validate">
+              <v-btn
+                :disabled="!state.valid"
+                class="mt-1"
+                block
+                color="success"
+                @click="validate"
+              >
                 Add
               </v-btn>
             </div>
             <div v-else style="width: 100%">
-              <v-btn class="" block color="primary" @click="updateCategory">
+              <v-btn
+                :disabled="!state.valid"
+                class=""
+                block
+                color="primary"
+                @click="updateCategory"
+              >
                 Update
               </v-btn>
-              <v-btn class="mt-4" block color="error" @click="deleteCategory">
+              <v-btn
+                :disabled="!state.valid"
+                class="mt-4"
+                block
+                color="error"
+                @click="deleteCategory"
+              >
                 Delete
               </v-btn>
             </div>
@@ -54,11 +68,16 @@
     </v-col>
     <v-col cols="12" lg="6">
       <v-card class="py-4 px-3 my-card">
+        <v-skeleton-loader
+          v-if="!state.items"
+          v-bind="state.attrs"
+          type="table-heading, list-item-two-line, image, table-tfoot"
+        ></v-skeleton-loader>
         <v-treeview
+          v-else
           class="ml-5"
           hoverable
           :items="state.items"
-          open-all
           transition
           activatable
           color="warning"
@@ -85,7 +104,7 @@ export default defineComponent({
       valid: true,
       categories: [] as ICategory[],
       categoryNameRules: [(v: string) => !!v || 'Category name is required'],
-      items: [] as ICategoryTreeItem[],
+      items: null as null | ICategoryTreeItem[],
       parentItems: [] as ICategory[],
       activeTreeNode: null as null | number,
       selectedParent: null as ICategory | null | undefined,
@@ -94,7 +113,12 @@ export default defineComponent({
         name: 'No Parent',
         parent: null,
         disabled: false
-      } as null | undefined | ICategory
+      } as null | undefined | ICategory,
+      attrs: {
+        class: '',
+        boilerplate: true,
+        elevation: 2
+      }
     })
 
     const categoryName = ref('')
@@ -187,6 +211,7 @@ export default defineComponent({
         }
         return
       }
+      state.modalParentComboBox = null
       categoryName.value = ''
     }
 
