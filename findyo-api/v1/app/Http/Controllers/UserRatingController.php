@@ -39,9 +39,9 @@ class UserRatingController extends Controller
         $maximumRatingMark = (float)(env('MAXIMUM_RATING_MARK'));
 
         $post = Post::where('id', $request['post_id'])->first();
-        $postowner = User::where('id', $post['user_id'])->first();
+        $postowner = is_null($post) ? null: User::where('id', $post['user_id'])->first();
        
-        if(!empty($request['ratingItems']) && $postowner != null && $post != null) {
+        if(!empty($request['ratingItems']) && !is_null($postowner) && !is_null($post)) {
 
          try{
                 DB::beginTransaction();
@@ -57,7 +57,7 @@ class UserRatingController extends Controller
                     
                     if($adminrating === null || !is_numeric($ratingItems['rating'])){
                         DB::rollback();
-                        $message = "Invalid question id exists in request";
+                        $message = "Invalid data exists in request";
                         $response_code = 404;
                         break;
                     }
@@ -100,12 +100,12 @@ class UserRatingController extends Controller
                 $message = 'Something went wrong';
                 $response_code = 500;
                 DB::rollback();
-                return response()->json($message, $response_code);
+                return response()->json([$message], $response_code);
             }
             
         }else{
             $message = 'No Items';
-            $response_code = 200;
+            $response_code = 404;
         }
 
         $ratingObject = new \stdClass();
@@ -115,7 +115,7 @@ class UserRatingController extends Controller
         $ratingObject->overallpostRatingByUser =  round($loggedin_user_rating,3);
         $ratingObject->user_post_rating =  $request['ratingItems'];
 
-        return response()->json((array)$ratingObject);
+        return response()->json(($response_code == 200) ? (array)$ratingObject : $message, $response_code);
     }
 
     /** 
@@ -136,9 +136,9 @@ class UserRatingController extends Controller
         $maximumRatingMark = (float)(env('MAXIMUM_RATING_MARK'));
 
         $post = Post::where('id', $request['post_id'])->first();
-        $postowner = User::where('id', $post['user_id'])->first();
+        $postowner = is_null($post) ? null : User::where('id', $post['user_id'])->first();
 
-        if(!empty($request['ratingItems']) && $postowner != null && $post != null) {
+        if(!empty($request['ratingItems']) && !is_null($postowner) && !is_null($post)) {
 
          try{
                 DB::beginTransaction();
@@ -198,7 +198,7 @@ class UserRatingController extends Controller
                 }
                 else{
                     $message = 'No Items';
-                    $response_code = 200;
+                    $response_code = 404;
                 }
             }catch(\Exception $e)
             {
@@ -211,16 +211,14 @@ class UserRatingController extends Controller
             
         }else{
             $message = 'No Items';
-            $response_code = 200;
+            $response_code = 404;
         }
         $ratingObject = new \stdClass();
         $ratingObject->overallUserRating = round($total_user_rating, 3);
         $ratingObject->overallPostRating  = round($total_post_rating, 3);
         $ratingObject->message = $message;
-        $ratingObject->overallpostRatingByUser =  round($loggedin_user_rating,3);
-        $ratingObject->user_post_rating =  $request['ratingItems'];
 
-        return response()->json((array)$ratingObject);
+        return response()->json(($response_code == 200) ? (array)$ratingObject : $message, $response_code);
     }
 
     /**
@@ -239,59 +237,65 @@ class UserRatingController extends Controller
 
         
         $post = Post::where('id', $request['post_id'])->first();
-        $postowner = User::where('id', $post['user_id'])->first();
+        $postowner = is_null($post) ? null : User::where('id', $post['user_id'])->first();
+
+        if(!is_null($postowner) && !is_null($post)) {
        
-        try{
-            DB::beginTransaction();
+            try{
+                DB::beginTransaction();
 
-            $matchQuerforUserRating = ['post_id' => $request['post_id'], 'rated_by' => $request['rated_by']];
-            if (UserPostRating::where($matchQuerforUserRating)->exists()) {
+                $matchQuerforUserRating = ['post_id' => $request['post_id'], 'rated_by' => $request['rated_by']];
+                if (UserPostRating::where($matchQuerforUserRating)->exists()) {
 
-                $prevUserPostRatings = UserPostRating::where($matchQuerforUserRating)->first();
+                    $prevUserPostRatings = UserPostRating::where($matchQuerforUserRating)->first();
 
-                 $prev_userpost_rating = $prevUserPostRatings['rating'];
+                    $prev_userpost_rating = $prevUserPostRatings['rating'];
 
-                 $prevUserRatings = UserRating::where('userpost_rating_id', $prevUserPostRatings['id']);
-                 $prevUserRatings->delete();
+                    $prevUserRatings = UserRating::where('userpost_rating_id', $prevUserPostRatings['id']);
+                    $prevUserRatings->delete();
 
-                 $total_post_rating = (($post['rated_count'] -1) > 0 ? (($post['post_rating'] * $post['rated_count']) - $prev_userpost_rating) / ($post['rated_count'] -1) : 0 );
+                    $total_post_rating = (($post['rated_count'] -1) > 0 ? (($post['post_rating'] * $post['rated_count']) - $prev_userpost_rating) / ($post['rated_count'] -1) : 0 );
 
-                 $total_user_rating = (($postowner['rated_count'] -1) > 0 ? (($postowner['user_rating'] * $postowner['rated_count']) - $prev_userpost_rating) / ($postowner['rated_count'] -1) : 0);
-             
-                 $post->post_rating = round($total_post_rating, 3);
-                 $post->rated_count = $post['rated_count'] - 1;
-                 $post->save();
+                    $total_user_rating = (($postowner['rated_count'] -1) > 0 ? (($postowner['user_rating'] * $postowner['rated_count']) - $prev_userpost_rating) / ($postowner['rated_count'] -1) : 0);
+                
+                    $post->post_rating = round($total_post_rating, 3);
+                    $post->rated_count = $post['rated_count'] - 1;
+                    $post->save();
 
-                 $postowner->user_rating = round($total_user_rating, 3);
-                 $postowner->rated_count = $postowner['rated_count'] - 1;
-                 $postowner->save();
+                    $postowner->user_rating = round($total_user_rating, 3);
+                    $postowner->rated_count = $postowner['rated_count'] - 1;
+                    $postowner->save();
 
-                 $prevUserPostRatings->delete();
+                    $prevUserPostRatings->delete();
+
+                }
+                else{
+                    $message = 'No Item';
+                    $response_code = 404;
+                }
+
+                DB::commit();
 
             }
-            else{
-                $message = 'No Item';
-                $response_code = 200;
-            }
-
-            DB::commit();
-
+            catch(\Exception $e){
+                $message = 'Something went wrong';
+                $response_code = 500;
+                DB::rollback();
+                return response()->json([$message], $response_code);
+                //throw $e;
+            } 
         }
-        catch(\Exception $e){
-            $message = 'Something went wrong';
-            $response_code = 500;
-            DB::rollback();
-            return response()->json($message, $response_code);
-            //throw $e;
-        } 
-
+        else{
+            $message = 'No Item';
+            $response_code = 404;
+        }
         $ratingObject = new \stdClass();
         $ratingObject->overallUserRating = round($total_user_rating, 3);
         $ratingObject->overallPostRating = round($total_post_rating, 3);
         $ratingObject->message = $message;
         $ratingObject->overallpostRatingByUser = 0;
 
-        return response()->json((array)$ratingObject);
+        return response()->json(($response_code == 200) ? (array)$ratingObject : $message, $response_code);
     }
 
     public function GetUserRatingsByRatedUserId($rated_by , $post_id)
@@ -309,10 +313,10 @@ class UserRatingController extends Controller
             $ratingObject = new \stdClass();
             $ratingObject->overallRatingforPostByUser =$overallratingforPostByUser ;
             $ratingObject->currentRatingBreakdown = $currentratingbreakdown ;
-            return response()->json( $ratingObject);
+            return response()->json($ratingObject, 200);
         }
         else{
-            return response()->json("No Items");
+            return response()->json("No Items", 404);
         }
     }
 }
