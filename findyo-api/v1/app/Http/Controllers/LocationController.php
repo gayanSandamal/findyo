@@ -15,7 +15,7 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $locations = Location::paginate(2000)->appends(['sort' => 'name']);
+        $locations = Location::all();
         return response()->json($locations, 200);
     }
 
