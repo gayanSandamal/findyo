@@ -5,3 +5,8 @@ export interface IDrawerMenu {
   authentication: boolean,
   order: number
 }
+
+export interface IKeyAndLabel {
+  key: 'seller',
+  label: 'seller',
+}
