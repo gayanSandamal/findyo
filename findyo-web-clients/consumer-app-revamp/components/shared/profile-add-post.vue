@@ -331,14 +331,14 @@ export default defineComponent({
 
     const expandedCategoryIds = computed(() => {
       if (state.searchCategories.trim() !== '') {
-        return state.nestedCategories.map((nestedCategory: ICategoryTreeItem) => nestedCategory.id)
+        return state.categories.map((category: ICategory) => category.id)
       }
       return []
     })
 
     const expandedLocationIds = computed(() => {
       if (state.searchLocations.trim() !== '') {
-        return state.nestedLocations.map((nestedLocation: ILocationTreeItem) => nestedLocation.id)
+        return state.locations.map((location: ILocation) => location.id)
       }
       return []
     })
@@ -422,10 +422,10 @@ export default defineComponent({
     }
 
     const removeSelectedLocation = () => {
-      state.selectedCategoryId = -1
-      state.nestedCategories = []
-      state.nestedCategories = nestCategories(state.categories)
-      state.categoryReRender = state.categoryReRender + 1
+      state.selectedLocationId = -1
+      state.nestedLocations = []
+      state.nestedLocations = nestLocations(state.locations)
+      state.locationsReRender = state.locationsReRender + 1
     }
 
     const mounted = async () => {
