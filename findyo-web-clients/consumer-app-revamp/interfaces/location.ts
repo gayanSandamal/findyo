@@ -14,3 +14,13 @@ export interface ILocationLevel {
   disabled: boolean,
   value: number
 }
+
+interface ILocationTreeChild {
+  id: number,
+  name: string,
+  children?: ILocationTreeChild[]
+}
+
+export interface ILocationTreeItem extends ILocation {
+  children: ILocationTreeChild[]
+}
