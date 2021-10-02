@@ -14,6 +14,9 @@
   }
 }
 
+.text-transform-none {
+  text-transform: none !important;
+}
 nav {
   &.v-navigation-drawer {
     &.v-navigation-drawer--clipped.v-navigation-drawer--mini-variant {
