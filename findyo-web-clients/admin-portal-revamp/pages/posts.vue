@@ -11,81 +11,35 @@
           <v-toolbar-title>All Posts</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
-          <v-dialog v-model="state.dialog" max-width="500px">
-            <!-- <template v-slot:activator="{ on, state.attrs }">
-              <v-btn
-                color="primary"
-                dark
-                class="mb-2"
-                v-bind="state.attrs"
-                v-on="on"
-              >
-                New Item
-              </v-btn>
-            </template> -->
+          <v-dialog v-model="state.dialogReject" max-width="500px">
             <v-card>
-              <v-card-title>
-                <span class="text-h5">{{ state.formTitle }}</span>
+              <v-card-title class="text-h5">
+                Are you sure you want to reject this post?
               </v-card-title>
-
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="state.editedItem.name"
-                        label="Dessert name"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="state.editedItem.calories"
-                        label="Calories"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="state.editedItem.fat"
-                        label="Fat (g)"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="state.editedItem.carbs"
-                        label="Carbs (g)"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="state.editedItem.protein"
-                        label="Protein (g)"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
-
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="close">
-                  Cancel
+                <v-btn color="blue darken-1" text @click="closeReject">
+                  No
                 </v-btn>
-                <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+                <v-btn color="blue darken-1" text @click="rejectItemConfirm">
+                  Yes
+                </v-btn>
+                <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="state.dialogDelete" max-width="500px">
+          <v-dialog v-model="state.dialogApprove" max-width="520px">
             <v-card>
               <v-card-title class="text-h5">
-                Are you sure you want to delete this item?
+                Are you sure you want to approve this post?
               </v-card-title>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDelete">
-                  Cancel
+                <v-btn color="blue darken-1" text @click="closeApprove">
+                  No
                 </v-btn>
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm">
-                  OK
+                <v-btn color="blue darken-1" text @click="approveItemConfirm">
+                  Yes
                 </v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -93,10 +47,12 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <!-- <template v-slot:item.actions="state.item">
-        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
-      </template> -->
+      <template #item.actions="{ item }">
+        <v-icon small class="mr-2" @click="approvePost(item)">
+          mdi-check-bold
+        </v-icon>
+        <v-icon small @click="rejectPost(item)"> mdi-close-thick </v-icon>
+      </template>
       <template #no-data>
         <v-btn color="primary" @click="getPosts"> Reset </v-btn>
       </template>
@@ -109,19 +65,26 @@ import {
   defineComponent,
   onMounted,
   reactive,
-  useContext
+  useContext,
+  nextTick
 } from '@nuxtjs/composition-api'
 import { IPost } from '~/interfaces/post'
 
 export default defineComponent({
-  setup(_, context: any) {
+  setup() {
     const state = reactive({
       dialog: false,
-      dialogDelete: false,
+      dialogApprove: false,
+      dialogReject: false,
       headers: [
         {
-          text: 'Post Type',
+          text: 'Post Image',
           align: 'start',
+          sortable: false,
+          value: 'postImage'
+        },
+        {
+          text: 'Post Type',
           sortable: false,
           value: 'postType'
         },
@@ -153,46 +116,34 @@ export default defineComponent({
 
     const { $axios } = useContext()
 
-    const editItem = (item: any) => {
-      state.editedIndex = state.desserts.indexOf(item)
-      state.editedItem = Object.assign({}, item)
-      state.dialog = true
+    const approveItemConfirm = () => {
+      closeApprove()
     }
 
-    const deleteItem = (item: any) => {
-      state.editedIndex = state.desserts.indexOf(item)
-      state.editedItem = Object.assign({}, item)
-      state.dialogDelete = true
-    }
-
-    const deleteItemConfirm = () => {
-      state.desserts.splice(state.editedIndex, 1)
-      closeDelete()
-    }
-
-    const close = () => {
-      state.dialog = false
-      context.nextTick(() => {
-        state.editedItem = Object.assign({}, state.defaultItem)
-        state.editedIndex = -1
+    const closeApprove = () => {
+      state.dialogApprove = false
+      nextTick(() => {
+        //
       })
     }
 
-    const closeDelete = () => {
-      state.dialogDelete = false
-      context.nextTick(() => {
-        state.editedItem = Object.assign({}, state.defaultItem)
-        state.editedIndex = -1
+    const rejectItemConfirm = () => {
+      closeApprove()
+    }
+
+    const closeReject = () => {
+      state.dialogReject = false
+      nextTick(() => {
+        //
       })
     }
 
-    const save = () => {
-      if (state.editedIndex > -1) {
-        Object.assign(state.desserts[state.editedIndex], state.editedItem)
-      } else {
-        state.desserts.push(state.editedItem)
-      }
-      close()
+    const approvePost = () => {
+      state.dialogApprove = true
+    }
+
+    const rejectPost = () => {
+      state.dialogReject = true
     }
 
     const getPosts = async () => {
@@ -245,12 +196,13 @@ export default defineComponent({
 
     return {
       state,
-      save,
-      deleteItemConfirm,
-      deleteItem,
-      editItem,
-      close,
-      closeDelete
+      approveItemConfirm,
+      closeApprove,
+      getPosts,
+      closeReject,
+      rejectItemConfirm,
+      rejectPost,
+      approvePost
     }
   }
 })
