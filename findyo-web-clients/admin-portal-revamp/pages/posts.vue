@@ -2,9 +2,11 @@
   <div>
     <v-data-table
       :headers="state.headers"
-      :items="state.tabelData"
+      :items="tableData"
       sort-by="calories"
       class="elevation-1"
+      :loading="setLoading"
+      loading-text="Loading... Please wait"
     >
       <template #top>
         <v-toolbar flat>
@@ -56,6 +58,12 @@
       <template #no-data>
         <v-btn color="primary" @click="getPosts"> Reset </v-btn>
       </template>
+      <template #item.postImage="{ item }">
+        <img class="mt-3" :src="setImage(item)" style="width: 125px" />
+      </template>
+    </v-data-table>
+  </div>
+</template>
     </v-data-table>
   </div>
 </template>
@@ -66,7 +74,8 @@ import {
   onMounted,
   reactive,
   useContext,
-  nextTick
+  nextTick,
+  computed
 } from '@nuxtjs/composition-api'
 import { IPost } from '~/interfaces/post'
 
@@ -91,11 +100,16 @@ export default defineComponent({
         { text: 'Verified', value: 'varifiedText', sortable: false },
         { text: 'Location', value: 'location', sortable: false },
         { text: 'Category', value: 'category', sortable: false },
-        { text: 'Post Content', value: 'postContent', sortable: false },
+        {
+          text: 'Post Content',
+          value: 'postContentShort',
+          sortable: false,
+          width: '400'
+        },
         { text: 'Actions', value: 'actions', sortable: false }
       ],
       desserts: [] as any,
-      tabelData: [] as any,
+      tableData: [] as any,
       editedIndex: -1,
       editedItem: {
         name: '',
@@ -111,40 +125,128 @@ export default defineComponent({
         carbs: 0,
         protein: 0
       },
-      posts: null as null | undefined | IPost[]
+      posts: null as null | undefined | IPost[],
+      selectedItem: null as any
     })
 
     const { $axios } = useContext()
 
-    const approveItemConfirm = () => {
+    const approveItemConfirm = async () => {
+      if (state.selectedItem) {
+        const apporveData = {
+          id: state.selectedItem.id,
+          cid: state.selectedItem.cid,
+          verified: true,
+          user_id: state.selectedItem.userId,
+          like_count: state.selectedItem.likeCount,
+          likes: state.selectedItem.likes,
+          share_count: state.selectedItem.shareCount,
+          shares: state.selectedItem.shares,
+          post_type: state.selectedItem.postType
+        }
+
+        try {
+          const response = await $axios.put('posts', apporveData)
+          const { status } = response
+          if (status === 200 && state.posts) {
+            state.posts.forEach((post: IPost) => {
+              if (post.id === state.selectedItem.id) {
+                post.verified = true
+              }
+            })
+          }
+        } catch (error) {
+          console.error(error)
+        }
+      }
       closeApprove()
+    }
+
+    const rejectItemConfirm = async () => {
+      if (state.selectedItem) {
+        const apporveData = {
+          id: state.selectedItem.id,
+          cid: state.selectedItem.cid,
+          verified: false,
+          user_id: state.selectedItem.userId,
+          like_count: state.selectedItem.likeCount,
+          likes: state.selectedItem.likes,
+          share_count: state.selectedItem.shareCount,
+          shares: state.selectedItem.shares,
+          post_type: state.selectedItem.postType
+        }
+
+        try {
+          const response = await $axios.put('posts', apporveData)
+          const { status } = response
+          if (status === 200 && state.posts) {
+            state.posts.forEach((post: IPost) => {
+              if (post.id === state.selectedItem.id) {
+                post.verified = false
+              }
+            })
+          }
+        } catch (error) {
+          console.error(error)
+        }
+      }
+      closeReject()
     }
 
     const closeApprove = () => {
       state.dialogApprove = false
       nextTick(() => {
-        //
+        state.selectedItem = null
       })
-    }
-
-    const rejectItemConfirm = () => {
-      closeApprove()
     }
 
     const closeReject = () => {
       state.dialogReject = false
       nextTick(() => {
-        //
+        state.selectedItem = null
       })
     }
 
-    const approvePost = () => {
+    const approvePost = (item: any) => {
+      state.selectedItem = item
       state.dialogApprove = true
     }
 
-    const rejectPost = () => {
+    const rejectPost = (item: any) => {
+      state.selectedItem = item
       state.dialogReject = true
     }
+
+    const setImage = (item: any) => {
+      const image = 'https://picsum.photos/1280/720'
+      return image
+    }
+
+    const setLoading = computed(() => {
+      let loading = true
+
+      if (tableData && tableData.value.length > 0) {
+        loading = false
+      }
+
+      return loading
+    })
+
+    const tableData = computed(() => {
+      let data: any = []
+      if (state.posts && state.posts.length > 0) {
+        data = state.posts.map((post: IPost) => {
+          return {
+            ...post,
+            postContentShort: post.postContent?.substring(0, 150),
+            location: 'location',
+            category: 'category',
+            varifiedText: post.verified ? 'Verified' : 'Not verified'
+          }
+        })
+      }
+      return data
+    })
 
     const getPosts = async () => {
       try {
@@ -172,17 +274,6 @@ export default defineComponent({
             }
           })
         }
-
-        if (state.posts && state.posts.length > 0) {
-          state.tabelData = state.posts.map((post: IPost) => {
-            return {
-              ...post,
-              location: 'location',
-              category: 'category',
-              varifiedText: post.verified ? 'Verified' : 'Not verified'
-            }
-          })
-        }
       } catch (error) {
         console.error(error)
       }
@@ -202,7 +293,10 @@ export default defineComponent({
       closeReject,
       rejectItemConfirm,
       rejectPost,
-      approvePost
+      approvePost,
+      setLoading,
+      tableData,
+      setImage
     }
   }
 })
