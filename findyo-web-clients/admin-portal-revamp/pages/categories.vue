@@ -218,10 +218,7 @@ export default defineComponent({
     const getAllCategories = async () => {
       try {
         const response: any = await $axios.get('postcategory')
-        const {
-          status,
-          data: { data }
-        } = response
+        const { status, data } = response
         if (status === 200) {
           state.categories = [...data]
           const mappedData: ICategory[] = data.map((d: ICategory) => {

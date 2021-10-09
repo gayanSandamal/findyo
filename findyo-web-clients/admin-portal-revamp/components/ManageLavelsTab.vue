@@ -188,10 +188,7 @@ export default defineComponent({
     const getAllLocationLevels = async () => {
       try {
         const response = await $axios.get('admin/Locationlevel')
-        const {
-          status,
-          data: { data }
-        } = response
+        const { status, data } = response
         if (status === 200) {
           state.locationLevels = data.map((d: ILocationLevel) => {
             return {

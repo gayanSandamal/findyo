@@ -55,7 +55,7 @@
       <span
         >&copy; {{ new Date().getFullYear() }} Findyo All rights reserved</span
       >
-      {{ state.config }}
+      <!-- {{ state.config }} -->
     </v-footer>
   </v-app>
 </template>
