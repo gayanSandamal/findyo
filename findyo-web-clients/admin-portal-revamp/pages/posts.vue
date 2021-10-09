@@ -49,7 +49,7 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template #item.actions="{ item }">
+      <template #[`item.actions`]="{ item }">
         <v-icon small class="mr-2" @click="approvePost(item)">
           mdi-check-bold
         </v-icon>
@@ -58,12 +58,9 @@
       <template #no-data>
         <v-btn color="primary" @click="getPosts"> Reset </v-btn>
       </template>
-      <template #item.postImage="{ item }">
+      <template #[`item.postImage`]="{ item }">
         <img class="mt-3" :src="setImage(item)" style="width: 125px" />
       </template>
-    </v-data-table>
-  </div>
-</template>
     </v-data-table>
   </div>
 </template>
@@ -218,6 +215,7 @@ export default defineComponent({
     }
 
     const setImage = (item: any) => {
+      // TODO: this should be fixed once we get the URL
       const image = 'https://picsum.photos/1280/720'
       return image
     }

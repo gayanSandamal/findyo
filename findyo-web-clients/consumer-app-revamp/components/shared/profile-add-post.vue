@@ -35,10 +35,10 @@
       <v-card class="mx-auto pt-4">
         <v-card-text class="pb-0">
           <v-textarea
+            v-model="state.form.content"
             counter
             :rules="state.rules"
-            :value="state.form.content"
-            :placeholder="state.form.postType === 'seller' ? 'Let the world knpw about your service' : 'Ask for the service you are looking for'"
+            :placeholder="state.form.postType === 'seller' ? 'Let the world know about your service' : 'Ask for the service you are looking for'"
             rows="4"
             filled
             auto-grow
@@ -92,6 +92,7 @@
                 rounded
                 depressed
                 class="text-transform-none justify-start font-weight-regular text--disabled mr-4"
+                :class="{'error-btn': state.isCategoryError}"
                 @click="state.categoriesModal = true"
               >
                 <v-icon left>
@@ -150,6 +151,7 @@
                   rounded
                   color="success"
                   dark
+                  @click.stop="savePost"
                 >
                   Publish
                 </v-btn>
@@ -247,7 +249,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, useContext, onMounted, computed } from '@nuxtjs/composition-api'
-import { useGetters } from 'vuex-composition-helpers'
+import { useGetters, useActions } from 'vuex-composition-helpers'
 import find from 'lodash/find'
 import { ICategory, ICategoryTreeItem } from '~/interfaces/category'
 import { ILocation, ILocationTreeItem } from '~/interfaces/location'
@@ -257,9 +259,11 @@ export default defineComponent({
   setup() {
     const { $axios } = useContext()
     const { user } = useGetters(['user'])
+    const { showSnack } = useActions(['showSnack'])
     const maxCharacters = 100
     const state = reactive({
       rules: [
+        (v: string) => !!v || 'Post description is required',
         (v: string) =>
           v.length <= maxCharacters || `Max ${maxCharacters} characters`
       ],
@@ -287,6 +291,7 @@ export default defineComponent({
       caseSensitive: false,
       categoryReRender: 0,
       locationsReRender: 0,
+      isCategoryError: false,
       form: {
         content: '',
         postType: 'seller'
@@ -414,6 +419,57 @@ export default defineComponent({
       }
     }
 
+    const resetPostForm = () => {
+      state.selectedCategoryId = -1
+      state.selectedLocationId = -1
+      state.searchCategories = ''
+      state.searchLocations = ''
+      state.form.content = ''
+      state.form.postType = 'seller'
+    }
+    const savePost = async () => {
+      state.isCategoryError = false
+      if (!state.form.content || (state.form.content && state.form.content.trim() === '')) {
+        showSnack({
+          text: 'Please enter post description',
+          color: 'error'
+        })
+      } else if (state.selectedCategoryId === -1) {
+        showSnack({
+          text: 'Please select a category',
+          color: 'error'
+        })
+        state.isCategoryError = true
+      } else {
+        const postData = {
+          verified: 0,
+          user_id: user.value.id,
+          location_id: state.selectedLocationId,
+          category_id: state.selectedCategoryId,
+          post_content: state.form.content,
+          post_type: state.form.postType
+        }
+        try {
+          const response = await $axios.post('posts', postData)
+          const { status } = response
+          if (status === 200) {
+            showSnack({
+              text: 'Your post is under review. This will be published once got approved',
+              color: 'success'
+            })
+            state.postModal = false
+            resetPostForm()
+          }
+        } catch (error) {
+          showSnack({
+            text: error,
+            color: 'error'
+          })
+          console.error(error)
+        }
+      }
+    }
+
     const removeSelectedCategory = () => {
       state.selectedCategoryId = -1
       state.nestedCategories = []
@@ -448,7 +504,8 @@ export default defineComponent({
       onCategoryTreeActive,
       onLocationTreeActive,
       removeSelectedCategory,
-      removeSelectedLocation
+      removeSelectedLocation,
+      savePost
     }
   }
 })

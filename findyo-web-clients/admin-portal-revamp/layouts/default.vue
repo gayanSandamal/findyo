@@ -119,7 +119,7 @@ export default defineComponent({
         {
           icon: 'mdi-account',
           title: 'Review Lib',
-          to: '/review-lib',
+          to: '/review/post-service-questions',
           authentication: true,
           order: 8
         },
