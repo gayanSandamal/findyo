@@ -47,23 +47,81 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+          <v-dialog v-model="state.dialogPreview" max-width="600px">
+            <v-card>
+              <v-card-title> Post Details </v-card-title>
+              <v-card-text>
+                <img
+                  style="width: 100%"
+                  class="mt-3 pointer"
+                  :src="setImage(item)"
+                  @click="openPostPreview(item)"
+                />
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    rounded
+                    medium
+                    color="success"
+                    class="mr-3"
+                    @click="approvePostFromPreview"
+                  >
+                    Approve
+                  </v-btn>
+                  <v-btn
+                    rounded
+                    medium
+                    color="error"
+                    @click="rejectPostFromPreview"
+                  >
+                    Reject
+                  </v-btn>
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn color="primary" text @click="closePostPreview">
+                  Close
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-toolbar>
       </template>
       <template #item.actions="{ item }">
-        <v-icon small class="mr-2" @click="approvePost(item)">
-          mdi-check-bold
-        </v-icon>
-        <v-icon small @click="rejectPost(item)"> mdi-close-thick </v-icon>
+        <v-btn
+          :disabled="item.verified ? true : false"
+          rounded
+          depressed
+          small
+          color="success"
+          class="mr-3"
+          @click="approvePost(item)"
+        >
+          Approve
+        </v-btn>
+        <v-btn
+          :disabled="!item.verified ? true : false"
+          rounded
+          depressed
+          small
+          color="error"
+          @click="rejectPost(item)"
+        >
+          Reject
+        </v-btn>
       </template>
       <template #no-data>
         <v-btn color="primary" @click="getPosts"> Reset </v-btn>
       </template>
       <template #item.postImage="{ item }">
-        <img class="mt-3" :src="setImage(item)" style="width: 125px" />
+        <img
+          style="cursor: pointer; width: 125px"
+          class="mt-3 pointer"
+          :src="setImage(item)"
+          @click="openPostPreview(item)"
+        />
       </template>
-    </v-data-table>
-  </div>
-</template>
     </v-data-table>
   </div>
 </template>
@@ -74,7 +132,6 @@ import {
   onMounted,
   reactive,
   useContext,
-  nextTick,
   computed
 } from '@nuxtjs/composition-api'
 import { IPost } from '~/interfaces/post'
@@ -85,6 +142,7 @@ export default defineComponent({
       dialog: false,
       dialogApprove: false,
       dialogReject: false,
+      dialogPreview: false,
       headers: [
         {
           text: 'Post Image',
@@ -106,7 +164,7 @@ export default defineComponent({
           sortable: false,
           width: '400'
         },
-        { text: 'Actions', value: 'actions', sortable: false }
+        { text: 'Actions', value: 'actions', sortable: false, width: '250' }
       ],
       desserts: [] as any,
       tableData: [] as any,
@@ -159,6 +217,7 @@ export default defineComponent({
           console.error(error)
         }
       }
+      closePostPreview()
       closeApprove()
     }
 
@@ -190,21 +249,16 @@ export default defineComponent({
           console.error(error)
         }
       }
+      closePostPreview()
       closeReject()
     }
 
     const closeApprove = () => {
       state.dialogApprove = false
-      nextTick(() => {
-        state.selectedItem = null
-      })
     }
 
     const closeReject = () => {
       state.dialogReject = false
-      nextTick(() => {
-        state.selectedItem = null
-      })
     }
 
     const approvePost = (item: any) => {
@@ -217,9 +271,26 @@ export default defineComponent({
       state.dialogReject = true
     }
 
-    const setImage = (item: any) => {
+    const setImage = (_: any) => {
       const image = 'https://picsum.photos/1280/720'
       return image
+    }
+
+    const openPostPreview = (item: any) => {
+      state.selectedItem = item
+      state.dialogPreview = true
+    }
+
+    const closePostPreview = () => {
+      state.dialogPreview = false
+    }
+
+    const approvePostFromPreview = () => {
+      state.dialogApprove = true
+    }
+
+    const rejectPostFromPreview = () => {
+      state.dialogReject = true
     }
 
     const setLoading = computed(() => {
@@ -296,7 +367,11 @@ export default defineComponent({
       approvePost,
       setLoading,
       tableData,
-      setImage
+      setImage,
+      openPostPreview,
+      closePostPreview,
+      rejectPostFromPreview,
+      approvePostFromPreview
     }
   }
 })
