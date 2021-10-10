@@ -136,6 +136,7 @@ import { useActions, useGetters } from 'vuex-composition-helpers'
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy'
 import includes from 'lodash/includes'
+import { fullNameGenerator, shortNameGenerator } from '~/utils/helperFunctions'
 import { IDrawerMenu } from '@/interfaces/ui'
 
 export default defineComponent({
@@ -177,25 +178,9 @@ export default defineComponent({
       }), ['order'])
     )
 
-    const fullName = computed(() => {
-      if (user.value.firstname && user.value.lastname) {
-        return `${user.value.firstname} ${user.value.lastname}`
-      } else if (user.value.firstname) {
-        return user.value.firstname
-      } else {
-        return 'New user'
-      }
-    })
+    const fullName = computed(() => fullNameGenerator(user.value))
 
-    const shortName = computed(() => {
-      if (user.value.firstname && user.value.lastname) {
-        return `${user.value.firstname.charAt(0)}${user.value.lastname.charAt(0)}`
-      } else if (user.value.firstname) {
-        return user.value.firstname.charAt(0)
-      } else {
-        return ':)'
-      }
-    })
+    const shortName = computed(() => shortNameGenerator(user.value))
 
     const getUserObj = () => {
       try {

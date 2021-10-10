@@ -6,6 +6,10 @@
   width: 100%;
 }
 
+.w-50 {
+  width: 50%;
+}
+
 .img {
   max-width: 100%;
   max-height: 100%;
@@ -17,6 +21,15 @@
 .text-transform-none {
   text-transform: none !important;
 }
+
+.scroller {
+  overflow-y: auto;
+  width: 100%;
+  &.categories {
+    max-height: 300px;
+  }
+}
+
 nav {
   &.v-navigation-drawer {
     &.v-navigation-drawer--clipped.v-navigation-drawer--mini-variant {
@@ -29,8 +42,10 @@ nav {
   }
 }
 
-// v-snack {
-//   .v-snack--absolute {
-//     z-index: 999;
-//   }
-// }
+.error-btn {
+  background-color: #ff5252 !important;
+  border-color: #ff5252 !important;
+  .v-btn__content {
+    color: #fff !important;
+  }
+}
