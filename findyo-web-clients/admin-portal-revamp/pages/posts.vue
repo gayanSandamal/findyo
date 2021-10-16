@@ -18,6 +18,25 @@
               <v-card-title class="text-h5">
                 Are you sure you want to reject this post?
               </v-card-title>
+              <v-card-text>
+                <v-radio-group v-model="state.rejectReasons" column>
+                  <v-radio label="Reason 1" value="bahamas"></v-radio>
+                  <v-radio label="Reason 2" value="bahrain"></v-radio>
+                  <v-radio label="Reason 3" value="bangladesh"></v-radio>
+                  <v-radio label="Reason 4" value="barbados"></v-radio>
+                  <v-radio label="Reason 5" value="belarus"></v-radio>
+                  <v-radio label="Reason 6" value="belgium"></v-radio>
+                  <v-radio label="Others" value="others"></v-radio>
+                  <v-textarea
+                    v-if="
+                      state.rejectReasons && state.rejectReasons === 'others'
+                    "
+                    solo
+                    name="input-reason"
+                    label="please provide reason to reject this post"
+                  ></v-textarea>
+                </v-radio-group>
+              </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="closeReject">
@@ -48,7 +67,7 @@
             </v-card>
           </v-dialog>
           <v-dialog v-model="state.dialogPreview" max-width="600px">
-            <v-card>
+            <v-card v-if="state.selectedItem">
               <v-card-title> Post Details </v-card-title>
               <v-card-text>
                 <img
@@ -57,9 +76,40 @@
                   :src="setImage(item)"
                   @click="openPostPreview(item)"
                 />
-                <v-card-actions>
+                <div class="my-5 pt-2 pl-1">
+                  <section>
+                    <v-row>
+                      <v-col cols="4">
+                        <h2 class="mt-3">Post Type:</h2>
+                        <h2 class="mt-3">Varified:</h2>
+                        <h2 class="mt-3">Location:</h2>
+                        <h2 class="mt-3">Category:</h2>
+                        <h2 class="mt-3">Post Content:</h2>
+                      </v-col>
+                      <v-col>
+                        <h2 class="mt-3">
+                          {{ state.selectedItem.postType }}
+                        </h2>
+                        <h2 class="mt-3">
+                          {{ state.selectedItem.varifiedText }}
+                        </h2>
+                        <h2 class="mt-3">
+                          {{ state.selectedItem.location }}
+                        </h2>
+                        <h2 class="mt-3">
+                          {{ state.selectedItem.category }}
+                        </h2>
+                        <h2 class="mt-3">
+                          {{ state.selectedItem.postContent }}
+                        </h2>
+                      </v-col>
+                    </v-row>
+                  </section>
+                </div>
+                <v-card-actions class="pt-5">
                   <v-spacer></v-spacer>
                   <v-btn
+                    :disabled="state.selectedItem.verified ? true : false"
                     rounded
                     medium
                     color="success"
@@ -69,6 +119,7 @@
                     Approve
                   </v-btn>
                   <v-btn
+                    :disabled="!state.selectedItem.verified ? true : false"
                     rounded
                     medium
                     color="error"
@@ -135,6 +186,8 @@ import {
   computed
 } from '@nuxtjs/composition-api'
 import { IPost } from '~/interfaces/post'
+import { ICategory } from '@/interfaces/category'
+import type { ILocation, ILocationLevel } from '@/interfaces/location'
 
 export default defineComponent({
   setup() {
@@ -184,7 +237,11 @@ export default defineComponent({
         protein: 0
       },
       posts: null as null | undefined | IPost[],
-      selectedItem: null as any
+      selectedItem: null as any,
+      categories: [] as ICategory[],
+      locationLevels: [] as ILocationLevel[],
+      locations: [] as ILocation[],
+      rejectReasons: undefined as any
     })
 
     const { $axios } = useContext()
@@ -307,17 +364,88 @@ export default defineComponent({
       let data: any = []
       if (state.posts && state.posts.length > 0) {
         data = state.posts.map((post: IPost) => {
+          const location = state.locations.find(l => l.id === post.locationId)
+          const category = state.categories.find(c => c.id === post.categoryId)
           return {
             ...post,
             postContentShort: post.postContent?.substring(0, 150),
-            location: 'location',
-            category: 'category',
+            location: location ? location.name : 'no data',
+            category: category ? category.name : 'no data',
             varifiedText: post.verified ? 'Verified' : 'Not verified'
           }
         })
       }
       return data
     })
+
+    const getCategories = async () => {
+      try {
+        const response: any = await $axios.get('postcategory')
+        const { status, data } = response
+        if (status === 200) {
+          state.categories = [...data]
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const getAllLevels = async () => {
+      try {
+        const response = await $axios.get('admin/Locationlevel')
+        const { status, data } = response
+        if (status === 200) {
+          state.locationLevels = data
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const getLocations = async () => {
+      try {
+        const response = await $axios.get('locations')
+        const { status, data } = response
+        if (status === 200) {
+          state.locations = data.map((d: any) => {
+            return {
+              id: d.id,
+              originalName: d.name,
+              parent: d.parent,
+              cid: d.cid,
+              locationLevelId: d.location_level_id,
+              name: setNameWithLocationLevel(d.name, d.location_level_id)
+            }
+          })
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const setNameWithLocationLevel = (
+      name: string,
+      levelId: number
+    ): string => {
+      if (!levelId) {
+        if (name) {
+          return name
+        } else {
+          return ''
+        }
+      }
+      let nameWithLevel = name
+      let selectedLevel = null
+
+      if (state.locationLevels) {
+        selectedLevel = state.locationLevels.find(l => l.id === levelId)
+      }
+      if (selectedLevel) {
+        nameWithLevel = `${name} ${selectedLevel.name}`
+      }
+
+      return nameWithLevel
+    }
 
     const getPosts = async () => {
       try {
@@ -351,6 +479,9 @@ export default defineComponent({
     }
 
     const onMount = async () => {
+      await getAllLevels()
+      await getLocations()
+      await getCategories()
       await getPosts()
     }
 
