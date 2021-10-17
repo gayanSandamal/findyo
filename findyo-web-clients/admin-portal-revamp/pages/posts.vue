@@ -139,7 +139,7 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template #item.actions="{ item }">
+      <template #[`item.actions`]="{ item }">
         <v-btn
           :disabled="item.verified ? true : false"
           rounded
@@ -165,7 +165,7 @@
       <template #no-data>
         <v-btn color="primary" @click="getPosts"> Reset </v-btn>
       </template>
-      <template #item.postImage="{ item }">
+      <template #[`item.postImage`]="{ item }">
         <img
           style="cursor: pointer; width: 125px"
           class="mt-3 pointer"
@@ -329,6 +329,7 @@ export default defineComponent({
     }
 
     const setImage = (_: any) => {
+      // TODO: this should be fixed once we get the URL
       const image = 'https://picsum.photos/1280/720'
       return image
     }

@@ -16,7 +16,7 @@ class LocationLevelController extends Controller
      */
     public function index()
     {
-        $locationLevel = LocationLevel::paginate()->appends(['sort' => 'name']);
+        $locationLevel = LocationLevel::all();
         return response()->json($locationLevel, 200);
     }
 

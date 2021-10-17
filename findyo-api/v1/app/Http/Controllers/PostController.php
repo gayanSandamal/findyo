@@ -21,7 +21,8 @@ class PostController extends Controller
     // }
     public function index(Request $request)
     {
-        $post = Post::filter($request)->paginate(15)->appends(['sort' => 'id']);
+        $perpage = !empty($request->per_page) ? $request->per_page : 15;
+        $post = Post::filter($request)->paginate($perpage)->appends(['sort' => 'id']);
         return response()->json($post, 200);
     }
 

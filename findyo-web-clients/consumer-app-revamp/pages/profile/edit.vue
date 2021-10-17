@@ -1,0 +1,3 @@
+<template>
+  <profile-edit />
+</template>

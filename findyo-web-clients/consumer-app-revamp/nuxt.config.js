@@ -27,7 +27,7 @@ export default {
   plugins: ['~/plugins/vue-tooltip.ts'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
-  components: true,
+  components: ['~/components', '~/components/shared'],
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
@@ -53,7 +53,9 @@ export default {
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
     // https://auth.nuxtjs.org/guide/setup
-    '@nuxtjs/auth-next'
+    '@nuxtjs/auth-next',
+    // https://www.npmjs.com/package/nuxt-route-meta?activeTab=readme
+    'nuxt-route-meta'
   ],
 
   auth: {
@@ -89,7 +91,7 @@ export default {
   },
 
   router: {
-    middleware: ['auth']
+    middleware: []
   },
 
   publicRuntimeConfig: {
