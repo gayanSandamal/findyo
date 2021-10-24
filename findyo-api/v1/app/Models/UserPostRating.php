@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Hashids\Hashids;
 
-class AdminRating extends Model
+class UserPostRating extends Model
 {
     use HasFactory;
 
     protected $primaryKey = 'id';
 
-    protected $table = 'adminrating';
+    protected $table = 'userpost_rating';
 
     public $timestamps = true;
 
@@ -22,12 +22,12 @@ class AdminRating extends Model
 
     public function getCIdAttribute()
     {
-        $hashids = new Hashids("AdminRating", 15);
+        $hashids = new Hashids("UserPostRating", 15);
         return $hashids->encode($this->id);
     }
 
     public function UserRatings()
     {
-        return $this->hasMany(UserRating::class,'question_id');
+        return $this->hasMany(UserRating::class,'userpost_rating_id');
     }
 }

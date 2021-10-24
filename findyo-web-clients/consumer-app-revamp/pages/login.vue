@@ -27,6 +27,7 @@
                 v-model="state.email"
                 :rules="state.emailRules"
                 label="E-mail"
+                name="email"
                 required
                 @keyup.enter="validate"
               ></v-text-field>
@@ -57,6 +58,10 @@
               <v-btn color="error" class="mr-4" @click="reset">
                 Reset Form
               </v-btn>
+
+              <nuxt-link class="d-block mt-6" to="/register">
+                I don't have an account. Sign-up
+              </nuxt-link>
             </v-form>
           </v-card-text>
         </v-card>
@@ -66,11 +71,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, useContext } from '@nuxtjs/composition-api'
+import { defineComponent, reactive, useContext, useRouter } from '@nuxtjs/composition-api'
+import { useActions } from 'vuex-composition-helpers'
 import forEach from 'lodash/forEach'
 export default defineComponent({
+  auth: false,
+  meta: {
+    auth: false
+  },
   setup(_, context: any) {
-    const { $auth } = useContext()
+    const { $axios, $auth } = useContext()
+    const { setUser } = useActions(['setUser'])
+    const router = useRouter()
+
     const state = reactive({
       valid: true,
       email: '',
@@ -94,6 +107,17 @@ export default defineComponent({
     const reset = () => {
       context.refs.form.reset()
     }
+    const getUserObj = async (id: number) => {
+      const userList = await $axios.$get(`GetUser/${id}`)
+      const user = userList[0]
+      setUser(user)
+      $auth.$storage.setCookie('userFull', user)
+      if (user && !user.username) {
+        router.push({ path: '/profile/edit' })
+      } else {
+        router.push({ path: '/' })
+      }
+    }
     const login = async () => {
       try {
         const postData = {
@@ -105,7 +129,8 @@ export default defineComponent({
         })
         const { status, data }: any = response
         if (status === 200) {
-          setUser(data)
+          $auth.setUser(data)
+          getUserObj(data.id)
         } else if (status === 202) {
           showBackendValidations(response)
         } else if (status === 203) {
@@ -116,9 +141,7 @@ export default defineComponent({
         console.error(error)
       }
     }
-    const setUser = (user: object) => { // CREATE A PROPER INTERFACE
-      $auth.setUser(user)
-    }
+
     const showBackendValidations = (responseData: any) => {
       state.errorList = ''
       if (!responseData) {

@@ -142,7 +142,7 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template #item.actions="{ item }">
+      <template #[`item.actions`]="{ item }">
         <v-btn
           :disabled="item.verified ? true : false"
           rounded
@@ -168,7 +168,7 @@
       <template #no-data>
         <v-btn color="primary" @click="getPosts"> Reset </v-btn>
       </template>
-      <template #item.postImage="{ item }">
+      <template #[`item.postImage`]="{ item }">
         <img
           style="cursor: pointer; width: 125px"
           class="mt-3 pointer"
@@ -252,15 +252,15 @@ export default defineComponent({
       rejectReasons: [
         {
           value: 1,
-          text: 'The description of this post doesnâ€™t match with the given category.'
+          text: 'The description of this post doesn’t match with the given category.'
         },
         {
           value: 2,
-          text: 'The description of this post doesnâ€™t match with the image.'
+          text: 'The description of this post doesn’t match with the image.'
         },
         {
           value: 3,
-          text: 'The image of this post doesnâ€™t match with the given category.'
+          text: 'The image of this post doesn’t match with the given category.'
         },
         { value: 4, text: 'This post contains contact numbers.' },
         { value: 5, text: 'This post contains violence.' },
@@ -357,6 +357,7 @@ export default defineComponent({
     }
 
     const setImage = () => {
+      // TODO: this should be fixed once we get the URL
       const image = 'https://picsum.photos/1280/720'
       return image
     }

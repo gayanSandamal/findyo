@@ -1,44 +1,25 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card class="mt-5">
-        <v-card-title class="headline">
-          Welcome to Findyo Admin Panel
-        </v-card-title>
-        <v-card-text>
-          <p>Please use menu to access each functionality</p>
-          <p>
-            For more information contact technical team
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Facebook
-            </a>
-          </p>
-
-          <hr class="my-3" />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <client-only>
-            <v-btn v-if="!$auth.loggedIn" color="primary" nuxt to="/login">
-              Login
-            </v-btn>
-          </client-only>
-        </v-card-actions>
-      </v-card>
+  <v-row justify="start" align="center">
+    <v-col cols="6">
+      <profile-add-post />
     </v-col>
   </v-row>
 </template>
 
 <script lang="ts">
 import { defineComponent } from '@nuxtjs/composition-api'
+import { useGetters } from 'vuex-composition-helpers'
 
 export default defineComponent({
+  auth: true,
+  meta: {
+    auth: false
+  },
   setup() {
-    return {}
+    const { user } = useGetters(['user'])
+    return {
+      user
+    }
   }
 })
 </script>
