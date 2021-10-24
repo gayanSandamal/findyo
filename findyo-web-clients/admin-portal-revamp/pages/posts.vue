@@ -252,15 +252,15 @@ export default defineComponent({
       rejectReasons: [
         {
           value: 1,
-          text: 'The description of this post doesn’t match with the given category.'
+          text: "The description of this post doesn't match with the given category."
         },
         {
           value: 2,
-          text: 'The description of this post doesn’t match with the image.'
+          text: "The description of this post doesn't match with the image."
         },
         {
           value: 3,
-          text: 'The image of this post doesn’t match with the given category.'
+          text: "The image of this post doesn't match with the given category."
         },
         { value: 4, text: 'This post contains contact numbers.' },
         { value: 5, text: 'This post contains violence.' },
