@@ -19,18 +19,16 @@
                 Are you sure you want to reject this post?
               </v-card-title>
               <v-card-text>
-                <v-radio-group v-model="state.rejectReasons" column>
-                  <v-radio label="Reason 1" value="bahamas"></v-radio>
-                  <v-radio label="Reason 2" value="bahrain"></v-radio>
-                  <v-radio label="Reason 3" value="bangladesh"></v-radio>
-                  <v-radio label="Reason 4" value="barbados"></v-radio>
-                  <v-radio label="Reason 5" value="belarus"></v-radio>
-                  <v-radio label="Reason 6" value="belgium"></v-radio>
-                  <v-radio label="Others" value="others"></v-radio>
+                <v-radio-group v-model="state.rejectReason" column>
+                  <v-radio
+                    v-for="(reason, index) in state.rejectReasons"
+                    :key="index"
+                    :label="reason.text"
+                    :value="reason.value"
+                  ></v-radio>
                   <v-textarea
-                    v-if="
-                      state.rejectReasons && state.rejectReasons === 'others'
-                    "
+                    v-if="state.rejectReason && state.rejectReason === -1"
+                    v-model="state.otherRejectReason"
                     solo
                     name="input-reason"
                     label="please provide reason to reject this post"
@@ -42,7 +40,12 @@
                 <v-btn color="blue darken-1" text @click="closeReject">
                   No
                 </v-btn>
-                <v-btn color="blue darken-1" text @click="rejectItemConfirm">
+                <v-btn
+                  :disabled="isRejectButtonDisabled"
+                  color="blue darken-1"
+                  text
+                  @click="rejectItemConfirm"
+                >
                   Yes
                 </v-btn>
                 <v-spacer></v-spacer>
@@ -91,7 +94,7 @@
                           {{ state.selectedItem.postType }}
                         </h2>
                         <h2 class="mt-3">
-                          {{ state.selectedItem.varifiedText }}
+                          {{ state.selectedItem.verifiedText }}
                         </h2>
                         <h2 class="mt-3">
                           {{ state.selectedItem.location }}
@@ -185,7 +188,12 @@ import {
   useContext,
   computed
 } from '@nuxtjs/composition-api'
-import { IPost } from '~/interfaces/post'
+import {
+  IPost,
+  IPostRejectReason,
+  IPostTableItem,
+  ITableHeaders
+} from '@/interfaces/post'
 import { ICategory } from '@/interfaces/category'
 import type { ILocation, ILocationLevel } from '@/interfaces/location'
 
@@ -208,7 +216,7 @@ export default defineComponent({
           sortable: false,
           value: 'postType'
         },
-        { text: 'Verified', value: 'varifiedText', sortable: false },
+        { text: 'Verified', value: 'verifiedText', sortable: false },
         { text: 'Location', value: 'location', sortable: false },
         { text: 'Category', value: 'category', sortable: false },
         {
@@ -218,9 +226,8 @@ export default defineComponent({
           width: '400'
         },
         { text: 'Actions', value: 'actions', sortable: false, width: '250' }
-      ],
-      desserts: [] as any,
-      tableData: [] as any,
+      ] as ITableHeaders[],
+      tableData: [] as IPostTableItem[],
       editedIndex: -1,
       editedItem: {
         name: '',
@@ -237,11 +244,30 @@ export default defineComponent({
         protein: 0
       },
       posts: null as null | undefined | IPost[],
-      selectedItem: null as any,
+      selectedItem: null as IPostTableItem | null | undefined,
       categories: [] as ICategory[],
       locationLevels: [] as ILocationLevel[],
       locations: [] as ILocation[],
-      rejectReasons: undefined as any
+      rejectReason: undefined as number | undefined | null,
+      rejectReasons: [
+        {
+          value: 1,
+          text: 'The description of this post doesn’t match with the given category.'
+        },
+        {
+          value: 2,
+          text: 'The description of this post doesn’t match with the image.'
+        },
+        {
+          value: 3,
+          text: 'The image of this post doesn’t match with the given category.'
+        },
+        { value: 4, text: 'This post contains contact numbers.' },
+        { value: 5, text: 'This post contains violence.' },
+        { value: 6, text: 'This post contains nudity.' },
+        { value: -1, text: 'Others' }
+      ] as IPostRejectReason[],
+      otherRejectReason: null as string | null | undefined
     })
 
     const { $axios } = useContext()
@@ -265,7 +291,7 @@ export default defineComponent({
           const { status } = response
           if (status === 200 && state.posts) {
             state.posts.forEach((post: IPost) => {
-              if (post.id === state.selectedItem.id) {
+              if (state.selectedItem && post.id === state.selectedItem.id) {
                 post.verified = true
               }
             })
@@ -297,7 +323,7 @@ export default defineComponent({
           const { status } = response
           if (status === 200 && state.posts) {
             state.posts.forEach((post: IPost) => {
-              if (post.id === state.selectedItem.id) {
+              if (state.selectedItem && post.id === state.selectedItem.id) {
                 post.verified = false
               }
             })
@@ -316,24 +342,26 @@ export default defineComponent({
 
     const closeReject = () => {
       state.dialogReject = false
+      state.rejectReason = null
+      state.otherRejectReason = null
     }
 
-    const approvePost = (item: any) => {
+    const approvePost = (item: IPostTableItem) => {
       state.selectedItem = item
       state.dialogApprove = true
     }
 
-    const rejectPost = (item: any) => {
+    const rejectPost = (item: IPostTableItem) => {
       state.selectedItem = item
       state.dialogReject = true
     }
 
-    const setImage = (_: any) => {
+    const setImage = () => {
       const image = 'https://picsum.photos/1280/720'
       return image
     }
 
-    const openPostPreview = (item: any) => {
+    const openPostPreview = (item: IPostTableItem) => {
       state.selectedItem = item
       state.dialogPreview = true
     }
@@ -360,6 +388,22 @@ export default defineComponent({
       return loading
     })
 
+    const isRejectButtonDisabled = computed(() => {
+      let disabled = false
+
+      if (
+        !state.rejectReason ||
+        (state.rejectReason &&
+          state.rejectReason === -1 &&
+          (!state.otherRejectReason ||
+            (state.otherRejectReason && state.otherRejectReason.trim() === '')))
+      ) {
+        disabled = true
+      }
+
+      return disabled
+    })
+
     const tableData = computed(() => {
       let data: any = []
       if (state.posts && state.posts.length > 0) {
@@ -371,7 +415,7 @@ export default defineComponent({
             postContentShort: post.postContent?.substring(0, 150),
             location: location ? location.name : 'no data',
             category: category ? category.name : 'no data',
-            varifiedText: post.verified ? 'Verified' : 'Not verified'
+            verifiedText: post.verified ? 'Verified' : 'Not verified'
           }
         })
       }
@@ -502,7 +546,8 @@ export default defineComponent({
       openPostPreview,
       closePostPreview,
       rejectPostFromPreview,
-      approvePostFromPreview
+      approvePostFromPreview,
+      isRejectButtonDisabled
     }
   }
 })

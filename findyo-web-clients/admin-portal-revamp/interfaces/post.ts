@@ -12,3 +12,22 @@ export interface IPost {
   postType: 'consumer' | 'seller',
   cid?: string | null,
 }
+
+export interface IPostRejectReason {
+  value: number,
+  text: string
+}
+
+export interface IPostTableItem extends IPost {
+  postContentShort: string,
+  location: string,
+  verifiedText: string
+}
+
+export interface ITableHeaders {
+  text: string,
+  value: string,
+  align?: string,
+  sortable?: boolean,
+  width?: number | string,
+}
