@@ -10,17 +10,9 @@
           ></v-switch>
         </v-col>
         <v-col cols="4" class="d-flex justify-end">
-          <v-dialog
-            v-model="state.addNewDialog"
-            width="500"
-          >
+          <v-dialog v-model="state.addNewDialog" width="500">
             <template #activator="{ on, attrs }">
-              <v-btn
-                color="primary mr-2"
-                depressed
-                v-bind="attrs"
-                v-on="on"
-              >
+              <v-btn color="primary mr-2" depressed v-bind="attrs" v-on="on">
                 Add new
               </v-btn>
             </template>
@@ -65,26 +57,15 @@
               <v-card-actions class="py-4">
                 <v-spacer></v-spacer>
                 <div class="d-flex justify-space-between w-100 px-2">
-                  <v-btn
-                    depressed
-                    @click="closeDialog"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    depressed
-                    color="primary"
-                    @click="addNewQuestion"
-                  >
+                  <v-btn depressed @click="closeDialog"> Cancel </v-btn>
+                  <v-btn depressed color="primary" @click="addNewQuestion">
                     Add
                   </v-btn>
                 </div>
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-btn depressed color="success">
-            Update
-          </v-btn>
+          <v-btn depressed color="success"> Update </v-btn>
         </v-col>
       </v-row>
     </v-col>
@@ -139,7 +120,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from '@nuxtjs/composition-api'
+import {
+  defineComponent,
+  reactive,
+  onMounted,
+  useContext
+} from '@nuxtjs/composition-api'
+import { IRating, IRatingHeader } from '@/interfaces/rating'
 
 export default defineComponent({
   setup() {
@@ -147,63 +134,22 @@ export default defineComponent({
       isEditable: false,
       addNewDialog: false,
       new: {
-        id: '',
+        id: -1,
         order: 0,
         weight: 1,
         question: '',
-        active: true
-      },
+        active: 1
+      } as IRating,
       headers: [
         { text: 'Order', value: 'order', align: 'start', width: '10%' },
         { text: 'Question', value: 'question', sortable: false, width: '65%' },
         { text: 'Weight', value: 'weight', sortable: false, width: '10%' },
         { text: 'Turn on / off', value: 'active', width: '15%' }
-      ],
-      questions: [
-        {
-          id: '84d9cfc2f395ce883a41d7ffc1bbcf4e',
-          order: 1,
-          question: 'How accurate the service with the description?',
-          weight: 4.0,
-          active: true
-        },
-        {
-          id: 'be1dc59314521c5658f5b67182f72d12',
-          order: 2,
-          question: 'Is the seller expert in the job?',
-          weight: 6.5,
-          active: false
-        },
-        {
-          id: 'ad6af03f309dd0dd082d633d110fc0cd',
-          order: 3,
-          question: 'Is the seller professional?',
-          weight: 2.0,
-          active: true
-        },
-        {
-          id: 'b807023f87e63b8ada92f79f546ff9cc',
-          order: 4,
-          question: 'Is the seller work on-time?',
-          weight: 7.0,
-          active: true
-        },
-        {
-          id: '6b744d3016dd0c83e23be5b939dd717a',
-          order: 5,
-          question: 'Is the seller friendly?',
-          weight: 3.5,
-          active: false
-        },
-        {
-          id: '4c35abffe1cec5e9b16189fc0ebff34e',
-          order: 6,
-          question: 'Did the seller help to meet your requirements?',
-          weight: 5.5,
-          active: true
-        }
-      ]
+      ] as IRatingHeader[],
+      questions: [] as IRating[]
     })
+
+    const { $axios } = useContext()
 
     const closeDialog = () => {
       state.addNewDialog = false
@@ -213,6 +159,24 @@ export default defineComponent({
       state.questions.push(state.new)
       closeDialog()
     }
+
+    const getAllRatings = async () => {
+      try {
+        const response: any = await $axios.get('admin/adminrating')
+        const { data, status } = response
+        if (status === 200) {
+          state.questions = [...data]
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const mounted = async () => {
+      await getAllRatings()
+    }
+
+    onMounted(mounted)
 
     return {
       state,
