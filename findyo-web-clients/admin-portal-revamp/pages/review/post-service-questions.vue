@@ -74,9 +74,10 @@
         <v-data-table
           :headers="state.headers"
           :items="state.questions"
-          :items-per-page="5"
+          :items-per-page="10"
           sort-by="order"
           class="elevation-1 w-100"
+          :loading="setLoading"
         >
           <template #[`item.order`]="{ item }">
             <v-text-field
@@ -113,7 +114,38 @@
               :disabled="!state.isEditable"
             ></v-switch>
           </template>
+          <template #[`item.action`]="{ item }">
+            <v-btn
+              class="mx-2"
+              fab
+              dark
+              small
+              color="error"
+              @click="deleteQuestion(item)"
+            >
+              <v-icon dark>
+                mdi-delete
+              </v-icon>
+            </v-btn>
+          </template>
         </v-data-table>
+        <v-dialog v-model="state.dialogDelete" max-width="550px">
+          <v-card>
+            <v-card-title class="text-h5">
+              Are you sure you want to delete this question?
+            </v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete">
+                No
+              </v-btn>
+              <v-btn color="blue darken-1" text @click="deleteConfirm">
+                Yes
+              </v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </client-only>
     </v-col>
   </v-row>
@@ -124,7 +156,8 @@ import {
   defineComponent,
   reactive,
   onMounted,
-  useContext
+  useContext,
+  computed
 } from '@nuxtjs/composition-api'
 import { IRating, IRatingHeader } from '@/interfaces/rating'
 
@@ -142,21 +175,87 @@ export default defineComponent({
       } as IRating,
       headers: [
         { text: 'Order', value: 'order', align: 'start', width: '10%' },
-        { text: 'Question', value: 'question', sortable: false, width: '65%' },
+        { text: 'Question', value: 'question', sortable: false, width: '60%' },
         { text: 'Weight', value: 'weight', sortable: false, width: '10%' },
-        { text: 'Turn on / off', value: 'active', width: '15%' }
+        { text: 'Turn on / off', value: 'active', width: '10%' },
+        { text: 'Actions', value: 'action', width: '10%' }
       ] as IRatingHeader[],
-      questions: [] as IRating[]
+      questions: [] as IRating[],
+      selectedItem: null as IRating | null,
+      dialogDelete: false
     })
 
     const { $axios } = useContext()
+
+    const setLoading = computed(() => {
+      let loading = true
+
+      if (state.questions && state.questions.length > 0) {
+        loading = false
+      }
+
+      return loading
+    })
 
     const closeDialog = () => {
       state.addNewDialog = false
     }
 
-    const addNewQuestion = () => {
-      state.questions.push(state.new)
+    const getMaxOfArray = (numArray: Array<number>) : number => {
+      return Math.max.apply(null, numArray)
+    }
+
+    const deleteQuestion = (question: IRating) => {
+      state.selectedItem = question
+      state.dialogDelete = true
+    }
+
+    const closeDelete = () => {
+      state.selectedItem = null
+      state.dialogDelete = false
+    }
+
+    const deleteConfirm = async () => {
+      try {
+        if (!state.selectedItem) {
+          state.dialogDelete = false
+          return
+        }
+        const req = {
+          url: 'admin/adminrating',
+          method: 'delete',
+          data: {
+            cid: state.selectedItem?.cid,
+            id: state.selectedItem?.id
+          }
+        }
+        // @ts-ignore
+        const response = await $axios.request(req)
+        const { status } = response
+        if (status === 200) {
+          state.questions = state.questions.filter(q => q.id !== state.selectedItem?.id)
+          state.selectedItem = null
+          state.dialogDelete = false
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const addNewQuestion = async () => {
+      try {
+        state.new.order = getMaxOfArray(state.questions.map(({ order }) => order)) + 1
+        const response: any = await $axios.post('admin/adminrating', state.new)
+        const { status, data } = response
+        if (status === 200) {
+          state.new.weight = (Math.round(parseFloat(state.new.weight.toString()) * 100) / 100).toFixed(2)
+          state.new.cid = data.cid
+          state.new.id = data.id
+          state.questions.push(state.new)
+        }
+      } catch (error) {
+        console.error(error)
+      }
       closeDialog()
     }
 
@@ -181,7 +280,11 @@ export default defineComponent({
     return {
       state,
       addNewQuestion,
-      closeDialog
+      closeDialog,
+      setLoading,
+      deleteQuestion,
+      closeDelete,
+      deleteConfirm
     }
   }
 })

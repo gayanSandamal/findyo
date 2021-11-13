@@ -2,7 +2,7 @@ export interface IRating {
   id: number,
   cid: number,
   question?: string | null,
-  weight?: string | number,
+  weight: string | number,
   active: number,
   order: number
 }
