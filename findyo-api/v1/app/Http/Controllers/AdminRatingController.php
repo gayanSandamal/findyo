@@ -16,7 +16,7 @@ class AdminRatingController extends Controller
      */
     public function index()
     {
-        $adminRating = AdminRating::paginate(15)->appends(['sort' => 'order']);
+        $adminRating = AdminRating::all();
         return response()->json($adminRating, 200);
     }
 

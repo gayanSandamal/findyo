@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-data-table
+      :items-per-page="10"
       :headers="state.headers"
       :items="tableData"
       sort-by="calories"
